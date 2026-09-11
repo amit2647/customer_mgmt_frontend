@@ -4,6 +4,9 @@ import { Link } from "react-router-dom";
 import { getLeads } from "../../api/leads";
 import { getCustomers } from "../../api/customers";
 import { getServices } from "../../api/services";
+import LoadingScreen from "../../components/common/LoadingScreen";
+
+import DashboardSkeleton from "../../components/dashboard/DashboardSkeleton";
 
 function DashboardPage() {
   const [leads, setLeads] = useState([]);
@@ -353,29 +356,7 @@ function DashboardPage() {
      ================================================================ */
 
   if (loading) {
-    return (
-      <div className="dashboard-page">
-        <header className="page-header dashboard-header">
-          <div>
-            <span className="eyebrow">CUSTOMER OPERATIONS</span>
-
-            <h1>Dashboard</h1>
-
-            <p>
-              Monitor leads, customers, conversion activity and service demand.
-            </p>
-          </div>
-        </header>
-
-        <div className="dashboard-loading">
-          <div className="dashboard-loading-spinner" />
-
-          <h3>Loading dashboard</h3>
-
-          <p>Fetching the latest customer operations data...</p>
-        </div>
-      </div>
-    );
+    return <DashboardSkeleton />;
   }
 
   /* ================================================================
@@ -778,7 +759,7 @@ function DashboardPage() {
           </div>
 
           <div className="quick-actions-grid">
-            <Link to="/leads" className="quick-action">
+            <Link to="/leads/new" className="quick-action">
               <span className="quick-action-icon">+</span>
 
               <span className="quick-action-content">
@@ -790,7 +771,7 @@ function DashboardPage() {
               <span className="quick-action-arrow">→</span>
             </Link>
 
-            <Link to="/customers" className="quick-action">
+            <Link to="/customers/new" className="quick-action">
               <span className="quick-action-icon">◉</span>
 
               <span className="quick-action-content">
