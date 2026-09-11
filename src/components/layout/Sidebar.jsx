@@ -14,30 +14,41 @@ function Sidebar() {
 
       <nav>
         <NavLink
+          to="/"
+          end
+          className={({ isActive }) => (isActive ? "active" : "")}
+        >
+          <span className="nav-icon">▦</span>
+          <span>Dashboard</span>
+        </NavLink>
+
+        <NavLink
           to="/leads"
           className={({ isActive }) => (isActive ? "active" : "")}
         >
-          ◈ <span>Leads</span>
+          <span className="nav-icon">◈</span>
+          <span>Leads</span>
         </NavLink>
 
         <NavLink
           to="/customers"
           className={({ isActive }) => (isActive ? "active" : "")}
         >
-          ◉ <span>Customers</span>
+          <span className="nav-icon">◉</span>
+          <span>Customers</span>
         </NavLink>
 
         <NavLink
           to="/services"
           className={({ isActive }) => (isActive ? "active" : "")}
         >
-          ⚙ <span>Services</span>
+          <span className="nav-icon">⚙</span>
+          <span>Services</span>
         </NavLink>
       </nav>
 
       <div className="side-note">
-        <b>Service FC</b>
-        <br />
+        <b>SOA</b>
       </div>
     </aside>
   );
