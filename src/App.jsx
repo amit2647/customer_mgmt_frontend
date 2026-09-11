@@ -6,12 +6,16 @@ import LeadsPage from "./pages/Leads/LeadsPage";
 import CustomersPage from "./pages/Customers/CustomersPage";
 import ServicesPage from "./pages/Services/ServicesPage";
 import NotFoundPage from "./pages/NotFound/NotFoundPage";
+import DashboardPage from "./pages/Dashboard/DashboardPage";
 
 function App() {
   return (
     <Routes>
       <Route element={<AppLayout />}>
-        <Route path="/" element={<Navigate to="/leads" replace />} />
+        {/* Dashboard is now the application home page */}
+        <Route path="/" element={<DashboardPage />} />
+
+        <Route path="/dashboard" element={<DashboardPage />} />
 
         <Route path="/leads" element={<LeadsPage />} />
 

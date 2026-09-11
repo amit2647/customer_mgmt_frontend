@@ -1,54 +1,90 @@
 import { NavLink } from "react-router-dom";
 
 function Sidebar() {
-  return (
-    <aside>
-      <div className="brand">
-        <div className="logo">OC</div>
+  const navigationClass = ({ isActive }) =>
+    `sidebar-link${isActive ? " active" : ""}`;
 
-        <div>
-          <b>OmniCore</b>
+  return (
+    <aside className="sidebar">
+      {/* ============================================================
+          BRAND
+          ============================================================ */}
+
+      <div className="sidebar-brand">
+        <div className="brand-mark">OC</div>
+
+        <div className="brand-copy">
+          <strong>OmniCore</strong>
+
           <span>Customer Platform</span>
         </div>
       </div>
 
-      <nav>
-        <NavLink
-          to="/"
-          end
-          className={({ isActive }) => (isActive ? "active" : "")}
-        >
-          <span className="nav-icon">▦</span>
+      <nav className="sidebar-nav" aria-label="Overview">
+        <NavLink to="/" end className={navigationClass}>
+          <span className="sidebar-icon" aria-hidden="true">
+            ▦
+          </span>
+
           <span>Dashboard</span>
         </NavLink>
+      </nav>
+      <nav className="sidebar-nav" aria-label="Management">
+        <NavLink to="/leads" className={navigationClass}>
+          <span className="sidebar-icon" aria-hidden="true">
+            ◈
+          </span>
 
-        <NavLink
-          to="/leads"
-          className={({ isActive }) => (isActive ? "active" : "")}
-        >
-          <span className="nav-icon">◈</span>
           <span>Leads</span>
         </NavLink>
 
-        <NavLink
-          to="/customers"
-          className={({ isActive }) => (isActive ? "active" : "")}
-        >
-          <span className="nav-icon">◉</span>
+        <NavLink to="/customers" className={navigationClass}>
+          <span className="sidebar-icon" aria-hidden="true">
+            ◉
+          </span>
+
           <span>Customers</span>
         </NavLink>
 
-        <NavLink
-          to="/services"
-          className={({ isActive }) => (isActive ? "active" : "")}
-        >
-          <span className="nav-icon">⚙</span>
+        <NavLink to="/services" className={navigationClass}>
+          <span className="sidebar-icon" aria-hidden="true">
+            ⚙
+          </span>
+
           <span>Services</span>
         </NavLink>
       </nav>
 
-      <div className="side-note">
-        <b>SOA</b>
+      {/* ============================================================
+          FLEXIBLE SPACE
+          ============================================================ */}
+
+      <div className="sidebar-spacer" />
+
+      {/* ============================================================
+          SYSTEM STATUS
+          ============================================================ */}
+
+      <div className="sidebar-system-card">
+        <div className="system-card-icon">S</div>
+
+        <div>
+          <strong>SOA Platform</strong>
+
+          <span>Gateway connected</span>
+        </div>
+
+        <span className="system-status" aria-label="System online" />
+      </div>
+
+      {/* ============================================================
+          FOOTER
+          ============================================================ */}
+
+      <div className="sidebar-footer">
+        <span>OmniCore</span>
+
+        <span>v1.0</span>
       </div>
     </aside>
   );
