@@ -1,0 +1,15 @@
+{
+    "scripts": {
+        "dev": "vite --host 0.0.0.0",
+        "build": "vite",
+        "start": "vite --host 0.0.0.0 --port 3000"
+    },
+    "dependencies": {
+        "@vitejs/plugin-react": "latest",
+        "react": "latest",
+        "react-dom": "latest",
+        "react-router-dom": "latest",
+        "vite": "latest"
+    },
+    "devDependencies": {}
+}

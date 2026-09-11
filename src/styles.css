@@ -1,0 +1,1258 @@
+/* =========================================================
+   OMNICORE CUSTOMER PLATFORM
+   Global Application Styles
+   ========================================================= */
+
+
+/* =========================================================
+   1. GLOBAL RESET
+   ========================================================= */
+
+/*
+ * Apply border-box sizing to every element.
+ * This makes width/height calculations much easier to manage.
+ */
+* {
+    box-sizing: border-box;
+}
+
+
+/*
+ * Base page styling.
+ */
+html,
+body,
+#root {
+    min-height: 100%;
+}
+
+body {
+    margin: 0;
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system,
+        BlinkMacSystemFont, "Segoe UI", sans-serif;
+
+    background: #f5f7fb;
+    color: #172033;
+}
+
+
+/*
+ * Make form controls inherit the application's font.
+ */
+button,
+input,
+select,
+textarea {
+    font-family: inherit;
+}
+
+
+/* =========================================================
+   2. APPLICATION LAYOUT
+   ========================================================= */
+
+/*
+ * Main application wrapper.
+ *
+ * Sidebar stays on the left.
+ * Main content takes the remaining width.
+ */
+.app {
+    display: flex;
+    min-height: 100vh;
+}
+
+
+/* =========================================================
+   3. SIDEBAR
+   ========================================================= */
+
+aside {
+    width: 245px;
+    min-width: 245px;
+
+    background: #101827;
+    color: #dbe4f0;
+
+    padding: 22px 16px;
+
+    display: flex;
+    flex-direction: column;
+}
+
+
+/*
+ * OmniCore brand section.
+ */
+.brand {
+    display: flex;
+    gap: 11px;
+    align-items: center;
+
+    padding: 6px 10px 30px;
+}
+
+
+/*
+ * Main brand name.
+ */
+.brand b {
+    display: block;
+
+    color: #ffffff;
+    font-size: 17px;
+}
+
+
+/*
+ * Brand subtitle.
+ */
+.brand span {
+    display: block;
+
+    margin-top: 2px;
+
+    font-size: 11px;
+    color: #8ea0b8;
+}
+
+
+/*
+ * OmniCore logo.
+ */
+.logo {
+    width: 34px;
+    height: 34px;
+
+    border-radius: 9px;
+
+    background: #ffffff;
+    color: #101827;
+
+    display: grid;
+    place-items: center;
+
+    font-weight: 800;
+}
+
+
+/* =========================================================
+   4. SIDEBAR NAVIGATION
+   ========================================================= */
+
+nav {
+    display: grid;
+    gap: 6px;
+}
+
+
+/*
+ * Navigation links.
+ */
+nav a {
+    display: block;
+
+    border: 0;
+    background: transparent;
+
+    color: #9cafc5;
+
+    text-align: left;
+
+    padding: 12px;
+
+    border-radius: 8px;
+
+    font-size: 14px;
+
+    cursor: pointer;
+    text-decoration: none;
+
+    transition:
+        background 0.15s ease,
+        color 0.15s ease;
+}
+
+
+/*
+ * Navigation hover state.
+ */
+nav a:hover {
+    background: #19263a;
+    color: #ffffff;
+}
+
+
+/*
+ * Currently selected page.
+ */
+nav a.active {
+    background: #233149;
+    color: #ffffff;
+}
+
+
+/* =========================================================
+   5. SIDEBAR INFORMATION BOX
+   ========================================================= */
+
+.side-note {
+    margin-top: auto;
+
+    border: 1px solid #29374d;
+    border-radius: 10px;
+
+    padding: 12px;
+
+    font-size: 11px;
+    line-height: 1.5;
+
+    color: #8394aa;
+}
+
+
+/* =========================================================
+   6. MAIN CONTENT AREA
+   ========================================================= */
+
+main {
+    flex: 1;
+
+    min-width: 0;
+
+    padding: 34px 42px;
+}
+
+
+/* =========================================================
+   7. PAGE HEADER
+   ========================================================= */
+
+header {
+    display: flex;
+
+    justify-content: space-between;
+    align-items: center;
+
+    gap: 20px;
+}
+
+
+h1 {
+    margin: 0 0 5px;
+
+    font-size: 28px;
+    font-weight: 700;
+
+    letter-spacing: -0.02em;
+}
+
+
+header p {
+    margin: 0;
+
+    color: #738096;
+
+    font-size: 14px;
+}
+
+
+/* =========================================================
+   8. PRIMARY BUTTON
+   ========================================================= */
+
+.primary {
+    background: #172033;
+    color: #ffffff;
+
+    border: 0;
+    border-radius: 8px;
+
+    padding: 11px 16px;
+
+    font-size: 13px;
+    font-weight: 650;
+
+    cursor: pointer;
+
+    white-space: nowrap;
+
+    transition:
+        background 0.15s ease,
+        transform 0.1s ease;
+}
+
+
+.primary:hover {
+    background: #26344a;
+}
+
+
+.primary:active {
+    transform: translateY(1px);
+}
+
+
+.primary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+
+/* =========================================================
+   9. SEARCH / TOOLBAR
+   ========================================================= */
+
+.toolbar {
+    display: flex;
+
+    gap: 15px;
+
+    align-items: center;
+
+    margin: 28px 0 12px;
+}
+
+
+/*
+ * Search input.
+ */
+.toolbar input {
+    width: 360px;
+    max-width: 100%;
+
+    border: 1px solid #dce2eb;
+    border-radius: 8px;
+
+    padding: 11px 13px;
+
+    background: #ffffff;
+
+    color: #172033;
+
+    font-size: 13px;
+
+    outline: none;
+
+    transition:
+        border-color 0.15s ease,
+        box-shadow 0.15s ease;
+}
+
+
+.toolbar input:focus {
+    border-color: #9eabc0;
+
+    box-shadow: 0 0 0 3px #e9edf4;
+}
+
+
+/*
+ * Result count beside search box.
+ */
+.toolbar span {
+    color: #78859a;
+    font-size: 13px;
+}
+
+
+/* =========================================================
+   10. DATA CARD
+   ========================================================= */
+
+.card {
+    background: #ffffff;
+
+    border: 1px solid #e3e8f0;
+
+    border-radius: 12px;
+
+    overflow: hidden;
+}
+
+
+/* =========================================================
+   11. TABLE
+   ========================================================= */
+
+table {
+    width: 100%;
+
+    border-collapse: collapse;
+}
+
+
+/*
+ * Table cells.
+ */
+th,
+td {
+    text-align: left;
+
+    padding: 15px 18px;
+
+    border-bottom: 1px solid #edf0f5;
+
+    font-size: 13px;
+
+    vertical-align: middle;
+}
+
+
+/*
+ * Table headings.
+ */
+th {
+    font-size: 11px;
+
+    text-transform: uppercase;
+
+    color: #7c899c;
+
+    letter-spacing: 0.05em;
+
+    background: #fafbfd;
+
+    font-weight: 650;
+}
+
+
+/*
+ * Remove bottom border from final row.
+ */
+tr:last-child td {
+    border-bottom: 0;
+}
+
+
+/*
+ * Slight row hover effect.
+ */
+tbody tr:hover {
+    background: #fafbfd;
+}
+
+
+/* =========================================================
+   12. PILLS
+   ========================================================= */
+
+.pill,
+.status {
+    display: inline-block;
+
+    border-radius: 99px;
+
+    padding: 4px 8px;
+
+    font-size: 11px;
+
+    line-height: 1.2;
+}
+
+
+/*
+ * Generic pill.
+ */
+.pill {
+    background: #eef2f7;
+    color: #536176;
+}
+
+
+/* =========================================================
+   13. LEAD STATUS
+   ========================================================= */
+
+.status {
+    background: #eef2f7;
+}
+
+
+/*
+ * Qualified lead.
+ */
+.status.qualified {
+    background: #e7f6ed;
+    color: #19733e;
+}
+
+
+/*
+ * New lead.
+ */
+.status.new {
+    background: #edf3ff;
+    color: #315f9d;
+}
+
+
+/*
+ * Lost lead.
+ */
+.status.lost {
+    background: #fdecec;
+    color: #a33;
+}
+
+
+/*
+ * Converted lead.
+ */
+.status.converted {
+    background: #e7f6ed;
+    color: #19733e;
+}
+
+
+/*
+ * Contacted lead.
+ */
+.status.contacted {
+    background: #fff4df;
+    color: #8a5a00;
+}
+
+
+/* =========================================================
+   14. TABLE ACTION LINKS
+   ========================================================= */
+
+.link {
+    border: 0;
+
+    background: none;
+
+    color: #2b63c0;
+
+    cursor: pointer;
+
+    font-size: 13px;
+
+    padding: 0;
+}
+
+
+.link:hover {
+    text-decoration: underline;
+}
+
+
+/*
+ * Multiple actions in the same table cell.
+ */
+.table-actions {
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+}
+
+
+/*
+ * Convert action.
+ */
+.convert-link {
+    color: #19733e;
+}
+
+
+/*
+ * Delete action.
+ */
+.delete-link {
+    color: #b42318;
+}
+
+
+.delete-link:hover {
+    color: #8f1d14;
+}
+
+
+/* =========================================================
+   15. EMPTY / LOADING STATE
+   ========================================================= */
+
+.empty {
+    padding: 50px;
+
+    text-align: center;
+
+    color: #8793a5;
+
+    font-size: 13px;
+}
+
+
+/* =========================================================
+   16. MODAL
+   ========================================================= */
+
+/*
+ * Full-screen modal backdrop.
+ */
+.modal {
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 1000;
+
+    background: #0006;
+
+    display: grid;
+
+    place-items: center;
+
+    padding: 20px;
+}
+
+
+/*
+ * Modal form container.
+ */
+.modal form {
+    width: 430px;
+
+    max-width: 100%;
+
+    max-height: calc(100vh - 40px);
+
+    overflow-y: auto;
+
+    background: #ffffff;
+
+    border-radius: 12px;
+
+    padding: 22px;
+
+    box-shadow: 0 20px 60px #0003;
+}
+
+
+/* =========================================================
+   17. MODAL HEADER
+   ========================================================= */
+
+.modal-head {
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    margin-bottom: 15px;
+}
+
+
+.modal-head h2 {
+    margin: 0;
+
+    font-size: 20px;
+
+    letter-spacing: -0.01em;
+}
+
+
+/*
+ * Modal close button.
+ */
+.modal-head button {
+    border: 0;
+
+    background: none;
+
+    color: #6f7b8d;
+
+    font-size: 25px;
+
+    line-height: 1;
+
+    cursor: pointer;
+
+    padding: 2px 4px;
+}
+
+
+.modal-head button:hover {
+    color: #172033;
+}
+
+
+/* =========================================================
+   18. MODAL FORM FIELDS
+   ========================================================= */
+
+.modal label {
+    display: block;
+
+    font-size: 12px;
+
+    font-weight: 650;
+
+    margin: 12px 0;
+}
+
+
+/*
+ * Standard modal form controls.
+ */
+.modal input,
+.modal select,
+.modal textarea {
+    display: block;
+
+    width: 100%;
+
+    padding: 10px;
+
+    margin-top: 6px;
+
+    border: 1px solid #dce2eb;
+
+    border-radius: 7px;
+
+    background: #ffffff;
+
+    color: #172033;
+
+    font-size: 13px;
+
+    outline: none;
+
+    transition:
+        border-color 0.15s ease,
+        box-shadow 0.15s ease;
+}
+
+
+/*
+ * Textarea-specific styling.
+ */
+.modal textarea {
+    min-height: 90px;
+
+    resize: vertical;
+
+    line-height: 1.45;
+}
+
+
+/*
+ * Form field focus state.
+ */
+.modal input:focus,
+.modal select:focus,
+.modal textarea:focus {
+    border-color: #9eabc0;
+
+    box-shadow: 0 0 0 3px #edf1f6;
+}
+
+
+/*
+ * Primary button inside modal.
+ */
+.modal .primary {
+    width: 100%;
+
+    margin-top: 12px;
+}
+
+
+/* =========================================================
+   19. SERVICE SELECTION
+   ========================================================= */
+
+/*
+ * Container used inside Lead and Customer forms.
+ */
+.service-field {
+    margin-top: 18px;
+
+    margin-bottom: 20px;
+}
+
+
+/*
+ * Service section title and selected count.
+ */
+.service-field-head {
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    margin-bottom: 10px;
+}
+
+
+.service-field-head label {
+    margin: 0;
+
+    font-weight: 650;
+}
+
+
+.service-field-head span {
+    font-size: 11px;
+
+    color: #78859a;
+
+    font-weight: 500;
+}
+
+
+/*
+ * List of available services.
+ */
+.service-list {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 7px;
+
+    max-height: 210px;
+
+    overflow-y: auto;
+
+    padding: 2px;
+}
+
+
+/*
+ * Individual service selection row.
+ */
+.service-item {
+    display: flex;
+
+    align-items: flex-start;
+
+    gap: 10px;
+
+    padding: 10px 11px;
+
+    border: 1px solid #dce2eb;
+
+    border-radius: 7px;
+
+    background: #ffffff;
+
+    cursor: pointer;
+
+    transition:
+        border-color 0.15s ease,
+        background 0.15s ease;
+}
+
+
+/*
+ * Hover state.
+ */
+.service-item:hover {
+    border-color: #aeb9c8;
+}
+
+
+/*
+ * Selected service.
+ */
+.service-item.selected {
+    border-color: #9eb8df;
+
+    background: #f3f7fd;
+}
+
+
+/*
+ * Checkbox itself.
+ */
+.service-item input {
+    width: auto;
+
+    margin: 2px 0 0;
+
+    padding: 0;
+
+    box-shadow: none;
+}
+
+
+/*
+ * Service information.
+ */
+.service-item-info {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 2px;
+
+    min-width: 0;
+}
+
+
+.service-item-info strong {
+    font-size: 12px;
+
+    color: #172033;
+}
+
+
+.service-item-info small {
+    color: #78859a;
+
+    font-size: 10px;
+
+    line-height: 1.35;
+}
+
+
+/*
+ * Displayed when there are no active services.
+ */
+.service-empty {
+    padding: 12px;
+
+    border: 1px dashed #dce2eb;
+
+    border-radius: 7px;
+
+    color: #8793a5;
+
+    background: #fafbfd;
+
+    font-size: 12px;
+
+    line-height: 1.4;
+}
+
+
+/* =========================================================
+   20. SERVICE BADGES IN LEAD / CUSTOMER TABLES
+   ========================================================= */
+
+/*
+ * Container for multiple service badges.
+ */
+.service-badges {
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: 5px;
+
+    max-width: 260px;
+}
+
+
+/*
+ * Individual mapped service.
+ */
+.service-badge {
+    display: inline-flex;
+
+    align-items: center;
+
+    padding: 4px 7px;
+
+    border-radius: 99px;
+
+    background: #eef2f7;
+
+    color: #536176;
+
+    border: 1px solid #e0e5ec;
+
+    font-size: 10px;
+
+    font-weight: 600;
+
+    line-height: 1.2;
+
+    white-space: nowrap;
+}
+
+
+/*
+ * Used when a lead/customer has no services.
+ */
+.muted {
+    color: #9aa4b3;
+
+    font-size: 11px;
+}
+
+
+/* =========================================================
+   21. SERVICE TABLE DESCRIPTION
+   ========================================================= */
+
+.service-description {
+    color: #596579;
+
+    line-height: 1.4;
+
+    max-width: 350px;
+}
+
+
+/* =========================================================
+   22. SERVICE STATUS
+   ========================================================= */
+
+/*
+ * Active service.
+ */
+.status.active {
+    background: #e7f6ed;
+
+    color: #19733e;
+}
+
+
+/*
+ * Inactive service.
+ */
+.status.inactive {
+    background: #fdecec;
+
+    color: #a33;
+}
+
+
+/* =========================================================
+   23. SERVICE CATEGORY
+   ========================================================= */
+
+/*
+ * Service categories use the same visual treatment
+ * as customer segments.
+ */
+.category-badge {
+    display: inline-block;
+
+    border-radius: 99px;
+
+    padding: 4px 8px;
+
+    background: #eef2f7;
+
+    color: #536176;
+
+    font-size: 11px;
+}
+
+
+/* =========================================================
+   24. SCROLLBAR
+   ========================================================= */
+
+/*
+ * Subtle scrollbar for service selection lists.
+ */
+.service-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+
+.service-list::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+
+.service-list::-webkit-scrollbar-thumb {
+    background: #d5dce6;
+
+    border-radius: 99px;
+}
+
+
+.service-list::-webkit-scrollbar-thumb:hover {
+    background: #b9c3d1;
+}
+
+
+/* =========================================================
+   25. RESPONSIVE DESIGN
+   ========================================================= */
+
+/*
+ * Tablet layout.
+ */
+@media (max-width: 900px) {
+    aside {
+        width: 210px;
+        min-width: 210px;
+    }
+
+    main {
+        padding: 28px;
+    }
+
+    .toolbar input {
+        width: 300px;
+    }
+
+    th,
+    td {
+        padding: 13px 14px;
+    }
+}
+
+
+/*
+ * Mobile layout.
+ */
+@media (max-width: 700px) {
+    .app {
+        flex-direction: column;
+    }
+
+
+    /*
+     * Sidebar becomes a horizontal top navigation.
+     */
+    aside {
+        width: 100%;
+        min-width: 0;
+
+        padding: 12px;
+    }
+
+
+    .brand {
+        padding: 6px 8px 14px;
+    }
+
+
+    nav {
+        display: flex;
+
+        gap: 5px;
+
+        overflow-x: auto;
+    }
+
+
+    nav a {
+        white-space: nowrap;
+
+        padding: 9px 11px;
+
+        font-size: 13px;
+    }
+
+
+    .side-note {
+        display: none;
+    }
+
+
+    main {
+        padding: 22px 16px;
+    }
+
+
+    /*
+     * Stack page header on small screens.
+     */
+    header {
+        align-items: flex-start;
+
+        flex-direction: column;
+    }
+
+
+    header .primary {
+        width: 100%;
+    }
+
+
+    h1 {
+        font-size: 24px;
+    }
+
+
+    /*
+     * Stack search toolbar.
+     */
+    .toolbar {
+        align-items: stretch;
+
+        flex-direction: column;
+
+        margin-top: 20px;
+    }
+
+
+    .toolbar input {
+        width: 100%;
+    }
+
+
+    /*
+     * Allow tables to scroll horizontally.
+     */
+    .card {
+        overflow-x: auto;
+    }
+
+
+    table {
+        min-width: 750px;
+    }
+
+
+    /*
+     * Make modal slightly narrower.
+     */
+    .modal {
+        padding: 12px;
+    }
+
+
+    .modal form {
+        width: 100%;
+
+        max-height: calc(100vh - 24px);
+
+        padding: 18px;
+    }
+}
+
+
+/* =========================================================
+   26. SMALL MOBILE DEVICES
+   ========================================================= */
+
+@media (max-width: 450px) {
+    main {
+        padding: 18px 12px;
+    }
+
+
+    .brand {
+        padding-left: 4px;
+    }
+
+
+    .logo {
+        width: 32px;
+        height: 32px;
+    }
+
+
+    .modal form {
+        border-radius: 10px;
+    }
+
+
+    .service-badges {
+        max-width: 220px;
+    }
+}
