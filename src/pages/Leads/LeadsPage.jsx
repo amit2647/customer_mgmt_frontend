@@ -1,29 +1,17 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-import {
-  createLead,
-  getLeads,
-  updateLead,
-  updateLeadServices,
-  deleteLead,
-  convertLead,
-} from "../../api/leads";
+import { getLeads, deleteLead, convertLead } from "../../api/leads";
 
 import SearchBar from "../../components/common/SearchBar";
 import EmptyState from "../../components/common/EmptyState";
-
 import LeadTable from "../../components/leads/LeadTable";
-import LeadForm from "../../components/leads/LeadForm";
 
 function LeadsPage() {
+  const navigate = useNavigate();
+
   const [leads, setLeads] = useState([]);
-
   const [query, setQuery] = useState("");
-
-  const [showForm, setShowForm] = useState(false);
-
-  const [editingLead, setEditingLead] = useState(null);
-
   const [loading, setLoading] = useState(false);
 
   /*
@@ -52,77 +40,27 @@ function LeadsPage() {
 
   /*
    * =========================================================
-   * CREATE / UPDATE LEAD
+   * CREATE
    * =========================================================
    */
 
-  async function handleSubmit(data) {
-    try {
-      /*
-       * CREATE
-       *
-       * POST /leads accepts serviceIds,
-       * so everything can be sent together.
-       */
-      if (!editingLead) {
-        await createLead(data);
-      } else {
-
-      /*
-       * UPDATE
-       *
-       * Separate normal lead fields from service mappings.
-       */
-        const { serviceIds = [], ...leadData } = data;
-
-        /*
-         * Update lead information.
-         */
-        await updateLead(editingLead.id, leadData);
-
-        /*
-         * Replace service mappings.
-         */
-        await updateLeadServices(editingLead.id, serviceIds);
-      }
-
-      /*
-       * Close modal.
-       */
-      setShowForm(false);
-
-      setEditingLead(null);
-
-      /*
-       * Refresh table.
-       */
-      await loadLeads();
-    } catch (error) {
-      console.error("Failed to save lead:", error);
-
-      alert(error.message || "Failed to save lead.");
-    }
+  function handleCreate() {
+    navigate("/leads/new");
   }
 
   /*
    * =========================================================
-   * EDIT LEAD
+   * EDIT
    * =========================================================
    */
 
   function handleEdit(lead) {
-    /*
-     * The list endpoint now returns services,
-     * so we can pass the lead directly to LeadForm.
-     */
-    setEditingLead(lead);
-
-    setShowForm(true);
+    navigate(`/leads/${lead.id}/edit`);
   }
 
   /*
    * =========================================================
-   * DELETE LEAD
+   * DELETE
    * =========================================================
    */
 
@@ -131,7 +69,9 @@ function LeadsPage() {
       "Are you sure you want to delete this lead?",
     );
 
-    if (!confirmed) return;
+    if (!confirmed) {
+      return;
+    }
 
     try {
       await deleteLead(id);
@@ -146,14 +86,16 @@ function LeadsPage() {
 
   /*
    * =========================================================
-   * CONVERT LEAD
+   * CONVERT
    * =========================================================
    */
 
   async function handleConvert(id) {
-    const confirmed = window.confirm("Convert this lead?");
+    const confirmed = window.confirm("Convert this lead into a customer?");
 
-    if (!confirmed) return;
+    if (!confirmed) {
+      return;
+    }
 
     try {
       await convertLead(id);
@@ -166,46 +108,29 @@ function LeadsPage() {
     }
   }
 
-  /*
-   * =========================================================
-   * CLOSE FORM
-   * =========================================================
-   */
-
-  function handleCloseForm() {
-    setShowForm(false);
-
-    setEditingLead(null);
-  }
-
   return (
-    <>
-      {/* =========================
-          Page Header
-          ========================= */}
+    <div className="leads-page">
+      {/* =====================================================
+          PAGE HEADER
+          ===================================================== */}
 
-      <header>
+      <header className="page-header">
         <div>
+          {/* <span className="page-eyebrow">CUSTOMER ACQUISITION</span> */}
+
           <h1>Leads</h1>
 
           <p>Manage prospects across every customer touchpoint.</p>
         </div>
 
-        <button
-          className="primary"
-          onClick={() => {
-            setEditingLead(null);
-
-            setShowForm(true);
-          }}
-        >
+        <button type="button" className="primary" onClick={handleCreate}>
           + Add Lead
         </button>
       </header>
 
-      {/* =========================
-          Search
-          ========================= */}
+      {/* =====================================================
+          SEARCH
+          ===================================================== */}
 
       <SearchBar
         value={query}
@@ -214,9 +139,9 @@ function LeadsPage() {
         count={leads.length}
       />
 
-      {/* =========================
-          Lead Content
-          ========================= */}
+      {/* =====================================================
+          CONTENT
+          ===================================================== */}
 
       {loading ? (
         <div className="empty">Loading leads...</div>
@@ -230,19 +155,7 @@ function LeadsPage() {
           onConvert={handleConvert}
         />
       )}
-
-      {/* =========================
-          Lead Modal
-          ========================= */}
-
-      {showForm && (
-        <LeadForm
-          lead={editingLead}
-          onSubmit={handleSubmit}
-          onClose={handleCloseForm}
-        />
-      )}
-    </>
+    </div>
   );
 }
 

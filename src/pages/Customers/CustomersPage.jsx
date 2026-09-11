@@ -1,36 +1,26 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-import {
-  createCustomer,
-  getCustomers,
-  updateCustomer,
-  updateCustomerServices,
-  deleteCustomer,
-} from "../../api/customers";
+import { getCustomers, deleteCustomer } from "../../api/customers";
 
 import SearchBar from "../../components/common/SearchBar";
 import EmptyState from "../../components/common/EmptyState";
 
 import CustomerTable from "../../components/customers/CustomerTable";
-import CustomerForm from "../../components/customers/CustomerForm";
 
 function CustomersPage() {
+  const navigate = useNavigate();
+
   const [customers, setCustomers] = useState([]);
-
   const [query, setQuery] = useState("");
-
-  const [showForm, setShowForm] = useState(false);
-
-  const [editingCustomer, setEditingCustomer] = useState(null);
-
   const [loading, setLoading] = useState(false);
 
   /*
-   * Load customers from the API.
-   *
-   * The customer service now returns the assigned
-   * services along with each customer.
+   * =========================================================
+   * LOAD CUSTOMERS
+   * =========================================================
    */
+
   async function loadCustomers() {
     try {
       setLoading(true);
@@ -47,79 +37,36 @@ function CustomersPage() {
     }
   }
 
-  /*
-   * Reload whenever the search query changes.
-   */
   useEffect(() => {
     loadCustomers();
   }, [query]);
 
   /*
-   * Create / Update customer
-   *
-   * Customer information and service mappings are
-   * handled separately.
+   * =========================================================
+   * CREATE
+   * =========================================================
    */
-  async function handleSubmit(data) {
-    try {
-      /*
-       * Extract serviceIds from the form.
-       *
-       * serviceIds belong to customer_services,
-       * not the customers table.
-       */
-      const { serviceIds = [], ...customerData } = data;
 
-      if (editingCustomer) {
-        /*
-         * 1. Update normal customer information.
-         */
-        await updateCustomer(editingCustomer.id, customerData);
-
-        /*
-         * 2. Replace the customer's service mappings.
-         */
-        await updateCustomerServices(editingCustomer.id, serviceIds);
-      } else {
-        /*
-         * During creation the backend supports creating
-         * the customer and its initial service mappings
-         * in one transaction.
-         */
-        await createCustomer({
-          ...customerData,
-          serviceIds,
-        });
-      }
-
-      /*
-       * Close modal.
-       */
-      setShowForm(false);
-      setEditingCustomer(null);
-
-      /*
-       * Refresh customer list.
-       */
-      await loadCustomers();
-    } catch (error) {
-      console.error("Failed to save customer:", error);
-
-      alert(error.message || "Failed to save customer.");
-    }
+  function handleCreate() {
+    navigate("/customers/new");
   }
 
   /*
-   * Open customer in edit mode.
+   * =========================================================
+   * EDIT
+   * =========================================================
    */
+
   function handleEdit(customer) {
-    setEditingCustomer(customer);
-    setShowForm(true);
+    navigate(`/customers/${customer.id}/edit`);
   }
 
   /*
-   * Delete customer.
+   * =========================================================
+   * DELETE
+   * =========================================================
    */
+
   async function handleDelete(id) {
     const confirmed = window.confirm(
       "Are you sure you want to delete this customer?",
@@ -140,33 +87,29 @@ function CustomersPage() {
     }
   }
 
-  /*
-   * Close customer form.
-   */
-  function handleCloseForm() {
-    setShowForm(false);
-    setEditingCustomer(null);
-  }
-
   return (
-    <>
-      <header>
+    <div className="customers-page">
+      {/* =====================================================
+          PAGE HEADER
+          ===================================================== */}
+
+      <header className="page-header">
         <div>
+          {/* <span className="page-eyebrow">CUSTOMER MANAGEMENT</span> */}
+
           <h1>Customers</h1>
 
           <p>Manage your customers across every customer touchpoint.</p>
         </div>
 
-        <button
-          className="primary"
-          onClick={() => {
-            setEditingCustomer(null);
-            setShowForm(true);
-          }}
-        >
+        <button type="button" className="primary" onClick={handleCreate}>
           + Add Customer
         </button>
       </header>
+
+      {/* =====================================================
+          SEARCH
+          ===================================================== */}
 
       <SearchBar
         value={query}
@@ -174,6 +117,10 @@ function CustomersPage() {
         placeholder="Search customers..."
         count={customers.length}
       />
+
+      {/* =====================================================
+          CONTENT
+          ===================================================== */}
 
       {loading ? (
         <div className="empty">Loading customers...</div>
@@ -186,15 +133,7 @@ function CustomersPage() {
           onDelete={handleDelete}
         />
       )}
-
-      {showForm && (
-        <CustomerForm
-          customer={editingCustomer}
-          onSubmit={handleSubmit}
-          onClose={handleCloseForm}
-        />
-      )}
-    </>
+    </div>
   );
 }
 

@@ -459,10 +459,10 @@ function DashboardPage() {
             {refreshing ? "Refreshing..." : "Refresh"}
           </button>
 
-          <Link to="/leads" className="btn btn-primary">
+          {/* <Link to="/leads" className="btn btn-primary">
             <span>+</span>
             Add Lead
-          </Link>
+          </Link> */}
         </div>
       </header>
 
