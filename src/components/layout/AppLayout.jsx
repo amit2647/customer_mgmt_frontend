@@ -69,14 +69,14 @@ function AppLayout() {
               ======================================================= */}
 
           <div className="global-header-right">
-            <button
+            {/* <button
               type="button"
               className="header-icon-button"
               aria-label="Notifications"
               title="Notifications"
             >
               ♢
-            </button>
+            </button> */}
 
             <div className="header-divider" />
 

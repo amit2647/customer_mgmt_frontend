@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Routes, Route } from "react-router-dom";
 
 import SplashScreen from "./components/common/SplashScreen";
+import OnboardingScreen from "./components/common/OnboardingScreen";
 
 import AppLayout from "./components/layout/AppLayout";
 
@@ -18,8 +19,24 @@ import ServicesPage from "./pages/Services/ServicesPage";
 function App() {
   const [showSplash, setShowSplash] = useState(true);
 
+  const [showOnboarding, setShowOnboarding] = useState(() => {
+    return localStorage.getItem("omnicore-onboarding-completed") !== "true";
+  });
+
+  function handleSplashComplete() {
+    setShowSplash(false);
+  }
+
+  function handleOnboardingComplete() {
+    setShowOnboarding(false);
+  }
+
   if (showSplash) {
-    return <SplashScreen onComplete={() => setShowSplash(false)} />;
+    return <SplashScreen onComplete={handleSplashComplete} />;
+  }
+
+  if (showOnboarding) {
+    return <OnboardingScreen onComplete={handleOnboardingComplete} />;
   }
 
   return (
