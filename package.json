@@ -9,7 +9,8 @@
         "react": "latest",
         "react-dom": "latest",
         "react-router-dom": "latest",
-        "vite": "latest"
+        "vite": "latest",
+        "jwt-decode": "^4.0.0"
     },
     "devDependencies": {}
 }

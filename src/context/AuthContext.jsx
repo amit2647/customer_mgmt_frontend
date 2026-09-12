@@ -6,6 +6,8 @@ import {
   useState,
 } from "react";
 
+import { jwtDecode } from "jwt-decode";
+
 import {
   getCurrentUser,
   hasSession,
@@ -14,6 +16,21 @@ import {
 } from "../api/auth";
 
 const AuthContext = createContext(null);
+
+function getUserFromToken() {
+  const token = localStorage.getItem("omnicore_access_token");
+
+  if (!token) {
+    return null;
+  }
+
+  try {
+    return jwtDecode(token);
+  } catch (error) {
+    console.error("Failed to decode authentication token:", error);
+    return null;
+  }
+}
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
@@ -27,11 +44,19 @@ export function AuthProvider({ children }) {
     }
 
     try {
+      const tokenUser = getUserFromToken();
+
       const data = await getCurrentUser();
 
       console.log("Authenticated user:", data);
+      console.log("Authenticated user from token:", tokenUser);
 
-      setUser(data?.user || data);
+      const resolvedUser = {
+        ...tokenUser,
+        ...(data?.user || data),
+      };
+
+      setUser(resolvedUser);
     } catch (error) {
       console.error("Failed to restore authentication session:", error);
 
@@ -51,18 +76,18 @@ export function AuthProvider({ children }) {
 
     console.log("Login response:", loginData);
 
-    /*
-     * The login endpoint may return only the token.
-     * Always fetch /auth/me afterwards so that the
-     * frontend gets the authoritative user profile,
-     * role and permissions.
-     */
     try {
+      const tokenUser = getUserFromToken();
+
       const currentUser = await getCurrentUser();
 
       console.log("Current authenticated user:", currentUser);
+      console.log("Authenticated user from token:", tokenUser);
 
-      const resolvedUser = currentUser?.user || currentUser;
+      const resolvedUser = {
+        ...tokenUser,
+        ...(currentUser?.user || currentUser),
+      };
 
       setUser(resolvedUser);
 

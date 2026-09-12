@@ -34,12 +34,14 @@ function AppLayout() {
     });
   }
 
-  const displayName = user?.name || user?.full_name || user?.email || "User";
+  const displayName =
+    user?.username || user?.full_name || user?.name || user?.email || "User";
 
   const role = user?.role || user?.role_name || "User";
 
   const initials = useMemo(() => {
-    const source = user?.name || user?.full_name || user?.email || "U";
+    const source =
+      user?.username || user?.full_name || user?.name || user?.email || "U";
 
     const parts = source.trim().split(/\s+/).filter(Boolean);
 
