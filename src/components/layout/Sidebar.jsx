@@ -1,6 +1,16 @@
 import { NavLink } from "react-router-dom";
 
+import { useAuth } from "../../context/AuthContext";
+
 function Sidebar({ collapsed, onToggle }) {
+  const { user } = useAuth();
+
+  const permissions = Array.isArray(user?.permissions) ? user.permissions : [];
+
+  function hasPermission(permission) {
+    return permissions.includes(permission);
+  }
+
   const navigationClass = ({ isActive }) =>
     `sidebar-link${isActive ? " active" : ""}`;
 
@@ -18,13 +28,13 @@ function Sidebar({ collapsed, onToggle }) {
 
         <div className="brand-copy">
           <strong>OmniCore</strong>
+
           <span>Customer Platform</span>
         </div>
       </div>
 
       {/* ============================================================
           COLLAPSE BUTTON
-          Always visible
           ============================================================ */}
 
       <button
@@ -38,6 +48,10 @@ function Sidebar({ collapsed, onToggle }) {
           {collapsed ? "›" : "‹"}
         </span>
       </button>
+
+      {/* ============================================================
+          OVERVIEW
+          ============================================================ */}
 
       <nav className="sidebar-nav" aria-label="Overview">
         <NavLink
@@ -54,38 +68,48 @@ function Sidebar({ collapsed, onToggle }) {
         </NavLink>
       </nav>
 
+      {/* ============================================================
+          MANAGEMENT
+          ============================================================ */}
+
       <nav className="sidebar-nav" aria-label="Management">
-        <NavLink to="/leads" className={navigationClass} data-tooltip="Leads">
-          <span className="sidebar-icon" aria-hidden="true">
-            ◈
-          </span>
+        {hasPermission("leads.read") && (
+          <NavLink to="/leads" className={navigationClass} data-tooltip="Leads">
+            <span className="sidebar-icon" aria-hidden="true">
+              ◈
+            </span>
 
-          <span className="sidebar-link-label">Leads</span>
-        </NavLink>
+            <span className="sidebar-link-label">Leads</span>
+          </NavLink>
+        )}
 
-        <NavLink
-          to="/customers"
-          className={navigationClass}
-          data-tooltip="Customers"
-        >
-          <span className="sidebar-icon" aria-hidden="true">
-            ◉
-          </span>
+        {hasPermission("customers.read") && (
+          <NavLink
+            to="/customers"
+            className={navigationClass}
+            data-tooltip="Customers"
+          >
+            <span className="sidebar-icon" aria-hidden="true">
+              ◉
+            </span>
 
-          <span className="sidebar-link-label">Customers</span>
-        </NavLink>
+            <span className="sidebar-link-label">Customers</span>
+          </NavLink>
+        )}
 
-        <NavLink
-          to="/services"
-          className={navigationClass}
-          data-tooltip="Services"
-        >
-          <span className="sidebar-icon" aria-hidden="true">
-            ⚙
-          </span>
+        {hasPermission("services.read") && (
+          <NavLink
+            to="/services"
+            className={navigationClass}
+            data-tooltip="Services"
+          >
+            <span className="sidebar-icon" aria-hidden="true">
+              ⚙
+            </span>
 
-          <span className="sidebar-link-label">Services</span>
-        </NavLink>
+            <span className="sidebar-link-label">Services</span>
+          </NavLink>
+        )}
       </nav>
 
       {/* ============================================================
@@ -106,6 +130,7 @@ function Sidebar({ collapsed, onToggle }) {
 
         <div className="system-card-copy">
           <strong>SOA Platform</strong>
+
           <span>Gateway connected</span>
         </div>
 

@@ -1,10 +1,17 @@
-import { useEffect, useState } from "react";
-import { Outlet } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import { Outlet, useNavigate } from "react-router-dom";
+
 import Sidebar from "./Sidebar";
+import { useAuth } from "../../context/AuthContext";
 
 function AppLayout() {
+  const navigate = useNavigate();
+
+  const { user, logout } = useAuth();
+
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
     const saved = localStorage.getItem("omnicore-sidebar-collapsed");
+
     return saved === "true";
   });
 
@@ -18,6 +25,30 @@ function AppLayout() {
   function toggleSidebar() {
     setSidebarCollapsed((current) => !current);
   }
+
+  function handleLogout() {
+    logout();
+
+    navigate("/login", {
+      replace: true,
+    });
+  }
+
+  const displayName = user?.name || user?.full_name || user?.email || "User";
+
+  const role = user?.role || user?.role_name || "User";
+
+  const initials = useMemo(() => {
+    const source = user?.name || user?.full_name || user?.email || "U";
+
+    const parts = source.trim().split(/\s+/).filter(Boolean);
+
+    if (parts.length >= 2) {
+      return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+    }
+
+    return source.slice(0, 2).toUpperCase();
+  }, [user]);
 
   return (
     <div
@@ -69,29 +100,25 @@ function AppLayout() {
               ======================================================= */}
 
           <div className="global-header-right">
-            {/* <button
-              type="button"
-              className="header-icon-button"
-              aria-label="Notifications"
-              title="Notifications"
-            >
-              ♢
-            </button> */}
-
             <div className="header-divider" />
 
-            <div className="user-menu">
-              <div className="user-avatar">AM</div>
+            <div className="user-menu" title="Account">
+              <div className="user-avatar">{initials}</div>
 
               <div className="user-info">
-                <strong>Amit</strong>
+                <strong>{displayName}</strong>
 
-                <span>Administrator</span>
+                <span>{role}</span>
               </div>
 
-              <span className="user-chevron" aria-hidden="true">
-                ⌄
-              </span>
+              <button
+                type="button"
+                className="user-logout-button"
+                onClick={handleLogout}
+                title="Sign out"
+              >
+                Sign out
+              </button>
             </div>
           </div>
         </header>
