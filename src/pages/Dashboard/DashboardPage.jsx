@@ -1,16 +1,12 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
-import { getLeads } from "../../api/leads";
-import { getCustomers } from "../../api/customers";
-import { getServices } from "../../api/services";
+import { getDashboard } from "../../api/dashboard";
 
 import DashboardSkeleton from "../../components/dashboard/DashboardSkeleton";
 
 function DashboardPage() {
-  const [leads, setLeads] = useState([]);
-  const [customers, setCustomers] = useState([]);
-  const [services, setServices] = useState([]);
+  const [dashboard, setDashboard] = useState(null);
 
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -20,7 +16,7 @@ function DashboardPage() {
      LOAD DASHBOARD
      ================================================================ */
 
-  const loadDashboard = async ({ initial = false } = {}) => {
+  async function loadDashboard({ initial = false } = {}) {
     try {
       if (initial) {
         setLoading(true);
@@ -30,15 +26,9 @@ function DashboardPage() {
 
       setError("");
 
-      const [leadData, customerData, serviceData] = await Promise.all([
-        getLeads(),
-        getCustomers(),
-        getServices(),
-      ]);
+      const data = await getDashboard();
 
-      setLeads(Array.isArray(leadData) ? leadData : []);
-      setCustomers(Array.isArray(customerData) ? customerData : []);
-      setServices(Array.isArray(serviceData) ? serviceData : []);
+      setDashboard(data);
     } catch (err) {
       console.error("Dashboard loading failed:", err);
 
@@ -50,11 +40,50 @@ function DashboardPage() {
       setLoading(false);
       setRefreshing(false);
     }
-  };
+  }
 
   useEffect(() => {
     loadDashboard({ initial: true });
   }, []);
+
+  /* ================================================================
+     DERIVED DASHBOARD DATA
+     ================================================================ */
+
+  const metrics = dashboard?.metrics || {
+    totalLeads: 0,
+    totalCustomers: 0,
+    qualifiedLeads: 0,
+    convertedLeads: 0,
+    conversionRate: 0,
+  };
+
+  const pipeline = Array.isArray(dashboard?.pipeline) ? dashboard.pipeline : [];
+
+  const leadSources = Array.isArray(dashboard?.leadSources)
+    ? dashboard.leadSources
+    : [];
+
+  const recentLeads = Array.isArray(dashboard?.recentLeads)
+    ? dashboard.recentLeads
+    : [];
+
+  const serviceDemand = Array.isArray(dashboard?.serviceDemand)
+    ? dashboard.serviceDemand
+    : [];
+
+  const attentionItems = Array.isArray(dashboard?.attentionItems)
+    ? dashboard.attentionItems
+    : [];
+
+  const serviceCatalog = dashboard?.serviceCatalog || {
+    totalServices: 0,
+    activeServices: 0,
+    servicesInDemand: 0,
+  };
+
+  const managedRecords =
+    dashboard?.managedRecords ?? metrics.totalLeads + metrics.totalCustomers;
 
   /* ================================================================
      HELPERS
@@ -66,22 +95,30 @@ function DashboardPage() {
       .toLowerCase();
 
   const getDisplayName = (item) => {
-    if (!item) return "Unknown";
+    if (!item) {
+      return "Unknown";
+    }
 
-    if (item.name) return item.name;
+    if (item.name) {
+      return item.name;
+    }
 
     const fullName = [item.firstName, item.lastName]
       .filter(Boolean)
       .join(" ")
       .trim();
 
-    if (fullName) return fullName;
+    if (fullName) {
+      return fullName;
+    }
 
     return item.company || item.email || `Record #${item.id}`;
   };
 
   const getInitials = (name) => {
-    if (!name) return "?";
+    if (!name) {
+      return "?";
+    }
 
     const parts = String(name).trim().split(/\s+/).filter(Boolean);
 
@@ -93,7 +130,9 @@ function DashboardPage() {
   };
 
   const getServiceNames = (item) => {
-    if (!item) return [];
+    if (!item) {
+      return [];
+    }
 
     if (Array.isArray(item.services)) {
       return item.services
@@ -109,246 +148,12 @@ function DashboardPage() {
 
     if (Array.isArray(item.serviceIds)) {
       return item.serviceIds
-        .map((serviceId) => {
-          const service = services.find(
-            (candidate) => String(candidate.id) === String(serviceId),
-          );
-
-          return service?.name;
-        })
+        .map((serviceId) => String(serviceId))
         .filter(Boolean);
     }
 
     return [];
   };
-
-  const getDateValue = (item) => {
-    return (
-      item?.createdAt ||
-      item?.created_at ||
-      item?.updatedAt ||
-      item?.updated_at ||
-      null
-    );
-  };
-
-  /* ================================================================
-     KPI METRICS
-     ================================================================ */
-
-  const metrics = useMemo(() => {
-    const qualifiedLeads = leads.filter(
-      (lead) => normalizeStatus(lead.status) === "qualified",
-    ).length;
-
-    const convertedLeads = leads.filter(
-      (lead) => normalizeStatus(lead.status) === "converted",
-    ).length;
-
-    const conversionRate =
-      leads.length > 0
-        ? Math.round((convertedLeads / leads.length) * 1000) / 10
-        : 0;
-
-    return {
-      totalLeads: leads.length,
-      totalCustomers: customers.length,
-      qualifiedLeads,
-      convertedLeads,
-      conversionRate,
-    };
-  }, [leads, customers]);
-
-  /* ================================================================
-     PIPELINE
-     ================================================================ */
-
-  const pipeline = useMemo(() => {
-    const stages = [
-      {
-        key: "new",
-        label: "New",
-      },
-      {
-        key: "contacted",
-        label: "Contacted",
-      },
-      {
-        key: "qualified",
-        label: "Qualified",
-      },
-      {
-        key: "converted",
-        label: "Converted",
-      },
-      {
-        key: "lost",
-        label: "Lost",
-      },
-    ];
-
-    return stages.map((stage) => {
-      const count = leads.filter(
-        (lead) => normalizeStatus(lead.status) === stage.key,
-      ).length;
-
-      const percentage =
-        leads.length > 0 ? Math.round((count / leads.length) * 100) : 0;
-
-      return {
-        ...stage,
-        count,
-        percentage,
-      };
-    });
-  }, [leads]);
-
-  /* ================================================================
-     LEAD SOURCES
-     ================================================================ */
-
-  const leadSources = useMemo(() => {
-    const sourceMap = {};
-
-    leads.forEach((lead) => {
-      const source =
-        lead.channel || lead.source || lead.leadSource || "Unknown";
-
-      const normalized = String(source).trim();
-
-      if (!normalized) return;
-
-      sourceMap[normalized] = (sourceMap[normalized] || 0) + 1;
-    });
-
-    return Object.entries(sourceMap)
-      .map(([name, count]) => ({
-        name,
-        count,
-        percentage:
-          leads.length > 0 ? Math.round((count / leads.length) * 100) : 0,
-      }))
-      .sort((a, b) => b.count - a.count);
-  }, [leads]);
-
-  /* ================================================================
-     SERVICE DEMAND
-     ================================================================ */
-
-  const serviceDemand = useMemo(() => {
-    const demandMap = {};
-
-    const addServices = (records) => {
-      records.forEach((record) => {
-        const recordServices = getServiceNames(record);
-
-        recordServices.forEach((serviceName) => {
-          demandMap[serviceName] = (demandMap[serviceName] || 0) + 1;
-        });
-      });
-    };
-
-    addServices(leads);
-    addServices(customers);
-
-    return Object.entries(demandMap)
-      .map(([name, count]) => ({
-        name,
-        count,
-      }))
-      .sort((a, b) => b.count - a.count)
-      .slice(0, 5);
-  }, [leads, customers, services]);
-
-  /* ================================================================
-     RECENT LEADS
-     ================================================================ */
-
-  const recentLeads = useMemo(() => {
-    return [...leads]
-      .sort((a, b) => {
-        const dateA = new Date(getDateValue(a) || 0).getTime();
-        const dateB = new Date(getDateValue(b) || 0).getTime();
-
-        return dateB - dateA;
-      })
-      .slice(0, 5);
-  }, [leads]);
-
-  /* ================================================================
-     ATTENTION ITEMS
-     ================================================================ */
-
-  const attentionItems = useMemo(() => {
-    const items = [];
-
-    const qualifiedWithoutServices = leads.filter(
-      (lead) =>
-        normalizeStatus(lead.status) === "qualified" &&
-        getServiceNames(lead).length === 0,
-    );
-
-    if (qualifiedWithoutServices.length > 0) {
-      items.push({
-        type: "warning",
-        title: "Qualified leads need services",
-        description: `${qualifiedWithoutServices.length} qualified lead${
-          qualifiedWithoutServices.length === 1 ? "" : "s"
-        } have no services assigned.`,
-        count: qualifiedWithoutServices.length,
-        link: "/leads",
-        action: "Review leads",
-      });
-    }
-
-    const leadsWithoutServices = leads.filter(
-      (lead) => getServiceNames(lead).length === 0,
-    );
-
-    if (leadsWithoutServices.length > 0) {
-      items.push({
-        type: "info",
-        title: "Leads without services",
-        description: `${leadsWithoutServices.length} lead${
-          leadsWithoutServices.length === 1 ? "" : "s"
-        } currently have no service mapping.`,
-        count: leadsWithoutServices.length,
-        link: "/leads",
-        action: "Assign services",
-      });
-    }
-
-    const customersWithoutServices = customers.filter(
-      (customer) => getServiceNames(customer).length === 0,
-    );
-
-    if (customersWithoutServices.length > 0) {
-      items.push({
-        type: "neutral",
-        title: "Customers without services",
-        description: `${customersWithoutServices.length} customer${
-          customersWithoutServices.length === 1 ? "" : "s"
-        } have no services assigned.`,
-        count: customersWithoutServices.length,
-        link: "/customers",
-        action: "Review customers",
-      });
-    }
-
-    return items.slice(0, 4);
-  }, [leads, customers, services]);
-
-  /* ================================================================
-     SERVICE CATALOG
-     ================================================================ */
-
-  const activeServices = useMemo(() => {
-    return services.filter((service) => {
-      const status = normalizeStatus(service.status);
-
-      return !status || status === "active" || status === "enabled";
-    }).length;
-  }, [services]);
 
   /* ================================================================
      LOADING STATE
@@ -362,7 +167,7 @@ function DashboardPage() {
      ERROR STATE
      ================================================================ */
 
-  if (error && leads.length === 0 && customers.length === 0) {
+  if (error && !dashboard) {
     return (
       <div className="dashboard-page">
         <header className="page-header dashboard-header">
@@ -380,7 +185,11 @@ function DashboardPage() {
             <button
               type="button"
               className="btn btn-primary"
-              onClick={() => loadDashboard({ initial: true })}
+              onClick={() =>
+                loadDashboard({
+                  initial: true,
+                })
+              }
             >
               Retry
             </button>
@@ -396,8 +205,8 @@ function DashboardPage() {
             <p>{error}</p>
 
             <p className="dashboard-error-help">
-              Make sure Kong/API Gateway and the Lead, Customer and Service
-              services are running.
+              Make sure Kong/API Gateway and the Dashboard, Lead, Customer and
+              Service services are running.
             </p>
           </div>
         </div>
@@ -411,9 +220,9 @@ function DashboardPage() {
 
   return (
     <div className="dashboard-page">
-      {/* ================================================================
+      {/* ============================================================
           HEADER
-          ================================================================ */}
+          ============================================================ */}
 
       <header className="page-header dashboard-header">
         <div>
@@ -438,17 +247,12 @@ function DashboardPage() {
 
             {refreshing ? "Refreshing..." : "Refresh"}
           </button>
-
-          {/* <Link to="/leads" className="btn btn-primary">
-            <span>+</span>
-            Add Lead
-          </Link> */}
         </div>
       </header>
 
-      {/* ================================================================
+      {/* ============================================================
           INLINE ERROR
-          ================================================================ */}
+          ============================================================ */}
 
       {error && (
         <div className="dashboard-inline-error">
@@ -462,11 +266,13 @@ function DashboardPage() {
         </div>
       )}
 
-      {/* ================================================================
+      {/* ============================================================
           KPI CARDS
-          ================================================================ */}
+          ============================================================ */}
 
       <section className="dashboard-stats">
+        {/* TOTAL LEADS */}
+
         <Link to="/leads" className="dashboard-stat-card dashboard-stat-leads">
           <div className="dashboard-stat-top">
             <span className="dashboard-stat-label">Total Leads</span>
@@ -482,6 +288,8 @@ function DashboardPage() {
             <span className="dashboard-stat-link">View leads →</span>
           </div>
         </Link>
+
+        {/* CUSTOMERS */}
 
         <Link
           to="/customers"
@@ -502,6 +310,8 @@ function DashboardPage() {
           </div>
         </Link>
 
+        {/* QUALIFIED LEADS */}
+
         <Link
           to="/leads"
           className="dashboard-stat-card dashboard-stat-qualified"
@@ -520,6 +330,8 @@ function DashboardPage() {
             <span className="dashboard-stat-link">Review →</span>
           </div>
         </Link>
+
+        {/* CONVERSION RATE */}
 
         <div className="dashboard-stat-card dashboard-stat-conversion">
           <div className="dashboard-stat-top">
@@ -541,12 +353,14 @@ function DashboardPage() {
         </div>
       </section>
 
-      {/* ================================================================
+      {/* ============================================================
           PIPELINE + SOURCES
-          ================================================================ */}
+          ============================================================ */}
 
       <section className="dashboard-grid dashboard-grid-main">
-        {/* PIPELINE */}
+        {/* ==========================================================
+            PIPELINE
+            ========================================================== */}
 
         <div className="dashboard-card pipeline-card">
           <div className="dashboard-card-header">
@@ -565,39 +379,54 @@ function DashboardPage() {
             </Link>
           </div>
 
-          <div className="pipeline-list">
-            {pipeline.map((stage) => (
-              <div className="pipeline-row" key={stage.key}>
-                <div className="pipeline-row-header">
-                  <div className="pipeline-stage">
-                    <span
-                      className={`pipeline-dot pipeline-dot-${stage.key}`}
+          {pipeline.length === 0 ? (
+            <div className="dashboard-empty">
+              <div className="dashboard-empty-icon">◈</div>
+
+              <h3>No pipeline data</h3>
+
+              <p>
+                Lead lifecycle information will appear here when leads are
+                available.
+              </p>
+            </div>
+          ) : (
+            <div className="pipeline-list">
+              {pipeline.map((stage) => (
+                <div className="pipeline-row" key={stage.key}>
+                  <div className="pipeline-row-header">
+                    <div className="pipeline-stage">
+                      <span
+                        className={`pipeline-dot pipeline-dot-${stage.key}`}
+                      />
+
+                      <span>{stage.label}</span>
+                    </div>
+
+                    <div className="pipeline-count">
+                      <strong>{stage.count}</strong>
+
+                      <span>{stage.percentage}%</span>
+                    </div>
+                  </div>
+
+                  <div className="pipeline-bar">
+                    <div
+                      className={`pipeline-bar-fill pipeline-bar-${stage.key}`}
+                      style={{
+                        width: `${stage.percentage}%`,
+                      }}
                     />
-
-                    <span>{stage.label}</span>
-                  </div>
-
-                  <div className="pipeline-count">
-                    <strong>{stage.count}</strong>
-
-                    <span>{stage.percentage}%</span>
                   </div>
                 </div>
-
-                <div className="pipeline-bar">
-                  <div
-                    className={`pipeline-bar-fill pipeline-bar-${stage.key}`}
-                    style={{
-                      width: `${stage.percentage}%`,
-                    }}
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
 
-        {/* LEAD SOURCES */}
+        {/* ==========================================================
+            LEAD SOURCES
+            ========================================================== */}
 
         <div className="dashboard-card source-card">
           <div className="dashboard-card-header">
@@ -645,12 +474,14 @@ function DashboardPage() {
         </div>
       </section>
 
-      {/* ================================================================
+      {/* ============================================================
           RECENT LEADS + QUICK ACTIONS
-          ================================================================ */}
+          ============================================================ */}
 
       <section className="dashboard-grid dashboard-grid-secondary">
-        {/* RECENT LEADS */}
+        {/* ==========================================================
+            RECENT LEADS
+            ========================================================== */}
 
         <div className="dashboard-card recent-leads-card">
           <div className="dashboard-card-header">
@@ -683,7 +514,9 @@ function DashboardPage() {
             <div className="recent-leads-list">
               {recentLeads.map((lead) => {
                 const name = getDisplayName(lead);
+
                 const status = lead.status || "New";
+
                 const servicesForLead = getServiceNames(lead);
 
                 return (
@@ -744,7 +577,9 @@ function DashboardPage() {
           )}
         </div>
 
-        {/* QUICK ACTIONS */}
+        {/* ==========================================================
+            QUICK ACTIONS
+            ========================================================== */}
 
         <div className="dashboard-card quick-actions-card">
           <div className="dashboard-card-header">
@@ -809,12 +644,14 @@ function DashboardPage() {
         </div>
       </section>
 
-      {/* ================================================================
+      {/* ============================================================
           SERVICE DEMAND + NEEDS ATTENTION
-          ================================================================ */}
+          ============================================================ */}
 
       <section className="dashboard-grid dashboard-grid-main">
-        {/* SERVICE DEMAND */}
+        {/* ==========================================================
+            SERVICE DEMAND
+            ========================================================== */}
 
         <div className="dashboard-card service-demand-card">
           <div className="dashboard-card-header">
@@ -876,7 +713,9 @@ function DashboardPage() {
           )}
         </div>
 
-        {/* NEEDS ATTENTION */}
+        {/* ==========================================================
+            NEEDS ATTENTION
+            ========================================================== */}
 
         <div className="dashboard-card attention-card">
           <div className="dashboard-card-header">
@@ -929,9 +768,9 @@ function DashboardPage() {
         </div>
       </section>
 
-      {/* ================================================================
+      {/* ============================================================
           SERVICE CATALOG SUMMARY
-          ================================================================ */}
+          ============================================================ */}
 
       <section className="dashboard-card service-summary-card">
         <div className="dashboard-card-header">
@@ -952,41 +791,49 @@ function DashboardPage() {
         </div>
 
         <div className="service-summary-grid">
+          {/* TOTAL SERVICES */}
+
           <div className="service-summary-item">
             <span className="service-summary-icon">⚙</span>
 
             <div>
-              <strong>{services.length}</strong>
+              <strong>{serviceCatalog.totalServices}</strong>
 
               <span>Total services</span>
             </div>
           </div>
 
+          {/* ACTIVE SERVICES */}
+
           <div className="service-summary-item">
             <span className="service-summary-icon">✓</span>
 
             <div>
-              <strong>{activeServices}</strong>
+              <strong>{serviceCatalog.activeServices}</strong>
 
               <span>Active services</span>
             </div>
           </div>
 
+          {/* SERVICES IN DEMAND */}
+
           <div className="service-summary-item">
             <span className="service-summary-icon">◈</span>
 
             <div>
-              <strong>{serviceDemand.length}</strong>
+              <strong>{serviceCatalog.servicesInDemand}</strong>
 
               <span>Services in demand</span>
             </div>
           </div>
 
+          {/* MANAGED RECORDS */}
+
           <div className="service-summary-item">
             <span className="service-summary-icon">◉</span>
 
             <div>
-              <strong>{customers.length + leads.length}</strong>
+              <strong>{managedRecords}</strong>
 
               <span>Managed records</span>
             </div>
@@ -994,9 +841,9 @@ function DashboardPage() {
         </div>
       </section>
 
-      {/* ================================================================
+      {/* ============================================================
           SYSTEM STATUS
-          ================================================================ */}
+          ============================================================ */}
 
       <section className="dashboard-system-status">
         <div className="system-status-left">
