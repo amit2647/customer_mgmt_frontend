@@ -4,7 +4,6 @@ import { Link } from "react-router-dom";
 import { getLeads } from "../../api/leads";
 import { getCustomers } from "../../api/customers";
 import { getServices } from "../../api/services";
-import LoadingScreen from "../../components/common/LoadingScreen";
 
 import DashboardSkeleton from "../../components/dashboard/DashboardSkeleton";
 

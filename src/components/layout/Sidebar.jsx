@@ -53,7 +53,7 @@ function Sidebar({ collapsed, onToggle }) {
           OVERVIEW
           ============================================================ */}
 
-      <nav className="sidebar-nav" aria-label="Overview">
+      {/* <nav className="sidebar-nav" aria-label="Overview">
         <NavLink
           to="/"
           end
@@ -66,13 +66,23 @@ function Sidebar({ collapsed, onToggle }) {
 
           <span className="sidebar-link-label">Dashboard</span>
         </NavLink>
-      </nav>
-
-      {/* ============================================================
-          MANAGEMENT
-          ============================================================ */}
+      </nav> */}
 
       <nav className="sidebar-nav" aria-label="Management">
+        
+        <NavLink
+          to="/"
+          end
+          className={navigationClass}
+          data-tooltip="Dashboard"
+        >
+          <span className="sidebar-icon" aria-hidden="true">
+            ▦
+          </span>
+
+          <span className="sidebar-link-label">Dashboard</span>
+        </NavLink>
+
         {hasPermission("leads.read") && (
           <NavLink to="/leads" className={navigationClass} data-tooltip="Leads">
             <span className="sidebar-icon" aria-hidden="true">
