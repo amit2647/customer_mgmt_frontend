@@ -1,6 +1,20 @@
 /* =========================================================
    OMNICORE — COLLAPSIBLE SIDEBAR
-   Final implementation
+   Collapse / expand behavior
+
+   Responsibilities:
+   - Sidebar dimensions
+   - Collapse button
+   - Collapsed navigation
+   - Tooltips
+   - Collapsed system card
+   - Collapsed footer
+   - Mobile behavior
+   ========================================================= */
+
+
+/* =========================================================
+   SIDEBAR DIMENSIONS
    ========================================================= */
 
 :root {
@@ -15,20 +29,17 @@
 
 
 /* =========================================================
-   SIDEBAR
+   SIDEBAR STACKING
    ========================================================= */
 
 .sidebar {
-    /*
-     * Keep the sidebar attached to the viewport on desktop.
-     *
-     * Sticky is preferable to fixed here because the sidebar
-     * remains part of the flex layout, so .app-main automatically
-     * occupies the remaining horizontal space.
-     */
     position: sticky;
+
     top: 0;
+
     align-self: flex-start;
+
+    z-index: 100;
 
     width: var(--sidebar-expanded-width);
     min-width: var(--sidebar-expanded-width);
@@ -36,42 +47,38 @@
     height: 100vh;
     max-height: 100vh;
 
-    /*
-     * The collapse button intentionally extends beyond the
-     * sidebar edge, so desktop overflow must remain visible.
-     */
     overflow: visible;
-
-    flex-shrink: 0;
 
     transition: var(--sidebar-collapse-transition);
 }
 
 
 /* =========================================================
-   COLLAPSE BUTTON
+   COLLAPSE TOGGLE
    ========================================================= */
 
 .sidebar-toggle {
     position: absolute;
-    top: 72px;
-    right: -13px;
 
-    z-index: 9999;
+    top: 58px;
+    right: -14px;
 
-    width: 28px;
-    height: 28px;
+    z-index: 1000;
 
     display: flex;
     align-items: center;
     justify-content: center;
+
+    width: 28px;
+    height: 28px;
 
     padding: 0;
 
     border: 1px solid var(--color-border);
     border-radius: 50%;
 
-    background: #FFFFFF;
+    background: var(--color-surface);
+
     color: var(--color-text);
 
     box-shadow:
@@ -91,9 +98,12 @@
         transform 0.18s ease;
 }
 
+
 .sidebar-toggle:hover {
     background: var(--color-primary);
+
     border-color: var(--color-primary);
+
     color: var(--brand-lemon);
 
     box-shadow:
@@ -103,14 +113,21 @@
     transform: scale(1.06);
 }
 
+
 .sidebar-toggle:focus-visible {
-    outline: 2px solid var(--brand-yellow);
+    outline: 2px solid var(--focus-ring-color);
     outline-offset: 3px;
 }
+
 
 .sidebar-toggle:active {
     transform: scale(0.96);
 }
+
+
+/* =========================================================
+   TOGGLE ICON
+   ========================================================= */
 
 .sidebar-toggle-icon {
     display: flex;
@@ -120,11 +137,17 @@
     width: 100%;
     height: 100%;
 
-    font-size: 19px;
-    font-weight: 500;
     line-height: 1;
 
     transform: translateY(-1px);
+}
+
+
+.sidebar-toggle-icon svg {
+    display: block;
+
+    width: 18px;
+    height: 18px;
 }
 
 
@@ -147,11 +170,13 @@
 
 .sidebar.collapsed .sidebar-brand {
     justify-content: center;
+
     gap: 0;
 
     padding-left: 0;
     padding-right: 0;
 }
+
 
 .sidebar.collapsed .brand-copy {
     width: 0;
@@ -160,12 +185,20 @@
     overflow: hidden;
 
     opacity: 0;
+
     pointer-events: none;
 }
 
+
+/* =========================================================
+   COLLAPSED TOGGLE POSITION
+   ========================================================= */
+
 .sidebar.collapsed .sidebar-toggle {
-    right: -13px;
     top: 58px;
+    right: -14px;
+
+    z-index: 1000;
 }
 
 
@@ -183,6 +216,8 @@
     overflow: hidden;
 
     opacity: 0;
+
+    pointer-events: none;
 }
 
 
@@ -191,6 +226,8 @@
    ========================================================= */
 
 .sidebar.collapsed .sidebar-link {
+    position: relative;
+
     justify-content: center;
 
     gap: 0;
@@ -198,6 +235,7 @@
     padding-left: 0;
     padding-right: 0;
 }
+
 
 .sidebar.collapsed .sidebar-link-label,
 .sidebar.collapsed .sidebar-link>span:last-child {
@@ -214,6 +252,7 @@
     white-space: nowrap;
 }
 
+
 .sidebar.collapsed .sidebar-icon {
     width: 22px;
 }
@@ -226,8 +265,8 @@
 .sidebar.collapsed .sidebar-link::after {
     position: absolute;
 
-    left: calc(100% + 12px);
     top: 50%;
+    left: calc(100% + 12px);
 
     z-index: 300;
 
@@ -237,12 +276,15 @@
     border-radius: 7px;
 
     background: var(--color-primary);
-    color: #FFFFFF;
+
+    color: var(--color-surface);
 
     content: attr(data-tooltip);
 
     font-size: 10px;
     font-weight: 600;
+
+    line-height: 1;
 
     white-space: nowrap;
 
@@ -251,7 +293,8 @@
 
     pointer-events: none;
 
-    transform: translateY(-50%) translateX(-3px);
+    transform:
+        translateY(-50%) translateX(-3px);
 
     transition:
         opacity 0.15s ease,
@@ -259,11 +302,14 @@
         transform 0.15s ease;
 }
 
-.sidebar.collapsed .sidebar-link:hover::after {
+
+.sidebar.collapsed .sidebar-link:hover::after,
+.sidebar.collapsed .sidebar-link:focus-visible::after {
     opacity: 1;
     visibility: visible;
 
-    transform: translateY(-50%) translateX(0);
+    transform:
+        translateY(-50%) translateX(0);
 }
 
 
@@ -281,9 +327,11 @@
     padding: 9px;
 }
 
+
 .sidebar.collapsed .system-card-copy {
     display: none;
 }
+
 
 .sidebar.collapsed .sidebar-system-card .system-status {
     position: absolute;
@@ -307,6 +355,7 @@
     padding-right: 0;
 }
 
+
 .sidebar.collapsed .sidebar-footer span:first-child {
     display: none;
 }
@@ -318,6 +367,11 @@
 
 @media (max-width: 700px) {
 
+    /*
+     * Mobile does not use the desktop collapsed layout.
+     * The sidebar becomes part of the normal document flow.
+     */
+
     .sidebar,
     .sidebar.collapsed {
         position: static;
@@ -326,11 +380,19 @@
         min-width: 0;
 
         height: auto;
+        max-height: none;
 
         padding: 12px;
 
         overflow: visible;
+
+        z-index: 100;
     }
+
+
+    /* -----------------------------------------------------
+       MOBILE BRAND
+       ----------------------------------------------------- */
 
     .sidebar-brand,
     .sidebar.collapsed .sidebar-brand {
@@ -340,6 +402,7 @@
 
         padding: 4px 6px 12px;
     }
+
 
     .sidebar.collapsed .brand-copy {
         width: auto;
@@ -352,29 +415,46 @@
         pointer-events: auto;
     }
 
+
+    /* -----------------------------------------------------
+       MOBILE TOGGLE
+       ----------------------------------------------------- */
+
     .sidebar-toggle,
     .sidebar.collapsed .sidebar-toggle {
         top: 18px;
         right: 16px;
 
+        z-index: 1000;
+
         width: 32px;
         height: 32px;
     }
 
-    /*
-     * Mobile keeps the navigation expanded.
-     */
+
+    /* -----------------------------------------------------
+       MOBILE SECTION LABELS
+       ----------------------------------------------------- */
+
     .sidebar.collapsed .sidebar-section-label {
         width: auto;
         height: auto;
 
         padding: 0 10px;
+
         margin-bottom: 8px;
 
         overflow: visible;
 
         opacity: 1;
+
+        pointer-events: auto;
     }
+
+
+    /* -----------------------------------------------------
+       MOBILE NAVIGATION
+       ----------------------------------------------------- */
 
     .sidebar.collapsed .sidebar-link {
         justify-content: flex-start;
@@ -384,6 +464,7 @@
         padding-left: 11px;
         padding-right: 11px;
     }
+
 
     .sidebar.collapsed .sidebar-link-label,
     .sidebar.collapsed .sidebar-link>span:last-child {
@@ -400,9 +481,15 @@
         white-space: normal;
     }
 
+
     .sidebar.collapsed .sidebar-icon {
         width: 20px;
     }
+
+
+    /* -----------------------------------------------------
+       MOBILE SYSTEM CARD
+       ----------------------------------------------------- */
 
     .sidebar.collapsed .sidebar-system-card {
         justify-content: flex-start;
@@ -412,16 +499,58 @@
         padding: 11px;
     }
 
+
     .sidebar.collapsed .system-card-copy {
         display: block;
     }
+
+
+    /* -----------------------------------------------------
+       MOBILE FOOTER
+       ----------------------------------------------------- */
+
+    .sidebar.collapsed .sidebar-footer {
+        justify-content: space-between;
+    }
+
 
     .sidebar.collapsed .sidebar-footer span:first-child {
         display: inline;
     }
 
+
+    /* -----------------------------------------------------
+       MOBILE TOOLTIP
+       ----------------------------------------------------- */
+
     .sidebar.collapsed .sidebar-link::after {
         display: none;
+    }
+}
+
+
+/* =========================================================
+   VERY SMALL SCREENS
+   ========================================================= */
+
+@media (max-width: 480px) {
+
+    .sidebar,
+    .sidebar.collapsed {
+        padding: 10px;
+    }
+
+
+    .sidebar-brand,
+    .sidebar.collapsed .sidebar-brand {
+        padding-left: 4px;
+        padding-right: 4px;
+    }
+
+
+    .sidebar-toggle,
+    .sidebar.collapsed .sidebar-toggle {
+        right: 12px;
     }
 }
 
@@ -439,54 +568,3 @@
         transition: none;
     }
 }
-
-/* =========================================================
-   OMNICORE — COLLAPSIBLE SIDEBAR
-   FINAL OVERRIDE / CLICK FIX
-   ========================================================= */
-
-/*
- * The global header uses z-index: 50.
- * The sidebar must establish a higher stacking context so the
- * collapse control, which intentionally sits on the sidebar edge,
- * cannot be covered by the header.
- */
-.sidebar {
-    z-index: 100;
-}
-
-.sidebar-toggle {
-    z-index: 1000;
-    top: 58px;
-    right: -14px;
-}
-
-.sidebar.collapsed .sidebar-toggle {
-    z-index: 1000;
-    top: 58px;
-    right: -14px;
-}
-
-/* Keep the collapsed navigation centered and predictable. */
-.sidebar.collapsed .sidebar-link {
-    position: relative;
-    justify-content: center;
-    gap: 0;
-}
-
-/* Mobile intentionally keeps the normal expanded navigation. */
-@media (max-width: 700px) {
-
-    .sidebar,
-    .sidebar.collapsed {
-        z-index: 100;
-    }
-
-    .sidebar-toggle,
-    .sidebar.collapsed .sidebar-toggle {
-        top: 18px;
-        right: 16px;
-        z-index: 1000;
-    }
-}
-

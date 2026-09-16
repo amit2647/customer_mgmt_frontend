@@ -1,6 +1,22 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
+import {
+  ArrowClockwise,
+  ArrowRight,
+  Check,
+  Circle,
+  CircleDashed,
+  GearSix,
+  Info,
+  Package,
+  Plus,
+  TrendUp,
+  UserCircle,
+  Users,
+  Warning,
+} from "@phosphor-icons/react";
+
 import { getDashboard } from "../../api/dashboard";
 
 import DashboardSkeleton from "../../components/dashboard/DashboardSkeleton";
@@ -172,8 +188,6 @@ function DashboardPage() {
       <div className="dashboard-page">
         <header className="page-header dashboard-header">
           <div>
-            <span className="eyebrow">CUSTOMER OPERATIONS</span>
-
             <h1>Dashboard</h1>
 
             <p>
@@ -197,7 +211,9 @@ function DashboardPage() {
         </header>
 
         <div className="dashboard-error">
-          <div className="dashboard-error-icon">!</div>
+          <div className="dashboard-error-icon" aria-hidden="true">
+            <Warning size={18} weight="bold" />
+          </div>
 
           <div>
             <h3>Dashboard unavailable</h3>
@@ -226,8 +242,6 @@ function DashboardPage() {
 
       <header className="page-header dashboard-header">
         <div>
-          {/* <span className="eyebrow">CUSTOMER OPERATIONS</span> */}
-
           <h1>Dashboard</h1>
 
           <p>
@@ -243,7 +257,9 @@ function DashboardPage() {
             onClick={() => loadDashboard()}
             disabled={refreshing}
           >
-            <span className={refreshing ? "spin" : ""}>↻</span>
+            <span className={refreshing ? "spin" : ""} aria-hidden="true">
+              <ArrowClockwise size={16} weight="bold" />
+            </span>
 
             {refreshing ? "Refreshing..." : "Refresh"}
           </button>
@@ -256,7 +272,9 @@ function DashboardPage() {
 
       {error && (
         <div className="dashboard-inline-error">
-          <span className="dashboard-inline-error-icon">!</span>
+          <span className="dashboard-inline-error-icon" aria-hidden="true">
+            <Warning size={15} weight="bold" />
+          </span>
 
           <span>{error}</span>
 
@@ -271,13 +289,17 @@ function DashboardPage() {
           ============================================================ */}
 
       <section className="dashboard-stats">
-        {/* TOTAL LEADS */}
+        {/* ==========================================================
+            TOTAL LEADS
+            ========================================================== */}
 
         <Link to="/leads" className="dashboard-stat-card dashboard-stat-leads">
           <div className="dashboard-stat-top">
             <span className="dashboard-stat-label">Total Leads</span>
 
-            <span className="dashboard-stat-icon">◈</span>
+            <span className="dashboard-stat-icon" aria-hidden="true">
+              <UserCircle size={20} weight="regular" />
+            </span>
           </div>
 
           <div className="dashboard-stat-value">{metrics.totalLeads}</div>
@@ -285,11 +307,16 @@ function DashboardPage() {
           <div className="dashboard-stat-footer">
             <span>All lead records</span>
 
-            <span className="dashboard-stat-link">View leads →</span>
+            <span className="dashboard-stat-link">
+              View leads
+              <ArrowRight size={13} weight="bold" />
+            </span>
           </div>
         </Link>
 
-        {/* CUSTOMERS */}
+        {/* ==========================================================
+            CUSTOMERS
+            ========================================================== */}
 
         <Link
           to="/customers"
@@ -298,7 +325,9 @@ function DashboardPage() {
           <div className="dashboard-stat-top">
             <span className="dashboard-stat-label">Customers</span>
 
-            <span className="dashboard-stat-icon">◉</span>
+            <span className="dashboard-stat-icon" aria-hidden="true">
+              <Users size={20} weight="regular" />
+            </span>
           </div>
 
           <div className="dashboard-stat-value">{metrics.totalCustomers}</div>
@@ -306,11 +335,16 @@ function DashboardPage() {
           <div className="dashboard-stat-footer">
             <span>Customer records</span>
 
-            <span className="dashboard-stat-link">View customers →</span>
+            <span className="dashboard-stat-link">
+              View customers
+              <ArrowRight size={13} weight="bold" />
+            </span>
           </div>
         </Link>
 
-        {/* QUALIFIED LEADS */}
+        {/* ==========================================================
+            QUALIFIED LEADS
+            ========================================================== */}
 
         <Link
           to="/leads"
@@ -319,7 +353,9 @@ function DashboardPage() {
           <div className="dashboard-stat-top">
             <span className="dashboard-stat-label">Qualified Leads</span>
 
-            <span className="dashboard-stat-icon">✓</span>
+            <span className="dashboard-stat-icon" aria-hidden="true">
+              <Check size={20} weight="bold" />
+            </span>
           </div>
 
           <div className="dashboard-stat-value">{metrics.qualifiedLeads}</div>
@@ -327,17 +363,24 @@ function DashboardPage() {
           <div className="dashboard-stat-footer">
             <span>Ready for conversion</span>
 
-            <span className="dashboard-stat-link">Review →</span>
+            <span className="dashboard-stat-link">
+              Review
+              <ArrowRight size={13} weight="bold" />
+            </span>
           </div>
         </Link>
 
-        {/* CONVERSION RATE */}
+        {/* ==========================================================
+            CONVERSION RATE
+            ========================================================== */}
 
         <div className="dashboard-stat-card dashboard-stat-conversion">
           <div className="dashboard-stat-top">
             <span className="dashboard-stat-label">Conversion Rate</span>
 
-            <span className="dashboard-stat-icon">↗</span>
+            <span className="dashboard-stat-icon" aria-hidden="true">
+              <TrendUp size={20} weight="regular" />
+            </span>
           </div>
 
           <div className="dashboard-stat-value">{metrics.conversionRate}%</div>
@@ -348,7 +391,10 @@ function DashboardPage() {
               {metrics.convertedLeads === 1 ? "" : "s"}
             </span>
 
-            <span className="dashboard-stat-link">Conversion →</span>
+            <span className="dashboard-stat-link">
+              Conversion
+              <ArrowRight size={13} weight="bold" />
+            </span>
           </div>
         </div>
       </section>
@@ -375,13 +421,16 @@ function DashboardPage() {
             </div>
 
             <Link to="/leads" className="dashboard-card-action">
-              Manage →
+              Manage
+              <ArrowRight size={13} weight="bold" />
             </Link>
           </div>
 
           {pipeline.length === 0 ? (
             <div className="dashboard-empty">
-              <div className="dashboard-empty-icon">◈</div>
+              <div className="dashboard-empty-icon" aria-hidden="true">
+                <UserCircle size={24} weight="regular" />
+              </div>
 
               <h3>No pipeline data</h3>
 
@@ -441,7 +490,9 @@ function DashboardPage() {
 
           {leadSources.length === 0 ? (
             <div className="dashboard-empty">
-              <div className="dashboard-empty-icon">◌</div>
+              <div className="dashboard-empty-icon" aria-hidden="true">
+                <CircleDashed size={24} weight="regular" />
+              </div>
 
               <h3>No source data</h3>
 
@@ -494,19 +545,23 @@ function DashboardPage() {
             </div>
 
             <Link to="/leads" className="dashboard-card-action">
-              View all →
+              View all
+              <ArrowRight size={13} weight="bold" />
             </Link>
           </div>
 
           {recentLeads.length === 0 ? (
             <div className="dashboard-empty">
-              <div className="dashboard-empty-icon">◈</div>
+              <div className="dashboard-empty-icon" aria-hidden="true">
+                <UserCircle size={24} weight="regular" />
+              </div>
 
               <h3>No leads yet</h3>
 
               <p>Create your first lead to start building the pipeline.</p>
 
               <Link to="/leads" className="btn btn-primary">
+                <Plus size={16} weight="bold" />
                 Add Lead
               </Link>
             </div>
@@ -569,7 +624,9 @@ function DashboardPage() {
                       </span>
                     </div>
 
-                    <span className="recent-lead-arrow">→</span>
+                    <span className="recent-lead-arrow" aria-hidden="true">
+                      <ArrowRight size={15} weight="bold" />
+                    </span>
                   </Link>
                 );
               })}
@@ -593,8 +650,12 @@ function DashboardPage() {
           </div>
 
           <div className="quick-actions-grid">
+            {/* CREATE LEAD */}
+
             <Link to="/leads/new" className="quick-action">
-              <span className="quick-action-icon">+</span>
+              <span className="quick-action-icon" aria-hidden="true">
+                <Plus size={20} weight="bold" />
+              </span>
 
               <span className="quick-action-content">
                 <strong>Create Lead</strong>
@@ -602,11 +663,17 @@ function DashboardPage() {
                 <small>Add a new prospect</small>
               </span>
 
-              <span className="quick-action-arrow">→</span>
+              <span className="quick-action-arrow" aria-hidden="true">
+                <ArrowRight size={15} weight="bold" />
+              </span>
             </Link>
 
+            {/* CUSTOMERS */}
+
             <Link to="/customers/new" className="quick-action">
-              <span className="quick-action-icon">◉</span>
+              <span className="quick-action-icon" aria-hidden="true">
+                <Users size={20} weight="regular" />
+              </span>
 
               <span className="quick-action-content">
                 <strong>Customers</strong>
@@ -614,11 +681,17 @@ function DashboardPage() {
                 <small>Manage customer records</small>
               </span>
 
-              <span className="quick-action-arrow">→</span>
+              <span className="quick-action-arrow" aria-hidden="true">
+                <ArrowRight size={15} weight="bold" />
+              </span>
             </Link>
 
+            {/* SERVICES */}
+
             <Link to="/services" className="quick-action">
-              <span className="quick-action-icon">⚙</span>
+              <span className="quick-action-icon" aria-hidden="true">
+                <Package size={20} weight="regular" />
+              </span>
 
               <span className="quick-action-content">
                 <strong>Services</strong>
@@ -626,11 +699,17 @@ function DashboardPage() {
                 <small>Manage service catalog</small>
               </span>
 
-              <span className="quick-action-arrow">→</span>
+              <span className="quick-action-arrow" aria-hidden="true">
+                <ArrowRight size={15} weight="bold" />
+              </span>
             </Link>
 
+            {/* REVIEW LEADS */}
+
             <Link to="/leads" className="quick-action">
-              <span className="quick-action-icon">✓</span>
+              <span className="quick-action-icon" aria-hidden="true">
+                <Check size={20} weight="bold" />
+              </span>
 
               <span className="quick-action-content">
                 <strong>Review Leads</strong>
@@ -638,7 +717,9 @@ function DashboardPage() {
                 <small>Check pipeline activity</small>
               </span>
 
-              <span className="quick-action-arrow">→</span>
+              <span className="quick-action-arrow" aria-hidden="true">
+                <ArrowRight size={15} weight="bold" />
+              </span>
             </Link>
           </div>
         </div>
@@ -664,13 +745,16 @@ function DashboardPage() {
             </div>
 
             <Link to="/services" className="dashboard-card-action">
-              Catalog →
+              Catalog
+              <ArrowRight size={13} weight="bold" />
             </Link>
           </div>
 
           {serviceDemand.length === 0 ? (
             <div className="dashboard-empty">
-              <div className="dashboard-empty-icon">⚙</div>
+              <div className="dashboard-empty-icon" aria-hidden="true">
+                <Package size={24} weight="regular" />
+              </div>
 
               <h3>No service demand yet</h3>
 
@@ -730,7 +814,9 @@ function DashboardPage() {
 
           {attentionItems.length === 0 ? (
             <div className="dashboard-empty dashboard-empty-success">
-              <div className="dashboard-empty-icon">✓</div>
+              <div className="dashboard-empty-icon" aria-hidden="true">
+                <Check size={24} weight="bold" />
+              </div>
 
               <h3>Everything looks good</h3>
 
@@ -745,11 +831,13 @@ function DashboardPage() {
                   key={`${item.title}-${index}`}
                 >
                   <div className="attention-icon">
-                    {item.type === "warning"
-                      ? "!"
-                      : item.type === "info"
-                        ? "i"
-                        : "•"}
+                    {item.type === "warning" ? (
+                      <Warning size={17} weight="bold" />
+                    ) : item.type === "info" ? (
+                      <Info size={17} weight="bold" />
+                    ) : (
+                      <Circle size={8} weight="fill" />
+                    )}
                   </div>
 
                   <div className="attention-content">
@@ -757,7 +845,10 @@ function DashboardPage() {
 
                     <p>{item.description}</p>
 
-                    <span>{item.action} →</span>
+                    <span>
+                      {item.action}
+                      <ArrowRight size={12} weight="bold" />
+                    </span>
                   </div>
 
                   <div className="attention-count">{item.count}</div>
@@ -786,15 +877,20 @@ function DashboardPage() {
           </div>
 
           <Link to="/services" className="dashboard-card-action">
-            Manage services →
+            Manage services
+            <ArrowRight size={13} weight="bold" />
           </Link>
         </div>
 
         <div className="service-summary-grid">
-          {/* TOTAL SERVICES */}
+          {/* ========================================================
+              TOTAL SERVICES
+              ======================================================== */}
 
           <div className="service-summary-item">
-            <span className="service-summary-icon">⚙</span>
+            <span className="service-summary-icon" aria-hidden="true">
+              <GearSix size={20} weight="regular" />
+            </span>
 
             <div>
               <strong>{serviceCatalog.totalServices}</strong>
@@ -803,10 +899,14 @@ function DashboardPage() {
             </div>
           </div>
 
-          {/* ACTIVE SERVICES */}
+          {/* ========================================================
+              ACTIVE SERVICES
+              ======================================================== */}
 
           <div className="service-summary-item">
-            <span className="service-summary-icon">✓</span>
+            <span className="service-summary-icon" aria-hidden="true">
+              <Check size={20} weight="bold" />
+            </span>
 
             <div>
               <strong>{serviceCatalog.activeServices}</strong>
@@ -815,10 +915,14 @@ function DashboardPage() {
             </div>
           </div>
 
-          {/* SERVICES IN DEMAND */}
+          {/* ========================================================
+              SERVICES IN DEMAND
+              ======================================================== */}
 
           <div className="service-summary-item">
-            <span className="service-summary-icon">◈</span>
+            <span className="service-summary-icon" aria-hidden="true">
+              <Package size={20} weight="regular" />
+            </span>
 
             <div>
               <strong>{serviceCatalog.servicesInDemand}</strong>
@@ -827,10 +931,14 @@ function DashboardPage() {
             </div>
           </div>
 
-          {/* MANAGED RECORDS */}
+          {/* ========================================================
+              MANAGED RECORDS
+              ======================================================== */}
 
           <div className="service-summary-item">
-            <span className="service-summary-icon">◉</span>
+            <span className="service-summary-icon" aria-hidden="true">
+              <Users size={20} weight="regular" />
+            </span>
 
             <div>
               <strong>{managedRecords}</strong>
@@ -847,7 +955,7 @@ function DashboardPage() {
 
       <section className="dashboard-system-status">
         <div className="system-status-left">
-          <span className="system-status-dot" />
+          <span className="system-status-dot" aria-hidden="true" />
 
           <div>
             <strong>Customer Management Platform</strong>

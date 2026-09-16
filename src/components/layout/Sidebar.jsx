@@ -1,5 +1,15 @@
 import { NavLink } from "react-router-dom";
 
+import {
+  CaretLeft,
+  CaretRight,
+  GearSix,
+  Package,
+  SquaresFour,
+  UserCircle,
+  Users,
+} from "@phosphor-icons/react";
+
 import { useAuth } from "../../context/AuthContext";
 
 function Sidebar({ collapsed, onToggle }) {
@@ -45,7 +55,11 @@ function Sidebar({ collapsed, onToggle }) {
         title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
       >
         <span className="sidebar-toggle-icon" aria-hidden="true">
-          {collapsed ? "›" : "‹"}
+          {collapsed ? (
+            <CaretRight size={16} weight="bold" />
+          ) : (
+            <CaretLeft size={16} weight="bold" />
+          )}
         </span>
       </button>
 
@@ -61,7 +75,7 @@ function Sidebar({ collapsed, onToggle }) {
           data-tooltip="Dashboard"
         >
           <span className="sidebar-icon" aria-hidden="true">
-            ▦
+            <SquaresFour size={20} weight="regular" />
           </span>
 
           <span className="sidebar-link-label">Dashboard</span>
@@ -70,7 +84,7 @@ function Sidebar({ collapsed, onToggle }) {
         {hasPermission("leads.read") && (
           <NavLink to="/leads" className={navigationClass} data-tooltip="Leads">
             <span className="sidebar-icon" aria-hidden="true">
-              ◈
+              <UserCircle size={20} weight="regular" />
             </span>
 
             <span className="sidebar-link-label">Leads</span>
@@ -84,7 +98,7 @@ function Sidebar({ collapsed, onToggle }) {
             data-tooltip="Customers"
           >
             <span className="sidebar-icon" aria-hidden="true">
-              ◉
+              <Users size={20} weight="regular" />
             </span>
 
             <span className="sidebar-link-label">Customers</span>
@@ -98,7 +112,7 @@ function Sidebar({ collapsed, onToggle }) {
             data-tooltip="Services"
           >
             <span className="sidebar-icon" aria-hidden="true">
-              ◇
+              <Package size={20} weight="regular" />
             </span>
 
             <span className="sidebar-link-label">Services</span>
@@ -124,7 +138,7 @@ function Sidebar({ collapsed, onToggle }) {
             data-tooltip="Settings"
           >
             <span className="sidebar-icon" aria-hidden="true">
-              ⚙
+              <GearSix size={20} weight="regular" />
             </span>
 
             <span className="sidebar-link-label">Settings</span>
