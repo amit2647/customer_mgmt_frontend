@@ -1,83 +1,194 @@
 /* =========================================================
-   CARDS / TABLES
+   OMNICORE — CARDS / TABLES
+   ========================================================= */
+
+
+/* =========================================================
+   CARD
    ========================================================= */
 
 .card {
     overflow: hidden;
+
     background: var(--color-surface);
+
     border: 1px solid var(--color-border);
+
     border-radius: var(--radius-md);
+
     box-shadow: var(--shadow-card);
 }
 
+
+/* =========================================================
+   TABLE
+   ========================================================= */
+
 table {
     width: 100%;
+
     border-collapse: collapse;
 }
+
+
+/* =========================================================
+   TABLE CELLS
+   ========================================================= */
 
 th,
 td {
     padding: 15px 18px;
-    border-bottom: 1px solid #ECECE6;
+
+    border-bottom: 1px solid var(--color-border);
+
     text-align: left;
+
     vertical-align: middle;
+
     font-size: 12px;
 }
 
+
+/* =========================================================
+   TABLE HEADER
+   ========================================================= */
+
 th {
-    background: #FAFAF8;
-    color: #7C899C;
+    background: var(--color-surface-subtle);
+
+    color: var(--color-text-muted);
+
     font-size: 10px;
+
     font-weight: 700;
+
     letter-spacing: 0.06em;
+
     text-transform: uppercase;
 }
 
+
+/* =========================================================
+   TABLE BODY
+   ========================================================= */
+
 td {
-    color: #343434;
+    color: var(--color-text);
 }
 
 tr:last-child td {
     border-bottom: 0;
 }
 
+
+/* =========================================================
+   TABLE ROW
+   ========================================================= */
+
 tbody tr {
-    transition: background 0.12s ease;
+    transition:
+        background 0.12s ease;
 }
 
 tbody tr:hover {
     background: var(--brand-lemon-soft);
 }
 
+
+/* =========================================================
+   TABLE ACTIONS
+   ========================================================= */
+
 .table-actions {
     display: flex;
+
     align-items: center;
+
     gap: 12px;
+
     white-space: nowrap;
 }
 
+
+/* =========================================================
+   LINKS
+   ========================================================= */
+
 .link {
     padding: 0;
+
     border: 0;
+
     background: none;
-    color: #5C5C57;
+
+    color: var(--color-text-secondary);
+
+    font-family: var(--font-body);
+
     font-size: 12px;
+
     cursor: pointer;
 }
 
 .link:hover {
+    color: var(--color-text);
+
     text-decoration: underline;
 }
 
+
+/* =========================================================
+   CONVERSION LINK
+   ========================================================= */
+
 .convert-link {
-    color: #5F5700;
+    color: var(--color-info);
 }
+
+.convert-link:hover {
+    color: var(--color-info);
+}
+
+
+/* =========================================================
+   DELETE LINK
+   ========================================================= */
 
 .delete-link {
     color: var(--color-danger);
 }
 
 .delete-link:hover {
-    color: #3F3030;
+    color: var(--color-danger);
 }
 
+
+/* =========================================================
+   RESPONSIVE TABLE
+   ========================================================= */
+
+@media (max-width: 900px) {
+
+    th,
+    td {
+        padding: 13px 14px;
+    }
+}
+
+@media (max-width: 700px) {
+
+    th,
+    td {
+        padding: 11px 12px;
+
+        font-size: 11px;
+    }
+
+    th {
+        font-size: 9px;
+    }
+
+    .table-actions {
+        gap: 8px;
+    }
+}

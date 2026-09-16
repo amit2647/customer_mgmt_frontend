@@ -718,8 +718,8 @@
     min-height: 24px;
     padding: 5px 8px;
     border-radius: var(--radius-pill);
-    background: var(--brand-lemon-soft);
-    color: #5F5700;
+    background: var(--color-brand-badge-bg);
+    color: var(--color-brand-badge-text);
     font-size: 9px;
     font-weight: 700;
 }

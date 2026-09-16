@@ -1,132 +1,358 @@
 /* =========================================================
-   BADGES / STATUS
+   OMNICORE — BADGES / STATUS
    ========================================================= */
 
-.pill,
-.status {
+
+/* =========================================================
+   GENERIC PILL
+   ========================================================= */
+
+.pill {
     display: inline-flex;
+
     align-items: center;
+
     border-radius: var(--radius-pill);
+
     padding: 4px 8px;
+
+    background: var(--color-surface-muted);
+
+    color: var(--color-text-secondary);
+
     font-size: 10px;
+
     font-weight: 650;
+
     line-height: 1.2;
+
     white-space: nowrap;
 }
 
-.pill {
-    background: var(--color-surface-muted);
-    color: #555550;
-}
+
+/* =========================================================
+   STATUS
+   ========================================================= */
 
 .status {
+    display: inline-flex;
+
+    align-items: center;
+
+    border-radius: var(--radius-pill);
+
+    padding: 4px 8px;
+
     background: var(--color-surface-muted);
-    color: #555550;
+
+    color: var(--color-status-neutral-text);
+
+    font-size: 10px;
+
+    font-weight: 650;
+
+    line-height: 1.2;
+
+    white-space: nowrap;
 }
+
+
+/* ---------------------------------------------------------
+   New
+   --------------------------------------------------------- */
 
 .status.new {
     background: var(--color-info-bg);
-    color: #555550;
+
+    color: var(--color-status-info-text);
 }
+
+
+/* ---------------------------------------------------------
+   Contacted
+   --------------------------------------------------------- */
 
 .status.contacted {
     background: var(--brand-yellow-soft);
-    color: #6F6200;
+
+    color: var(--color-status-contacted-text);
 }
+
+
+/* ---------------------------------------------------------
+   Qualified / Converted
+   --------------------------------------------------------- */
 
 .status.qualified,
 .status.converted {
     background: var(--brand-lemon-soft);
-    color: #5F5700;
+
+    color: var(--color-status-qualified-text);
 }
+
+
+/* ---------------------------------------------------------
+   Lost
+   --------------------------------------------------------- */
 
 .status.lost {
     background: var(--color-danger-bg);
-    color: #5A4545;
+
+    color: var(--color-status-lost-text);
 }
+
+
+/* =========================================================
+   STATUS PILL
+   ========================================================= */
 
 .status-pill {
     display: inline-flex;
+
     align-items: center;
+
     min-height: 24px;
+
     padding: 4px 9px;
+
     border-radius: var(--radius-pill);
+
     background: var(--color-surface-muted);
-    color: #555550;
+
+    color: var(--color-status-neutral-text);
+
     font-size: 9px;
+
     font-weight: 700;
+
+    line-height: 1.2;
+
     white-space: nowrap;
 }
 
+
+/* ---------------------------------------------------------
+   New
+   --------------------------------------------------------- */
+
 .status-pill.status-new {
     background: var(--color-info-bg);
-    color: #555550;
+
+    color: var(--color-status-info-text);
 }
+
+
+/* ---------------------------------------------------------
+   Contacted
+   --------------------------------------------------------- */
 
 .status-pill.status-contacted {
     background: var(--brand-yellow-soft);
-    color: #6F6200;
+
+    color: var(--color-status-contacted-text);
 }
+
+
+/* ---------------------------------------------------------
+   Qualified / Converted
+   --------------------------------------------------------- */
 
 .status-pill.status-qualified,
 .status-pill.status-converted {
     background: var(--brand-lemon-soft);
-    color: #5F5700;
+
+    color: var(--color-status-qualified-text);
 }
+
+
+/* ---------------------------------------------------------
+   Lost
+   --------------------------------------------------------- */
 
 .status-pill.status-lost {
     background: var(--color-danger-bg);
-    color: #5A4545;
+
+    color: var(--color-status-lost-text);
 }
+
+
+/* =========================================================
+   CATEGORY BADGE
+   ========================================================= */
 
 .category-badge {
     display: inline-flex;
+
     align-items: center;
+
     border-radius: var(--radius-pill);
+
     padding: 4px 8px;
+
     background: var(--color-surface-muted);
-    color: #555550;
+
+    color: var(--color-text-secondary);
+
     font-size: 10px;
+
     font-weight: 600;
+
+    line-height: 1.2;
+
+    white-space: nowrap;
 }
+
+
+/* =========================================================
+   SERVICE BADGES
+   ========================================================= */
 
 .service-badges {
     display: flex;
+
     flex-wrap: wrap;
+
     gap: 5px;
+
     max-width: 260px;
 }
 
 .service-badge {
     display: inline-flex;
+
     align-items: center;
+
     padding: 4px 7px;
-    border: 1px solid #E0E0DA;
+
+    border: 1px solid var(--color-border);
+
     border-radius: var(--radius-pill);
+
     background: var(--color-surface-muted);
-    color: #555550;
+
+    color: var(--color-text-secondary);
+
     font-size: 10px;
+
     font-weight: 600;
+
     line-height: 1.2;
+
     white-space: nowrap;
 }
 
+
+/* =========================================================
+   BRAND / REVIEW BADGE
+   Used by:
+   .review-services span
+   ========================================================= */
+
+.review-services {
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: 8px;
+}
+
+.review-services span {
+    display: inline-flex;
+
+    align-items: center;
+
+    min-height: 27px;
+
+    padding: 5px 10px;
+
+    border: 1px solid var(--color-brand-badge-border);
+
+    border-radius: var(--radius-pill);
+
+    background: var(--color-brand-badge-bg);
+
+    color: var(--color-brand-badge-text);
+
+    font-size: 9px;
+
+    font-weight: 650;
+
+    line-height: 1;
+
+    white-space: nowrap;
+}
+
+
+/* =========================================================
+   REVIEW STATUS
+   Same visual treatment as review-services
+   ========================================================= */
+
+.review-status {
+    display: inline-flex;
+
+    align-items: center;
+
+    min-height: 27px;
+
+    padding: 5px 10px;
+
+    border: 1px solid var(--color-brand-badge-border);
+
+    border-radius: var(--radius-pill);
+
+    background: var(--color-review-status-bg);
+
+    color: var(--color-review-status-text);
+
+    font-size: 9px;
+
+    font-weight: 650;
+
+    line-height: 1;
+
+    white-space: nowrap;
+}
+
+.review-status strong {
+    color: inherit;
+
+    font-family: var(--font-body);
+
+    font-size: inherit;
+
+    font-weight: inherit;
+
+    line-height: inherit;
+}
+
+
+/* =========================================================
+   TEXT HELPERS
+   ========================================================= */
+
 .muted {
     color: var(--color-text-muted);
+
     font-size: 11px;
 }
 
 .service-description {
     max-width: 350px;
-    color: #5F5F59;
+
+    color: var(--color-text-secondary);
+
     font-size: 12px;
+
     line-height: 1.45;
 }
 
 .empty {
     padding: 50px;
+
     color: var(--color-text-muted);
+
     font-size: 12px;
+
     text-align: center;
 }
-
