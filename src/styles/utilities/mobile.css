@@ -1,0 +1,25 @@
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 700px) {
+    .splash-logo {
+        width: 68px;
+        height: 68px;
+
+        border-radius: 19px;
+    }
+
+    .splash-brand h1 {
+        font-size: 27px;
+    }
+
+    .splash-loader {
+        margin-top: 32px;
+    }
+
+    .loading-content {
+        width: 220px;
+    }
+}
+

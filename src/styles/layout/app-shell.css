@@ -1,0 +1,29 @@
+/* =========================================================
+   APPLICATION SHELL
+   ========================================================= */
+
+.app-shell {
+    display: flex;
+    min-height: 100vh;
+    background: var(--color-page);
+}
+
+@media (min-width: 701px) {
+    .app-shell {
+        align-items: flex-start;
+    }
+}
+
+.app-main {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.app-content {
+    flex: 1;
+    min-width: 0;
+    padding: 34px 40px 48px;
+}
+

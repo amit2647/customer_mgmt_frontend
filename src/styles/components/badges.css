@@ -1,0 +1,132 @@
+/* =========================================================
+   BADGES / STATUS
+   ========================================================= */
+
+.pill,
+.status {
+    display: inline-flex;
+    align-items: center;
+    border-radius: var(--radius-pill);
+    padding: 4px 8px;
+    font-size: 10px;
+    font-weight: 650;
+    line-height: 1.2;
+    white-space: nowrap;
+}
+
+.pill {
+    background: var(--color-surface-muted);
+    color: #555550;
+}
+
+.status {
+    background: var(--color-surface-muted);
+    color: #555550;
+}
+
+.status.new {
+    background: var(--color-info-bg);
+    color: #555550;
+}
+
+.status.contacted {
+    background: var(--brand-yellow-soft);
+    color: #6F6200;
+}
+
+.status.qualified,
+.status.converted {
+    background: var(--brand-lemon-soft);
+    color: #5F5700;
+}
+
+.status.lost {
+    background: var(--color-danger-bg);
+    color: #5A4545;
+}
+
+.status-pill {
+    display: inline-flex;
+    align-items: center;
+    min-height: 24px;
+    padding: 4px 9px;
+    border-radius: var(--radius-pill);
+    background: var(--color-surface-muted);
+    color: #555550;
+    font-size: 9px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.status-pill.status-new {
+    background: var(--color-info-bg);
+    color: #555550;
+}
+
+.status-pill.status-contacted {
+    background: var(--brand-yellow-soft);
+    color: #6F6200;
+}
+
+.status-pill.status-qualified,
+.status-pill.status-converted {
+    background: var(--brand-lemon-soft);
+    color: #5F5700;
+}
+
+.status-pill.status-lost {
+    background: var(--color-danger-bg);
+    color: #5A4545;
+}
+
+.category-badge {
+    display: inline-flex;
+    align-items: center;
+    border-radius: var(--radius-pill);
+    padding: 4px 8px;
+    background: var(--color-surface-muted);
+    color: #555550;
+    font-size: 10px;
+    font-weight: 600;
+}
+
+.service-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    max-width: 260px;
+}
+
+.service-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 7px;
+    border: 1px solid #E0E0DA;
+    border-radius: var(--radius-pill);
+    background: var(--color-surface-muted);
+    color: #555550;
+    font-size: 10px;
+    font-weight: 600;
+    line-height: 1.2;
+    white-space: nowrap;
+}
+
+.muted {
+    color: var(--color-text-muted);
+    font-size: 11px;
+}
+
+.service-description {
+    max-width: 350px;
+    color: #5F5F59;
+    font-size: 12px;
+    line-height: 1.45;
+}
+
+.empty {
+    padding: 50px;
+    color: var(--color-text-muted);
+    font-size: 12px;
+    text-align: center;
+}
+

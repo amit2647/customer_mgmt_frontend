@@ -1,0 +1,2037 @@
+/* =========================================================
+   OMNICORE WORKFLOW DESIGN SYSTEM
+   Shared by Lead Workflow + Customer Workflow
+
+   Desktop design:
+   - Large workspace
+   - Wide form
+   - Comfortable vertical rhythm
+   - Reduced unused page space
+   ========================================================= */
+
+
+/* =========================================================
+   WORKFLOW PAGE
+   ========================================================= */
+
+.lead-workflow-page,
+.customer-workflow-page {
+    width: 100%;
+    max-width: 1380px;
+    margin: 0 auto;
+    padding-bottom: 36px;
+}
+
+
+/* =========================================================
+   WORKFLOW PAGE TOP BAR
+   ========================================================= */
+
+.lead-workflow-page-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 20px;
+
+    min-height: 34px;
+
+    margin-bottom: 18px;
+}
+
+.workflow-back-button {
+    display: inline-flex;
+    align-items: center;
+
+    gap: 7px;
+
+    min-height: 32px;
+
+    padding: 0;
+
+    border: 0;
+
+    background: transparent;
+
+    color: var(--color-text-secondary);
+
+    font-family: var(--font-body);
+
+    font-size: 11px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition:
+        color 0.15s ease,
+        transform 0.15s ease;
+}
+
+.workflow-back-button:hover {
+    color: var(--color-text);
+
+    transform: translateX(-1px);
+}
+
+.workflow-page-context {
+    display: flex;
+    align-items: center;
+
+    gap: 8px;
+
+    color: var(--color-text-muted);
+
+    font-size: 9px;
+}
+
+.workflow-page-context span {
+    color: var(--color-text-muted);
+
+    font-weight: 700;
+
+    letter-spacing: 0.08em;
+
+    text-transform: uppercase;
+}
+
+.workflow-page-context strong {
+    color: var(--color-text);
+
+    font-family: var(--font-display);
+
+    font-size: 10px;
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   WORKFLOW CONTAINERS
+   ========================================================= */
+
+.lead-workflow,
+.customer-workflow {
+    width: 100%;
+
+    display: flex;
+    flex-direction: column;
+
+    overflow: hidden;
+
+    border: 1px solid var(--color-border);
+
+    border-radius: var(--radius-xl);
+
+    background: var(--color-surface);
+
+    box-shadow: var(--shadow-card);
+
+    /*
+     * Makes the workflow feel like the primary workspace
+     * rather than a small form floating on the page.
+     */
+    min-height: 650px;
+}
+
+
+/* =========================================================
+   WORKFLOW HEADER
+   ========================================================= */
+
+.lead-workflow-header,
+.customer-workflow-header {
+    display: flex;
+
+    align-items: flex-start;
+    justify-content: space-between;
+
+    gap: 24px;
+
+    padding: 34px 40px 30px;
+
+    border-bottom: 1px solid var(--color-border);
+
+    background: var(--color-surface);
+}
+
+.workflow-eyebrow {
+    display: block;
+
+    margin-bottom: 9px;
+
+    color: var(--color-text-muted);
+
+    font-size: 9px;
+    font-weight: 800;
+
+    letter-spacing: 0.12em;
+
+    text-transform: uppercase;
+}
+
+.lead-workflow-header h2,
+.customer-workflow-header h2 {
+    margin: 0;
+
+    color: var(--color-text);
+
+    font-family: var(--font-display);
+
+    font-size: 26px;
+    font-weight: 700;
+
+    line-height: 1.2;
+
+    letter-spacing: -0.03em;
+}
+
+.lead-workflow-header p,
+.customer-workflow-header p {
+    max-width: 720px;
+
+    margin: 8px 0 0;
+
+    color: var(--color-text-secondary);
+
+    font-size: 12px;
+
+    line-height: 1.55;
+}
+
+
+/* =========================================================
+   OPTIONAL CLOSE BUTTON
+   ========================================================= */
+
+.workflow-close {
+    display: grid;
+    place-items: center;
+
+    width: 34px;
+    height: 34px;
+
+    flex-shrink: 0;
+
+    padding: 0;
+
+    border: 0;
+
+    border-radius: 9px;
+
+    background: var(--color-surface-muted);
+
+    color: var(--color-text-secondary);
+
+    font-size: 20px;
+
+    cursor: pointer;
+
+    transition:
+        background 0.15s ease,
+        color 0.15s ease;
+}
+
+.workflow-close:hover {
+    background: var(--brand-lemon-soft);
+
+    color: var(--color-text);
+}
+
+
+/* =========================================================
+   WORKFLOW STEPS
+   ========================================================= */
+
+.workflow-steps {
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, minmax(0, 1fr));
+
+    gap: 0;
+
+    padding: 22px 40px;
+
+    border-bottom: 1px solid var(--color-border);
+
+    background: var(--color-surface-subtle);
+}
+
+/*
+ * Customer workflow:
+ *
+ * Profile → Services → Review
+ */
+
+.customer-workflow-steps {
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+}
+
+
+/* =========================================================
+   INDIVIDUAL STEP
+   ========================================================= */
+
+.workflow-step {
+    position: relative;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 11px;
+
+    min-width: 0;
+}
+
+
+/* Connecting line */
+
+.workflow-step:not(:last-child)::after {
+    position: absolute;
+
+    top: 16px;
+
+    left: 36px;
+    right: 18px;
+
+    height: 1px;
+
+    background: var(--color-border);
+
+    content: "";
+}
+
+
+/* =========================================================
+   STEP NUMBER
+   ========================================================= */
+
+.workflow-step-number {
+    position: relative;
+
+    z-index: 2;
+
+    display: grid;
+
+    place-items: center;
+
+    width: 32px;
+    height: 32px;
+
+    flex-shrink: 0;
+
+    border: 1px solid var(--color-border-strong);
+
+    border-radius: 50%;
+
+    background: var(--color-surface);
+
+    color: var(--color-text-muted);
+
+    font-family: var(--font-display);
+
+    font-size: 10px;
+    font-weight: 800;
+
+    transition:
+        background 0.15s ease,
+        border-color 0.15s ease,
+        color 0.15s ease,
+        box-shadow 0.15s ease;
+}
+
+
+/* Active */
+
+.workflow-step.active .workflow-step-number {
+    border-color: var(--brand-lemon);
+
+    background: var(--brand-lemon);
+
+    color: #171717;
+
+    box-shadow:
+        0 0 0 4px var(--brand-lemon-soft);
+}
+
+
+/* Completed */
+
+.workflow-step.completed .workflow-step-number {
+    border-color: #171717;
+
+    background: #171717;
+
+    color: var(--brand-lemon);
+}
+
+
+/* =========================================================
+   STEP CONTENT
+   ========================================================= */
+
+.workflow-step-content {
+    position: relative;
+
+    z-index: 2;
+
+    min-width: 0;
+
+    padding-right: 12px;
+
+    background: var(--color-surface-subtle);
+}
+
+.workflow-step-content strong {
+    display: block;
+
+    color: var(--color-text);
+
+    font-family: var(--font-display);
+
+    font-size: 10px;
+    font-weight: 700;
+
+    line-height: 1.25;
+}
+
+.workflow-step-content span {
+    display: block;
+
+    margin-top: 3px;
+
+    color: var(--color-text-muted);
+
+    font-size: 8px;
+
+    line-height: 1.3;
+}
+
+
+/* =========================================================
+   WORKFLOW ERROR
+   ========================================================= */
+
+.workflow-error {
+    display: flex;
+
+    align-items: flex-start;
+
+    gap: 9px;
+
+    margin: 18px 40px 0;
+
+    padding: 11px 13px;
+
+    border: 1px solid #E2D6D0;
+
+    border-radius: 9px;
+
+    background: #FBF8F5;
+
+    color: #5A4545;
+
+    font-size: 10px;
+
+    line-height: 1.45;
+}
+
+.workflow-error::before {
+    display: grid;
+
+    place-items: center;
+
+    width: 18px;
+    height: 18px;
+
+    flex-shrink: 0;
+
+    border-radius: 50%;
+
+    background: var(--color-danger-bg);
+
+    color: var(--color-danger);
+
+    font-size: 9px;
+    font-weight: 800;
+
+    content: "!";
+}
+
+
+/* =========================================================
+   WORKFLOW BODY
+   ========================================================= */
+
+.workflow-body {
+    /*
+     * Important change:
+     *
+     * The body now expands significantly on desktop.
+     * This makes the workflow feel like a full workspace.
+     */
+
+    min-height: 470px;
+
+    flex: 1;
+
+    overflow: visible;
+
+    background: var(--color-surface);
+}
+
+
+/* =========================================================
+   WORKFLOW PANEL
+   ========================================================= */
+
+.workflow-panel {
+    width: 100%;
+
+    padding: 38px 40px 42px;
+}
+
+
+/* =========================================================
+   WORKFLOW PANEL HEADING
+   ========================================================= */
+
+.workflow-panel-heading {
+    margin-bottom: 30px;
+}
+
+.workflow-panel-heading>span {
+    display: block;
+
+    margin-bottom: 8px;
+
+    color: var(--color-text-muted);
+
+    font-size: 8px;
+    font-weight: 800;
+
+    letter-spacing: 0.12em;
+
+    text-transform: uppercase;
+}
+
+.workflow-panel-heading h3 {
+    margin: 0;
+
+    color: var(--color-text);
+
+    font-family: var(--font-display);
+
+    font-size: 20px;
+    font-weight: 700;
+
+    line-height: 1.25;
+
+    letter-spacing: -0.025em;
+}
+
+.workflow-panel-heading p {
+    max-width: 700px;
+
+    margin: 7px 0 0;
+
+    color: var(--color-text-secondary);
+
+    font-size: 11px;
+
+    line-height: 1.55;
+}
+
+
+/* =========================================================
+   WORKFLOW FORM GRID
+   ========================================================= */
+
+.workflow-form-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 24px 20px;
+
+    max-width: 100%;
+}
+
+
+/* =========================================================
+   FORM LABEL
+   ========================================================= */
+
+.workflow-form-grid label {
+    display: block;
+
+    min-width: 0;
+
+    color: #343434;
+
+    font-size: 10px;
+
+    font-weight: 700;
+
+    line-height: 1.3;
+}
+
+
+/* =========================================================
+   FORM INPUTS
+   ========================================================= */
+
+.workflow-form-grid input,
+.workflow-form-grid select,
+.workflow-form-grid textarea {
+    display: block;
+
+    width: 100%;
+
+    margin-top: 8px;
+
+    border: 1px solid var(--color-border-strong);
+
+    border-radius: 10px;
+
+    outline: none;
+
+    background: var(--color-surface);
+
+    color: var(--color-text);
+
+    font-family: var(--font-body);
+
+    font-size: 12px;
+
+    transition:
+        border-color 0.15s ease,
+        box-shadow 0.15s ease,
+        background 0.15s ease;
+}
+
+
+/* Inputs */
+
+.workflow-form-grid input,
+.workflow-form-grid select {
+    height: 46px;
+
+    padding: 0 13px;
+}
+
+
+/* Textarea */
+
+.workflow-form-grid textarea {
+    min-height: 110px;
+
+    padding: 12px 13px;
+
+    resize: vertical;
+
+    line-height: 1.5;
+}
+
+
+/* Placeholder */
+
+.workflow-form-grid input::placeholder,
+.workflow-form-grid textarea::placeholder {
+    color: var(--color-text-faint);
+}
+
+
+/* Focus */
+
+.workflow-form-grid input:focus,
+.workflow-form-grid select:focus,
+.workflow-form-grid textarea:focus {
+    border-color: var(--color-border-accent);
+
+    background: #FFFFFF;
+
+    box-shadow:
+        0 0 0 3px var(--brand-lemon-soft);
+}
+
+
+/* Full width */
+
+.workflow-field-full {
+    grid-column: 1 / -1;
+}
+
+
+/* =========================================================
+   QUALIFICATION
+   ========================================================= */
+
+.qualification-block {
+    margin-bottom: 20px;
+
+    padding: 20px;
+
+    border: 1px solid var(--color-border);
+
+    border-radius: var(--radius-md);
+
+    background: var(--color-surface-subtle);
+}
+
+.qualification-label {
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 20px;
+}
+
+.qualification-label>div {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 4px;
+}
+
+.qualification-label strong {
+    color: var(--color-text);
+
+    font-size: 12px;
+
+    font-weight: 700;
+}
+
+.qualification-label span {
+    color: var(--color-text-muted);
+
+    font-size: 9px;
+}
+
+.qualification-current {
+    display: inline-flex;
+
+    align-items: center;
+
+    min-height: 28px;
+
+    padding: 5px 10px;
+
+    border-radius: var(--radius-pill);
+
+    background: var(--brand-lemon-soft);
+
+    color: #5F5700 !important;
+
+    font-size: 9px !important;
+
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   LEAD STATUS OPTIONS
+   ========================================================= */
+
+.workflow-status-options {
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, minmax(0, 1fr));
+
+    gap: 10px;
+
+    margin-top: 18px;
+}
+
+.workflow-status-options button {
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 7px;
+
+    min-height: 42px;
+
+    padding: 0 12px;
+
+    border: 1px solid var(--color-border);
+
+    border-radius: 9px;
+
+    background: var(--color-surface);
+
+    color: var(--color-text-secondary);
+
+    font-family: var(--font-body);
+
+    font-size: 10px;
+
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition:
+        border-color 0.15s ease,
+        background 0.15s ease,
+        color 0.15s ease;
+}
+
+.workflow-status-options button:hover {
+    border-color: var(--color-border-accent);
+
+    background: var(--brand-lemon-soft);
+}
+
+.workflow-status-options button.selected {
+    border-color: var(--brand-lemon);
+
+    background: var(--brand-lemon);
+
+    color: #171717;
+}
+
+.status-option-dot {
+    width: 6px;
+    height: 6px;
+
+    flex-shrink: 0;
+
+    border-radius: 50%;
+
+    background: currentColor;
+}
+
+
+/* =========================================================
+   LEAD SCORE
+   ========================================================= */
+
+.score-value {
+    min-width: 44px;
+
+    color: var(--color-text);
+
+    text-align: right;
+
+    font-family: var(--font-display);
+
+    font-size: 24px !important;
+
+    font-weight: 750;
+}
+
+.score-slider {
+    width: 100%;
+
+    margin: 24px 0 9px;
+
+    accent-color: #171717;
+
+    cursor: pointer;
+}
+
+.score-scale {
+    display: flex;
+
+    justify-content: space-between;
+
+    color: var(--color-text-muted);
+
+    font-size: 9px;
+}
+
+.score-scale span:nth-child(2) {
+    color: var(--color-text-secondary);
+
+    font-weight: 600;
+}
+
+
+/* =========================================================
+   SERVICE GRID
+   ========================================================= */
+
+.workflow-service-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 14px;
+}
+
+
+/* =========================================================
+   SERVICE CARD
+   ========================================================= */
+
+.workflow-service-card {
+    display: grid;
+
+    grid-template-columns:
+        28px minmax(0, 1fr);
+
+    align-items: flex-start;
+
+    gap: 13px;
+
+    width: 100%;
+
+    min-width: 0;
+
+    min-height: 108px;
+
+    padding: 18px;
+
+    border: 1px solid var(--color-border);
+
+    border-radius: 12px;
+
+    background: var(--color-surface);
+
+    color: inherit;
+
+    text-align: left;
+
+    cursor: pointer;
+
+    transition:
+        border-color 0.15s ease,
+        background 0.15s ease,
+        box-shadow 0.15s ease,
+        transform 0.15s ease;
+}
+
+.workflow-service-card:hover {
+    border-color: var(--color-border-accent);
+
+    background: var(--brand-lemon-soft);
+
+    box-shadow: var(--shadow-card-hover);
+
+    transform: translateY(-1px);
+}
+
+.workflow-service-card.selected {
+    border-color: var(--brand-lemon);
+
+    background: var(--brand-lemon-soft);
+
+    box-shadow:
+        inset 0 0 0 1px rgba(227, 217, 76, 0.2);
+}
+
+
+/* =========================================================
+   SERVICE CHECK
+   ========================================================= */
+
+.workflow-service-check {
+    display: grid;
+
+    place-items: center;
+
+    width: 24px;
+    height: 24px;
+
+    margin-top: 1px;
+
+    border: 1px solid var(--color-border-strong);
+
+    border-radius: 7px;
+
+    background: var(--color-surface);
+
+    color: #171717;
+
+    font-size: 11px;
+
+    font-weight: 800;
+
+    transition:
+        background 0.15s ease,
+        border-color 0.15s ease,
+        color 0.15s ease;
+}
+
+.workflow-service-card.selected .workflow-service-check {
+    border-color: #171717;
+
+    background: #171717;
+
+    color: var(--brand-lemon);
+}
+
+
+/* =========================================================
+   SERVICE CONTENT
+   ========================================================= */
+
+.workflow-service-card strong {
+    display: block;
+
+    overflow: hidden;
+
+    color: var(--color-text);
+
+    font-family: var(--font-display);
+
+    font-size: 12px;
+
+    font-weight: 700;
+
+    line-height: 1.3;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+}
+
+.workflow-service-card span {
+    display: block;
+
+    margin-top: 4px;
+
+    color: var(--color-text-muted);
+
+    font-size: 9px;
+
+    line-height: 1.4;
+}
+
+.workflow-service-card p {
+    display: -webkit-box;
+
+    margin: 8px 0 0;
+
+    overflow: hidden;
+
+    color: var(--color-text-secondary);
+
+    font-size: 10px;
+
+    line-height: 1.5;
+
+    -webkit-box-orient: vertical;
+
+    -webkit-line-clamp: 2;
+}
+
+
+/* =========================================================
+   SERVICE SELECTION SUMMARY
+   ========================================================= */
+
+.workflow-selection-summary {
+    display: flex;
+
+    align-items: center;
+
+    gap: 7px;
+
+    margin-top: 20px;
+
+    padding-top: 16px;
+
+    border-top: 1px solid var(--color-surface-muted);
+
+    color: var(--color-text-muted);
+
+    font-size: 10px;
+}
+
+.workflow-selection-summary strong {
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    min-width: 26px;
+
+    height: 23px;
+
+    padding: 0 7px;
+
+    border-radius: 7px;
+
+    background: var(--brand-lemon);
+
+    color: #171717;
+
+    font-family: var(--font-display);
+
+    font-size: 10px;
+
+    font-weight: 800;
+}
+
+
+/* =========================================================
+   SERVICE LOADING / EMPTY
+   ========================================================= */
+
+.workflow-loading,
+.workflow-empty {
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+    justify-content: center;
+
+    min-height: 210px;
+
+    padding: 36px;
+
+    border: 1px dashed var(--color-border-strong);
+
+    border-radius: var(--radius-md);
+
+    background: var(--color-surface-subtle);
+
+    text-align: center;
+}
+
+.workflow-loading {
+    color: var(--color-text-secondary);
+
+    font-size: 11px;
+}
+
+.workflow-empty strong {
+    color: var(--color-text);
+
+    font-family: var(--font-display);
+
+    font-size: 13px;
+
+    font-weight: 700;
+}
+
+.workflow-empty span {
+    max-width: 380px;
+
+    margin-top: 7px;
+
+    color: var(--color-text-muted);
+
+    font-size: 10px;
+
+    line-height: 1.5;
+}
+
+
+/* =========================================================
+   REVIEW GRID
+   ========================================================= */
+
+.review-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 16px;
+}
+
+
+/* =========================================================
+   REVIEW CARD
+   ========================================================= */
+
+.review-card {
+    min-width: 0;
+
+    min-height: 150px;
+
+    padding: 20px;
+
+    border: 1px solid var(--color-border);
+
+    border-radius: 12px;
+
+    background: var(--color-surface-subtle);
+}
+
+.review-card-full {
+    grid-column: 1 / -1;
+
+    min-height: 110px;
+}
+
+
+/* =========================================================
+   REVIEW LABEL
+   ========================================================= */
+
+.review-card>span {
+    display: block;
+
+    margin-bottom: 14px;
+
+    color: var(--color-text-muted);
+
+    font-size: 8px;
+
+    font-weight: 800;
+
+    letter-spacing: 0.1em;
+
+    text-transform: uppercase;
+}
+
+
+/* =========================================================
+   REVIEW VALUE
+   ========================================================= */
+
+.review-card>strong {
+    display: block;
+
+    overflow: hidden;
+
+    color: var(--color-text);
+
+    font-family: var(--font-display);
+
+    font-size: 14px;
+
+    font-weight: 700;
+
+    line-height: 1.35;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+}
+
+.review-card p {
+    margin: 6px 0 0;
+
+    color: var(--color-text-secondary);
+
+    font-size: 10px;
+
+    line-height: 1.5;
+}
+
+
+/* =========================================================
+   REVIEW STATUS
+   ========================================================= */
+
+.review-status {
+    display: inline-flex;
+
+    align-items: center;
+
+    min-height: 27px;
+
+    padding: 5px 11px;
+
+    border-radius: var(--radius-pill);
+
+    background: var(--brand-lemon);
+
+    color: #171717;
+}
+
+.review-status strong {
+    color: #171717;
+
+    font-family: var(--font-body);
+
+    font-size: 9px;
+
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   REVIEW SCORE
+   ========================================================= */
+
+.review-score {
+    display: flex;
+
+    align-items: baseline;
+
+    gap: 7px;
+
+    margin-top: 13px;
+}
+
+.review-score strong {
+    color: var(--color-text);
+
+    font-family: var(--font-display);
+
+    font-size: 24px;
+
+    font-weight: 750;
+}
+
+.review-score span {
+    color: var(--color-text-muted);
+
+    font-size: 9px;
+}
+
+
+/* =========================================================
+   REVIEW SERVICES
+   ========================================================= */
+
+.review-services {
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: 8px;
+}
+
+.review-services span {
+    display: inline-flex;
+
+    align-items: center;
+
+    min-height: 27px;
+
+    padding: 5px 10px;
+
+    border: 1px solid #ECE8A2;
+
+    border-radius: var(--radius-pill);
+
+    background: var(--brand-lemon-soft);
+
+    color: #5F5700;
+
+    font-size: 9px;
+
+    font-weight: 650;
+
+    white-space: nowrap;
+}
+
+
+/* =========================================================
+   WORKFLOW FOOTER
+   ========================================================= */
+
+.workflow-footer {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 12px;
+
+    padding: 20px 40px;
+
+    border-top: 1px solid var(--color-border);
+
+    background: var(--color-surface-subtle);
+}
+
+.workflow-footer .primary,
+.workflow-footer .secondary-button {
+    min-width: 135px;
+
+    min-height: 42px;
+}
+
+.workflow-footer .primary span {
+    font-size: 14px;
+
+    line-height: 1;
+}
+
+
+/* =========================================================
+   WORKFLOW PAGE STATES
+   ========================================================= */
+
+.workflow-page-state {
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: center;
+
+    min-height: 60vh;
+
+    padding: 40px 20px;
+
+    text-align: center;
+}
+
+.workflow-page-state-icon {
+    display: grid;
+
+    place-items: center;
+
+    width: 48px;
+    height: 48px;
+
+    margin-bottom: 15px;
+
+    border-radius: 50%;
+
+    background: var(--brand-lemon);
+
+    color: #171717;
+
+    font-family: var(--font-display);
+
+    font-size: 18px;
+
+    font-weight: 800;
+}
+
+.workflow-page-state-icon.error {
+    background: var(--color-danger-bg);
+
+    color: var(--color-danger);
+}
+
+.workflow-page-state h2 {
+    margin: 0;
+
+    color: var(--color-text);
+
+    font-family: var(--font-display);
+
+    font-size: 19px;
+
+    font-weight: 700;
+
+    letter-spacing: -0.015em;
+}
+
+.workflow-page-state p {
+    max-width: 420px;
+
+    margin: 7px 0 18px;
+
+    color: var(--color-text-secondary);
+
+    font-size: 11px;
+
+    line-height: 1.5;
+}
+
+
+/* =========================================================
+   CUSTOMER WORKFLOW
+   ========================================================= */
+
+.customer-workflow {
+    box-shadow: var(--shadow-card);
+}
+
+.customer-workflow .workflow-step-content {
+    background: var(--color-surface-subtle);
+}
+
+
+/* =========================================================
+   LEAD WORKFLOW
+   ========================================================= */
+
+.lead-workflow {
+    box-shadow: var(--shadow-card);
+}
+
+.lead-workflow .workflow-step-content {
+    background: var(--color-surface-subtle);
+}
+
+
+/* =========================================================
+   FOCUS STATES
+   ========================================================= */
+
+.workflow-service-card:focus-visible {
+    outline: 2px solid #D8CF42;
+
+    outline-offset: 2px;
+}
+
+.workflow-status-options button:focus-visible {
+    outline: 2px solid #D8CF42;
+
+    outline-offset: 2px;
+}
+
+.workflow-back-button:focus-visible {
+    outline: 2px solid #D8CF42;
+
+    outline-offset: 3px;
+}
+
+
+/* =========================================================
+   LARGE DESKTOP
+   ========================================================= */
+
+@media (min-width: 1500px) {
+
+    .lead-workflow-page,
+    .customer-workflow-page {
+        max-width: 1440px;
+    }
+
+    .lead-workflow,
+    .customer-workflow {
+        min-height: 680px;
+    }
+
+    .lead-workflow-header,
+    .customer-workflow-header {
+        padding: 36px 42px 32px;
+    }
+
+    .workflow-steps {
+        padding: 23px 42px;
+    }
+
+    .workflow-panel {
+        padding: 42px;
+    }
+
+    .workflow-body {
+        min-height: 500px;
+    }
+
+    .workflow-footer {
+        padding: 21px 42px;
+    }
+}
+
+
+/* =========================================================
+   TABLET / MEDIUM DESKTOP
+   ========================================================= */
+
+@media (max-width: 1200px) {
+
+    .lead-workflow-page,
+    .customer-workflow-page {
+        max-width: 100%;
+    }
+
+    .lead-workflow,
+    .customer-workflow {
+        min-height: 620px;
+    }
+
+    .lead-workflow-header,
+    .customer-workflow-header {
+        padding: 30px;
+    }
+
+    .workflow-steps {
+        padding: 20px 30px;
+    }
+
+    .workflow-panel {
+        padding: 32px 30px 36px;
+    }
+
+    .workflow-footer {
+        padding: 18px 30px;
+    }
+
+    .workflow-error {
+        margin-left: 30px;
+        margin-right: 30px;
+    }
+}
+
+
+/* =========================================================
+   TABLET
+   ========================================================= */
+
+@media (max-width: 900px) {
+
+    .lead-workflow,
+    .customer-workflow {
+        min-height: 0;
+    }
+
+    .workflow-body {
+        min-height: 430px;
+    }
+
+    .lead-workflow-header,
+    .customer-workflow-header {
+        padding: 26px;
+    }
+
+    .workflow-steps {
+        padding: 18px 26px;
+    }
+
+    .workflow-panel {
+        padding: 28px 26px 32px;
+    }
+
+    .workflow-footer {
+        padding: 16px 26px;
+    }
+
+    .workflow-error {
+        margin-left: 26px;
+        margin-right: 26px;
+    }
+
+    .workflow-service-card {
+        min-height: 100px;
+    }
+}
+
+
+/* =========================================================
+   MOBILE / SMALL TABLET
+   ========================================================= */
+
+@media (max-width: 700px) {
+
+    .lead-workflow-page,
+    .customer-workflow-page {
+        padding-bottom: 28px;
+    }
+
+    .lead-workflow-page-topbar {
+        align-items: flex-start;
+
+        flex-direction: column;
+
+        gap: 9px;
+    }
+
+    .workflow-page-context {
+        width: 100%;
+    }
+
+
+    /* -----------------------------------------------------
+       HEADER
+       ----------------------------------------------------- */
+
+    .lead-workflow-header,
+    .customer-workflow-header {
+        padding: 22px 20px;
+    }
+
+    .lead-workflow-header h2,
+    .customer-workflow-header h2 {
+        font-size: 21px;
+    }
+
+    .lead-workflow-header p,
+    .customer-workflow-header p {
+        font-size: 11px;
+    }
+
+
+    /* -----------------------------------------------------
+       STEPS
+       ----------------------------------------------------- */
+
+    .workflow-steps,
+    .customer-workflow-steps {
+        padding: 15px 20px;
+    }
+
+    /*
+     * Customer = 3 steps
+     */
+
+    .customer-workflow .workflow-steps {
+        grid-template-columns:
+            repeat(3, minmax(120px, 1fr));
+
+        overflow-x: auto;
+    }
+
+    /*
+     * Lead = 4 steps
+     */
+
+    .lead-workflow .workflow-steps {
+        grid-template-columns:
+            repeat(4, minmax(120px, 1fr));
+
+        overflow-x: auto;
+    }
+
+    .workflow-step {
+        gap: 8px;
+    }
+
+    .workflow-step-number {
+        width: 28px;
+        height: 28px;
+
+        font-size: 9px;
+    }
+
+    .workflow-step:not(:last-child)::after {
+        top: 14px;
+
+        left: 30px;
+        right: 8px;
+    }
+
+    .workflow-step-content span {
+        display: none;
+    }
+
+
+    /* -----------------------------------------------------
+       ERROR
+       ----------------------------------------------------- */
+
+    .workflow-error {
+        margin: 14px 20px 0;
+    }
+
+
+    /* -----------------------------------------------------
+       BODY
+       ----------------------------------------------------- */
+
+    .workflow-body {
+        min-height: 0;
+    }
+
+    .workflow-panel {
+        padding: 24px 20px;
+    }
+
+
+    /* -----------------------------------------------------
+       FORM
+       ----------------------------------------------------- */
+
+    .workflow-form-grid {
+        grid-template-columns: 1fr;
+
+        gap: 17px;
+    }
+
+    .workflow-field-full {
+        grid-column: auto;
+    }
+
+
+    /* -----------------------------------------------------
+       SERVICES
+       ----------------------------------------------------- */
+
+    .workflow-service-grid {
+        grid-template-columns: 1fr;
+    }
+
+
+    /* -----------------------------------------------------
+       REVIEW
+       ----------------------------------------------------- */
+
+    .review-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .review-card-full {
+        grid-column: auto;
+    }
+
+
+    /* -----------------------------------------------------
+       LEAD STATUS
+       ----------------------------------------------------- */
+
+    .workflow-status-options {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+
+    /* -----------------------------------------------------
+       FOOTER
+       ----------------------------------------------------- */
+
+    .workflow-footer {
+        padding: 14px 20px;
+    }
+
+    .workflow-footer .primary,
+    .workflow-footer .secondary-button {
+        min-width: 0;
+    }
+}
+
+
+/* =========================================================
+   SMALL MOBILE
+   ========================================================= */
+
+@media (max-width: 480px) {
+
+    .lead-workflow-page,
+    .customer-workflow-page {
+        padding-bottom: 20px;
+    }
+
+    .lead-workflow,
+    .customer-workflow {
+        border-radius: var(--radius-lg);
+    }
+
+
+    /* -----------------------------------------------------
+       TOP BAR
+       ----------------------------------------------------- */
+
+    .workflow-page-context {
+        display: none;
+    }
+
+
+    /* -----------------------------------------------------
+       HEADER
+       ----------------------------------------------------- */
+
+    .lead-workflow-header,
+    .customer-workflow-header {
+        padding: 20px 16px;
+    }
+
+    .lead-workflow-header h2,
+    .customer-workflow-header h2 {
+        font-size: 19px;
+    }
+
+    .lead-workflow-header p,
+    .customer-workflow-header p {
+        margin-top: 6px;
+
+        font-size: 10px;
+    }
+
+
+    /* -----------------------------------------------------
+       STEPS
+       ----------------------------------------------------- */
+
+    .workflow-steps,
+    .customer-workflow-steps {
+        padding: 13px 16px;
+    }
+
+    .workflow-step {
+        gap: 7px;
+    }
+
+    .workflow-step-number {
+        width: 26px;
+        height: 26px;
+
+        font-size: 9px;
+    }
+
+    .workflow-step:not(:last-child)::after {
+        top: 13px;
+
+        left: 28px;
+        right: 5px;
+    }
+
+    .workflow-step-content strong {
+        font-size: 9px;
+    }
+
+
+    /* -----------------------------------------------------
+       ERROR
+       ----------------------------------------------------- */
+
+    .workflow-error {
+        margin: 12px 16px 0;
+
+        padding: 9px 10px;
+
+        font-size: 9px;
+    }
+
+
+    /* -----------------------------------------------------
+       PANEL
+       ----------------------------------------------------- */
+
+    .workflow-panel {
+        padding: 20px 16px;
+    }
+
+    .workflow-panel-heading {
+        margin-bottom: 20px;
+    }
+
+    .workflow-panel-heading h3 {
+        font-size: 16px;
+    }
+
+    .workflow-panel-heading p {
+        font-size: 10px;
+    }
+
+
+    /* -----------------------------------------------------
+       FORM
+       ----------------------------------------------------- */
+
+    .workflow-form-grid {
+        gap: 14px;
+    }
+
+    .workflow-form-grid label {
+        font-size: 9px;
+    }
+
+    .workflow-form-grid input,
+    .workflow-form-grid select {
+        height: 40px;
+
+        margin-top: 6px;
+
+        padding: 0 10px;
+
+        font-size: 10px;
+    }
+
+
+    /* -----------------------------------------------------
+       QUALIFICATION
+       ----------------------------------------------------- */
+
+    .qualification-block {
+        padding: 14px;
+    }
+
+    .qualification-label {
+        align-items: flex-start;
+
+        flex-direction: column;
+
+        gap: 10px;
+    }
+
+    .workflow-status-options {
+        grid-template-columns: 1fr 1fr;
+
+        gap: 6px;
+    }
+
+    .workflow-status-options button {
+        min-height: 36px;
+
+        padding: 0 7px;
+
+        font-size: 9px;
+    }
+
+
+    /* -----------------------------------------------------
+       SERVICES
+       ----------------------------------------------------- */
+
+    .workflow-service-card {
+        min-height: 0;
+
+        padding: 13px;
+    }
+
+    .workflow-service-card strong {
+        font-size: 10px;
+    }
+
+    .workflow-service-card p {
+        font-size: 8px;
+    }
+
+    .workflow-selection-summary {
+        margin-top: 14px;
+    }
+
+
+    /* -----------------------------------------------------
+       REVIEW
+       ----------------------------------------------------- */
+
+    .review-grid {
+        gap: 10px;
+    }
+
+    .review-card {
+        min-height: 0;
+
+        padding: 14px;
+    }
+
+    .review-card>strong {
+        font-size: 12px;
+    }
+
+
+    /* -----------------------------------------------------
+       FOOTER
+       ----------------------------------------------------- */
+
+    .workflow-footer {
+        align-items: stretch;
+
+        padding: 13px 16px;
+    }
+
+    .workflow-footer .primary,
+    .workflow-footer .secondary-button {
+        min-height: 38px;
+
+        padding: 0 12px;
+
+        font-size: 10px;
+    }
+}
+
+
+/* =========================================================
+   REDUCED MOTION
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+    .workflow-back-button,
+    .workflow-step-number,
+    .workflow-service-card,
+    .workflow-service-check,
+    .workflow-status-options button {
+        transition: none;
+    }
+
+    .workflow-service-card:hover {
+        transform: none;
+    }
+}
+

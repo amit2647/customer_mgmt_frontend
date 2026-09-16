@@ -1,0 +1,19 @@
+/* =========================================================
+   ACCESSIBILITY
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+    .splash-screen,
+    .splash-content,
+    .splash-logo,
+    .splash-logo::before,
+    .splash-loader span,
+    .loading-spinner::before,
+    .loading-progress span {
+        animation: none !important;
+        transition: none !important;
+    }
+}
+
+

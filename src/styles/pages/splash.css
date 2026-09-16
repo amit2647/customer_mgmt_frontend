@@ -1,0 +1,192 @@
+/* =========================================================
+   OMNICORE — SPLASH SCREEN
+   ========================================================= */
+
+.splash-screen {
+    position: fixed;
+    inset: 0;
+    z-index: 100000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background:
+        radial-gradient(circle at 50% 40%,
+            rgba(255, 214, 10, 0.055),
+            transparent 28%),
+        var(--color-background, #f7f8fa);
+
+    opacity: 1;
+    visibility: visible;
+
+    transition:
+        opacity 0.35s ease,
+        visibility 0.35s ease;
+}
+
+.splash-screen-exiting {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.splash-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    min-width: 280px;
+
+    text-align: center;
+
+    animation: splash-content-enter 0.7s ease both;
+}
+
+
+/* ---------------------------------------------------------
+   LOGO
+   --------------------------------------------------------- */
+
+.splash-logo {
+    position: relative;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 78px;
+    height: 78px;
+
+    margin-bottom: 22px;
+
+    border-radius: 22px;
+
+    background: var(--color-primary, #111827);
+
+    box-shadow:
+        0 12px 30px rgba(16, 24, 40, 0.12),
+        0 3px 10px rgba(16, 24, 40, 0.08);
+
+    animation: splash-logo-enter 0.65s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.splash-logo::before {
+    content: "";
+
+    position: absolute;
+    inset: -6px;
+
+    border-radius: 27px;
+
+    border: 1px solid rgba(17, 24, 39, 0.08);
+
+    animation: splash-ring 1.8s ease-in-out infinite;
+}
+
+.splash-logo span {
+    color: var(--brand-lemon, #dfff00);
+
+    font-family: var(--font-display,
+            "Plus Jakarta Sans",
+            sans-serif);
+
+    font-size: 22px;
+    font-weight: 800;
+
+    letter-spacing: -0.04em;
+}
+
+
+/* ---------------------------------------------------------
+   BRAND
+   --------------------------------------------------------- */
+
+.splash-brand h1 {
+    margin: 0;
+
+    color: var(--color-text, #111827);
+
+    font-family: var(--font-display,
+            "Plus Jakarta Sans",
+            sans-serif);
+
+    font-size: 30px;
+    font-weight: 800;
+
+    line-height: 1.1;
+    letter-spacing: -0.045em;
+}
+
+.splash-brand p {
+    margin: 7px 0 0;
+
+    color: var(--color-text-secondary,
+            #667085);
+
+    font-family: var(--font-body,
+            "DM Sans",
+            sans-serif);
+
+    font-size: 12px;
+    font-weight: 500;
+
+    letter-spacing: 0.04em;
+}
+
+
+/* ---------------------------------------------------------
+   DOT LOADER
+   --------------------------------------------------------- */
+
+.splash-loader {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 5px;
+
+    margin-top: 38px;
+}
+
+.splash-loader span {
+    width: 5px;
+    height: 5px;
+
+    border-radius: 50%;
+
+    background: var(--color-primary, #111827);
+
+    animation: splash-dot 1.15s ease-in-out infinite;
+}
+
+.splash-loader span:nth-child(2) {
+    animation-delay: 0.15s;
+}
+
+.splash-loader span:nth-child(3) {
+    animation-delay: 0.3s;
+}
+
+
+/* ---------------------------------------------------------
+   STATUS
+   --------------------------------------------------------- */
+
+.splash-status {
+    margin: 12px 0 0;
+
+    color: var(--color-text-tertiary,
+            #98a2b3);
+
+    font-family: var(--font-body,
+            "DM Sans",
+            sans-serif);
+
+    font-size: 11px;
+    font-weight: 500;
+
+    letter-spacing: 0.02em;
+}
+
+

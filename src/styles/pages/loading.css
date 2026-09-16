@@ -1,0 +1,305 @@
+/* =========================================================
+   OMNICORE — FULL PAGE LOADING SCREEN
+   ========================================================= */
+
+.loading-screen {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 100%;
+
+    background: var(--color-background,
+            #f7f8fa);
+}
+
+.loading-screen-full {
+    position: fixed;
+    inset: 0;
+
+    z-index: 99999;
+
+    min-height: 100vh;
+}
+
+.loading-screen-inline {
+    min-height: 320px;
+}
+
+.loading-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    width: 260px;
+
+    text-align: center;
+}
+
+
+/* ---------------------------------------------------------
+   LOADING LOGO
+   --------------------------------------------------------- */
+
+.loading-logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 46px;
+    height: 46px;
+
+    margin-bottom: 20px;
+
+    border-radius: 14px;
+
+    background: var(--color-primary, #111827);
+
+    box-shadow:
+        0 8px 20px rgba(16, 24, 40, 0.10);
+}
+
+.loading-logo span {
+    color: var(--brand-lemon, #dfff00);
+
+    font-family: var(--font-display,
+            "Plus Jakarta Sans",
+            sans-serif);
+
+    font-size: 14px;
+    font-weight: 800;
+
+    letter-spacing: -0.04em;
+}
+
+
+/* ---------------------------------------------------------
+   MAIN SPINNER
+   --------------------------------------------------------- */
+
+.loading-spinner {
+    position: relative;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 30px;
+    height: 30px;
+
+    margin-bottom: 18px;
+}
+
+.loading-spinner::before {
+    content: "";
+
+    position: absolute;
+    inset: 0;
+
+    border: 2px solid rgba(17, 24, 39, 0.08);
+
+    border-top-color: var(--color-primary,
+            #111827);
+
+    border-radius: 50%;
+
+    animation: loading-spin 0.8s linear infinite;
+}
+
+.loading-spinner span {
+    width: 5px;
+    height: 5px;
+
+    border-radius: 50%;
+
+    background: var(--brand-lemon, #dfff00);
+}
+
+
+/* ---------------------------------------------------------
+   MESSAGE
+   --------------------------------------------------------- */
+
+.loading-message {
+    margin: 0;
+
+    color: var(--color-text, #111827);
+
+    font-family: var(--font-body,
+            "DM Sans",
+            sans-serif);
+
+    font-size: 13px;
+    font-weight: 600;
+}
+
+
+/* ---------------------------------------------------------
+   PROGRESS BAR
+   --------------------------------------------------------- */
+
+.loading-progress {
+    width: 140px;
+    height: 3px;
+
+    margin-top: 14px;
+
+    overflow: hidden;
+
+    border-radius: 999px;
+
+    background: rgba(17, 24, 39, 0.07);
+}
+
+.loading-progress span {
+    display: block;
+
+    width: 45%;
+    height: 100%;
+
+    border-radius: inherit;
+
+    background: var(--color-primary,
+            #111827);
+
+    animation: loading-progress 1.35s ease-in-out infinite;
+}
+
+
+/* =========================================================
+   OMNICORE — SMALL SPINNER
+   ========================================================= */
+
+.loading-spinner-small {
+    position: relative;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+}
+
+.loading-spinner-small::before {
+    content: "";
+
+    position: absolute;
+
+    inset: 0;
+
+    border: 2px solid rgba(17, 24, 39, 0.10);
+
+    border-top-color: var(--color-primary,
+            #111827);
+
+    border-radius: 50%;
+
+    animation: loading-spin 0.75s linear infinite;
+}
+
+.loading-spinner-small span {
+    display: block;
+
+    width: 4px;
+    height: 4px;
+
+    border-radius: 50%;
+
+    background: var(--brand-lemon,
+            #dfff00);
+}
+
+.loading-spinner-small.loading-spinner-small {
+    width: 18px;
+    height: 18px;
+}
+
+.loading-spinner-medium {
+    width: 24px;
+    height: 24px;
+}
+
+.loading-spinner-large {
+    width: 32px;
+    height: 32px;
+}
+
+
+/* =========================================================
+   ANIMATIONS
+   ========================================================= */
+
+@keyframes splash-content-enter {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes splash-logo-enter {
+    from {
+        opacity: 0;
+        transform: scale(0.82);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes splash-ring {
+
+    0%,
+    100% {
+        opacity: 0.25;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 0.06;
+        transform: scale(1.08);
+    }
+}
+
+@keyframes splash-dot {
+
+    0%,
+    60%,
+    100% {
+        opacity: 0.25;
+        transform: translateY(0);
+    }
+
+    30% {
+        opacity: 1;
+        transform: translateY(-4px);
+    }
+}
+
+@keyframes loading-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes loading-progress {
+    0% {
+        transform: translateX(-120%);
+    }
+
+    50% {
+        transform: translateX(100%);
+    }
+
+    100% {
+        transform: translateX(260%);
+    }
+}
+
+
