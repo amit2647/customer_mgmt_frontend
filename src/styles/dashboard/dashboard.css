@@ -4,8 +4,8 @@
 
 .dashboard-page {
     width: 100%;
-    max-width: 1600px;
-    margin: 0 auto;
+    max-width: none;
+    margin: 0;
 }
 
 .dashboard-header {
@@ -13,7 +13,7 @@
     justify-content: space-between;
     align-items: flex-end;
     gap: 24px;
-    margin-bottom: 28px;
+    margin-bottom: 20px;
 }
 
 .dashboard-header .eyebrow {

@@ -1,0 +1,342 @@
+/* =========================================================
+   OMNICORE — THEME SYSTEM
+   Four light application themes:
+   - Lemon
+   - Ocean
+   - Emerald
+   - Violet
+
+   Dark mode is intentionally deferred.
+   ========================================================= */
+
+/* =========================================================
+   LEMON
+   Default OmniCore theme
+   ========================================================= */
+
+html[data-theme="lemon"] {
+    --brand-lemon: #FFFF66;
+    --brand-yellow: #FFE566;
+    --brand-lemon-soft: #FFFFE6;
+    --brand-yellow-soft: #FFF5C7;
+
+    --color-page: #F7F7F4;
+    --color-surface: #FFFFFF;
+    --color-surface-subtle: #FCFCF8;
+    --color-surface-muted: #F1F1EC;
+    --color-surface-hover: #F8F8F3;
+    --color-sidebar: #FFFFFF;
+
+    --color-text: #171717;
+    --color-text-secondary: #686863;
+    --color-text-muted: #92928B;
+    --color-text-faint: #B5B5AE;
+    --color-text-disabled: #C4C4BD;
+
+    --color-border: #E5E5DF;
+    --color-border-strong: #D7D7CF;
+    --color-border-accent: #E3D94C;
+
+    --color-primary: #171717;
+    --color-primary-hover: #303030;
+
+    --color-success: #4D5200;
+    --color-success-bg: #F8F8C9;
+    --color-success-border: #E3E3A1;
+
+    --color-warning: #756500;
+    --color-warning-bg: #FFF4B8;
+    --color-warning-border: #E8D87A;
+
+    --color-danger: #694646;
+    --color-danger-bg: #F4EAEA;
+    --color-danger-border: #E3CACA;
+
+    --color-info: #5C5C57;
+    --color-info-bg: #F1F1EC;
+    --color-info-border: #D7D7CF;
+
+    /* Legacy compatibility */
+    --background-color: #F7F7F4;
+    --surface-color: #FFFFFF;
+    --surface-subtle: #FCFCF8;
+    --surface-muted: #F1F1EC;
+    --surface-hover: #F8F8F3;
+
+    --text-primary: #171717;
+    --text-secondary: #686863;
+    --text-tertiary: #92928B;
+    --text-muted: #92928B;
+    --text-disabled: #C4C4BD;
+
+    --border-color: #E5E5DF;
+    --border-color-strong: #D7D7CF;
+
+    --focus-ring-color: #E3D94C;
+    --focus-ring-color-alpha: rgba(227, 217, 76, 0.28);
+
+    --success-color: #4D5200;
+    --success-background: #F8F8C9;
+    --success-border: #E3E3A1;
+
+    --danger-color: #694646;
+    --danger-background: #F4EAEA;
+    --danger-border: #E3CACA;
+
+    --warning-color: #756500;
+    --warning-background: #FFF4B8;
+    --warning-border: #E8D87A;
+
+    --info-color: #5C5C57;
+    --info-background: #F1F1EC;
+    --info-border: #D7D7CF;
+}
+
+/* =========================================================
+   OCEAN
+   Light blue theme
+   ========================================================= */
+
+html[data-theme="ocean"] {
+    --brand-lemon: #60A5FA;
+    --brand-yellow: #93C5FD;
+    --brand-lemon-soft: #EFF6FF;
+    --brand-yellow-soft: #DBEAFE;
+
+    --color-page: #F6F9FC;
+    --color-surface: #FFFFFF;
+    --color-surface-subtle: #F8FAFC;
+    --color-surface-muted: #EEF4FA;
+    --color-surface-hover: #F1F6FB;
+    --color-sidebar: #FFFFFF;
+
+    --color-text: #172033;
+    --color-text-secondary: #596579;
+    --color-text-muted: #8A96A8;
+    --color-text-faint: #B8C1CE;
+    --color-text-disabled: #C9D1DC;
+
+    --color-border: #DFE7F0;
+    --color-border-strong: #CBD7E5;
+    --color-border-accent: #93C5FD;
+
+    --color-primary: #172033;
+    --color-primary-hover: #29364D;
+
+    --color-success: #166534;
+    --color-success-bg: #DCFCE7;
+    --color-success-border: #BBF7D0;
+
+    --color-warning: #92400E;
+    --color-warning-bg: #FEF3C7;
+    --color-warning-border: #FDE68A;
+
+    --color-danger: #991B1B;
+    --color-danger-bg: #FEE2E2;
+    --color-danger-border: #FECACA;
+
+    --color-info: #1D4ED8;
+    --color-info-bg: #DBEAFE;
+    --color-info-border: #BFDBFE;
+
+    /* Legacy compatibility */
+    --background-color: #F6F9FC;
+    --surface-color: #FFFFFF;
+    --surface-subtle: #F8FAFC;
+    --surface-muted: #EEF4FA;
+    --surface-hover: #F1F6FB;
+
+    --text-primary: #172033;
+    --text-secondary: #596579;
+    --text-tertiary: #8A96A8;
+    --text-muted: #8A96A8;
+    --text-disabled: #C9D1DC;
+
+    --border-color: #DFE7F0;
+    --border-color-strong: #CBD7E5;
+
+    --focus-ring-color: #60A5FA;
+    --focus-ring-color-alpha: rgba(96, 165, 250, 0.28);
+
+    --success-color: #166534;
+    --success-background: #DCFCE7;
+    --success-border: #BBF7D0;
+
+    --danger-color: #991B1B;
+    --danger-background: #FEE2E2;
+    --danger-border: #FECACA;
+
+    --warning-color: #92400E;
+    --warning-background: #FEF3C7;
+    --warning-border: #FDE68A;
+
+    --info-color: #1D4ED8;
+    --info-background: #DBEAFE;
+    --info-border: #BFDBFE;
+}
+
+/* =========================================================
+   EMERALD
+   Light green theme
+   ========================================================= */
+
+html[data-theme="emerald"] {
+    --brand-lemon: #6EE7B7;
+    --brand-yellow: #A7F3D0;
+    --brand-lemon-soft: #ECFDF5;
+    --brand-yellow-soft: #D1FAE5;
+
+    --color-page: #F5FAF8;
+    --color-surface: #FFFFFF;
+    --color-surface-subtle: #F8FCFA;
+    --color-surface-muted: #EDF7F2;
+    --color-surface-hover: #F1FAF5;
+    --color-sidebar: #FFFFFF;
+
+    --color-text: #17251F;
+    --color-text-secondary: #5B6F65;
+    --color-text-muted: #899B92;
+    --color-text-faint: #B9C7C1;
+    --color-text-disabled: #CBD6D1;
+
+    --color-border: #DDE9E3;
+    --color-border-strong: #C8D9D0;
+    --color-border-accent: #86DDB7;
+
+    --color-primary: #17251F;
+    --color-primary-hover: #293D35;
+
+    --color-success: #166534;
+    --color-success-bg: #DCFCE7;
+    --color-success-border: #BBF7D0;
+
+    --color-warning: #92400E;
+    --color-warning-bg: #FEF3C7;
+    --color-warning-border: #FDE68A;
+
+    --color-danger: #991B1B;
+    --color-danger-bg: #FEE2E2;
+    --color-danger-border: #FECACA;
+
+    --color-info: #047857;
+    --color-info-bg: #D1FAE5;
+    --color-info-border: #A7F3D0;
+
+    /* Legacy compatibility */
+    --background-color: #F5FAF8;
+    --surface-color: #FFFFFF;
+    --surface-subtle: #F8FCFA;
+    --surface-muted: #EDF7F2;
+    --surface-hover: #F1FAF5;
+
+    --text-primary: #17251F;
+    --text-secondary: #5B6F65;
+    --text-tertiary: #899B92;
+    --text-muted: #899B92;
+    --text-disabled: #CBD6D1;
+
+    --border-color: #DDE9E3;
+    --border-color-strong: #C8D9D0;
+
+    --focus-ring-color: #34D399;
+    --focus-ring-color-alpha: rgba(52, 211, 153, 0.28);
+
+    --success-color: #166534;
+    --success-background: #DCFCE7;
+    --success-border: #BBF7D0;
+
+    --danger-color: #991B1B;
+    --danger-background: #FEE2E2;
+    --danger-border: #FECACA;
+
+    --warning-color: #92400E;
+    --warning-background: #FEF3C7;
+    --warning-border: #FDE68A;
+
+    --info-color: #047857;
+    --info-background: #D1FAE5;
+    --info-border: #A7F3D0;
+}
+
+/* =========================================================
+   VIOLET
+   Light purple theme
+   ========================================================= */
+
+html[data-theme="violet"] {
+    --brand-lemon: #C4B5FD;
+    --brand-yellow: #DDD6FE;
+    --brand-lemon-soft: #F5F3FF;
+    --brand-yellow-soft: #EDE9FE;
+
+    --color-page: #F8F7FC;
+    --color-surface: #FFFFFF;
+    --color-surface-subtle: #FBFAFE;
+    --color-surface-muted: #F2F0F8;
+    --color-surface-hover: #F6F4FB;
+    --color-sidebar: #FFFFFF;
+
+    --color-text: #201B2E;
+    --color-text-secondary: #696276;
+    --color-text-muted: #91899F;
+    --color-text-faint: #BEB8C8;
+    --color-text-disabled: #CDC8D5;
+
+    --color-border: #E6E1EE;
+    --color-border-strong: #D4CDDF;
+    --color-border-accent: #B9AAED;
+
+    --color-primary: #201B2E;
+    --color-primary-hover: #352E47;
+
+    --color-success: #166534;
+    --color-success-bg: #DCFCE7;
+    --color-success-border: #BBF7D0;
+
+    --color-warning: #92400E;
+    --color-warning-bg: #FEF3C7;
+    --color-warning-border: #FDE68A;
+
+    --color-danger: #991B1B;
+    --color-danger-bg: #FEE2E2;
+    --color-danger-border: #FECACA;
+
+    --color-info: #6D28D9;
+    --color-info-bg: #EDE9FE;
+    --color-info-border: #DDD6FE;
+
+    /* Legacy compatibility */
+    --background-color: #F8F7FC;
+    --surface-color: #FFFFFF;
+    --surface-subtle: #FBFAFE;
+    --surface-muted: #F2F0F8;
+    --surface-hover: #F6F4FB;
+
+    --text-primary: #201B2E;
+    --text-secondary: #696276;
+    --text-tertiary: #91899F;
+    --text-muted: #91899F;
+    --text-disabled: #CDC8D5;
+
+    --border-color: #E6E1EE;
+    --border-color-strong: #D4CDDF;
+
+    --focus-ring-color: #8B5CF6;
+    --focus-ring-color-alpha: rgba(139, 92, 246, 0.28);
+
+    --success-color: #166534;
+    --success-background: #DCFCE7;
+    --success-border: #BBF7D0;
+
+    --danger-color: #991B1B;
+    --danger-background: #FEE2E2;
+    --danger-border: #FECACA;
+
+    --warning-color: #92400E;
+    --warning-background: #FEF3C7;
+    --warning-border: #FDE68A;
+
+    --info-color: #6D28D9;
+    --info-background: #EDE9FE;
+    --info-border: #DDD6FE;
+}

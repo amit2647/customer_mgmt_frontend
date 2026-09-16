@@ -1,0 +1,901 @@
+/* =========================================================
+   OMNICORE — EMAIL ACCOUNTS
+   ========================================================= */
+
+/* =========================================================
+   PAGE
+   ========================================================= */
+
+.email-accounts-page {
+    width: 100%;
+    max-width: 1600px;
+    margin: 0 auto;
+}
+
+/* =========================================================
+   PAGE HEADER
+   ========================================================= */
+
+.email-accounts-page .page-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 24px;
+}
+
+.email-accounts-page .page-eyebrow {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--color-text-muted);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+.email-accounts-page .page-header h1 {
+    margin: 0 0 6px;
+    color: var(--color-text);
+    font-family: var(--font-display);
+    font-size: 30px;
+    font-weight: 750;
+    line-height: 1.15;
+    letter-spacing: -0.035em;
+}
+
+.email-accounts-page .page-header p {
+    margin: 0;
+    color: var(--color-text-secondary);
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.email-accounts-page .page-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+/* =========================================================
+   WORKFLOW BREADCRUMB
+   ========================================================= */
+
+.email-accounts-page .workflow-breadcrumb {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 18px;
+}
+
+.email-accounts-page .workflow-breadcrumb>button {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--color-text-secondary);
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.email-accounts-page .workflow-breadcrumb>button:hover {
+    color: var(--color-text);
+    text-decoration: underline;
+}
+
+.email-accounts-page .workflow-context {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--color-text-muted);
+    font-size: 10px;
+}
+
+.email-accounts-page .workflow-context span {
+    font-weight: 700;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+}
+
+.email-accounts-page .workflow-context strong {
+    color: var(--color-text);
+    font-size: 11px;
+    font-weight: 700;
+}
+
+/* =========================================================
+   PAGE SECTION
+   ========================================================= */
+
+.email-accounts-page .page-section {
+    width: 100%;
+}
+
+.email-accounts-page .section-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 18px;
+}
+
+.email-accounts-page .section-header h2 {
+    margin: 0 0 5px;
+    color: var(--color-text);
+    font-family: var(--font-display);
+    font-size: 17px;
+    font-weight: 750;
+    line-height: 1.3;
+    letter-spacing: -0.025em;
+}
+
+.email-accounts-page .section-header p {
+    margin: 0;
+    color: var(--color-text-secondary);
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.email-accounts-page .section-count {
+    flex-shrink: 0;
+    padding: 5px 8px;
+    border-radius: var(--radius-pill);
+    background: var(--color-surface-muted);
+    color: var(--color-text-muted);
+    font-size: 10px;
+    font-weight: 700;
+}
+
+/* =========================================================
+   ALERTS
+   ========================================================= */
+
+.email-accounts-page .alert {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 0 0 18px;
+    padding: 10px 12px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    font-size: 12px;
+    line-height: 1.45;
+}
+
+.email-accounts-page .alert-success {
+    border-color: #D9E4C2;
+    background: var(--brand-lemon-soft);
+    color: #4F5000;
+}
+
+.email-accounts-page .alert-error {
+    border-color: #E2D6D0;
+    background: #FBF8F5;
+    color: #5A4545;
+}
+
+.email-accounts-page .alert-close {
+    flex-shrink: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font-size: 16px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+/* =========================================================
+   ACCOUNT LIST
+   ========================================================= */
+
+.email-account-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* =========================================================
+   ACCOUNT CARD
+   Uses the same visual language as .card
+   ========================================================= */
+
+.email-account-card {
+    min-width: 0;
+    overflow: hidden;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-card);
+    transition:
+        border-color var(--transition-fast),
+        box-shadow var(--transition-fast),
+        transform var(--transition-fast);
+}
+
+.email-account-card:hover {
+    border-color: var(--color-border-strong);
+    box-shadow: var(--shadow-card-hover);
+    transform: translateY(-1px);
+}
+
+/* =========================================================
+   ACCOUNT CARD HEADER
+   ========================================================= */
+
+.email-account-card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 18px 20px;
+}
+
+.email-account-identity {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+}
+
+.email-account-avatar {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+    border-radius: var(--radius-sm);
+    background: var(--brand-lemon);
+    color: var(--color-primary);
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.email-account-identity>div:last-child {
+    min-width: 0;
+}
+
+.email-account-identity h3 {
+    margin: 0 0 4px;
+    overflow: hidden;
+    color: var(--color-text);
+    font-family: var(--font-display);
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.35;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.email-account-identity p {
+    margin: 0;
+    overflow: hidden;
+    color: var(--color-text-secondary);
+    font-size: 12px;
+    line-height: 1.4;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* =========================================================
+   ACCOUNT STATUS
+   ========================================================= */
+
+.email-account-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 24px;
+    padding: 4px 8px;
+    flex-shrink: 0;
+    border-radius: var(--radius-pill);
+    background: var(--color-surface-muted);
+    color: var(--color-text-muted);
+    font-size: 10px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.email-account-status.active {
+    background: var(--brand-lemon-soft);
+    color: #5F5700;
+}
+
+.email-account-status.inactive {
+    color: var(--color-text-muted);
+}
+
+.email-account-status-dot {
+    width: 6px;
+    height: 6px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+/* =========================================================
+   PROVIDER
+   ========================================================= */
+
+.email-account-provider {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 10px 20px;
+    border-top: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--color-border);
+    background: var(--color-surface-subtle);
+}
+
+.email-account-provider-label {
+    color: var(--color-text-muted);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.email-account-provider-value {
+    color: var(--color-text);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+/* =========================================================
+   CONNECTIONS
+   ========================================================= */
+
+.email-account-connections {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1px;
+    background: var(--color-border);
+}
+
+.email-account-connection {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    min-width: 0;
+    padding: 16px 20px;
+    background: var(--color-surface);
+}
+
+.email-account-connection-icon {
+    display: grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    flex-shrink: 0;
+    border-radius: var(--radius-sm);
+    background: var(--color-surface-muted);
+    color: var(--color-text-secondary);
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.email-account-connection-content {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    gap: 3px;
+}
+
+.email-account-connection-label {
+    color: var(--color-text-muted);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.email-account-connection-content strong {
+    overflow: hidden;
+    color: var(--color-text);
+    font-size: 12px;
+    font-weight: 700;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.email-account-connection-content small {
+    overflow: hidden;
+    color: var(--color-text-secondary);
+    font-size: 11px;
+    line-height: 1.35;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* =========================================================
+   ACCOUNT CARD FOOTER
+   ========================================================= */
+
+.email-account-card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 12px 20px;
+    border-top: 1px solid var(--color-border);
+    background: var(--color-surface-subtle);
+}
+
+.email-account-updated {
+    color: var(--color-text-muted);
+    font-size: 10px;
+}
+
+.email-account-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.email-account-actions .button {
+    white-space: nowrap;
+}
+
+/* =========================================================
+   EMPTY STATE
+   ========================================================= */
+
+.email-account-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 220px;
+    padding: 32px;
+    border: 1px dashed var(--color-border-strong);
+    border-radius: var(--radius-md);
+    background: var(--color-surface-subtle);
+    text-align: center;
+}
+
+.email-account-empty-icon {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    margin-bottom: 14px;
+    border-radius: var(--radius-sm);
+    background: var(--color-surface-muted);
+    color: var(--color-text-secondary);
+    font-size: 15px;
+    font-weight: 800;
+}
+
+.email-account-empty h3 {
+    margin: 0 0 5px;
+    color: var(--color-text);
+    font-family: var(--font-display);
+    font-size: 13px;
+    font-weight: 750;
+}
+
+.email-account-empty p {
+    max-width: 380px;
+    margin: 0 0 14px;
+    color: var(--color-text-muted);
+    font-size: 11px;
+    line-height: 1.5;
+}
+
+/* =========================================================
+   LOADING
+   ========================================================= */
+
+.email-account-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-height: 160px;
+    color: var(--color-text-secondary);
+    font-size: 11px;
+}
+
+.email-account-loading .loading-spinner {
+    width: 24px;
+    height: 24px;
+    border-width: 2px;
+}
+
+/* =========================================================
+   EMAIL ACCOUNT WORKFLOW
+   ========================================================= */
+
+.email-account-workflow {
+    width: 100%;
+    max-width: 1336px;
+    margin: 0 auto;
+    overflow: hidden;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-card);
+}
+
+/* =========================================================
+   WORKFLOW HEADER
+   ========================================================= */
+
+.email-account-workflow-header {
+    padding: 22px 24px;
+    border-bottom: 1px solid var(--color-border);
+    background: var(--color-surface);
+}
+
+.email-account-workflow-header .workflow-eyebrow {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--color-text-muted);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    line-height: 1;
+    text-transform: uppercase;
+}
+
+.email-account-workflow-header h2 {
+    margin: 0 0 6px;
+    color: var(--color-text);
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 750;
+    line-height: 1.2;
+    letter-spacing: -0.025em;
+}
+
+.email-account-workflow-header p {
+    max-width: 680px;
+    margin: 0;
+    color: var(--color-text-secondary);
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+/* =========================================================
+   WORKFLOW STEPS
+   ========================================================= */
+
+.email-account-workflow .workflow-steps {
+    border-bottom: 1px solid var(--color-border);
+}
+
+/* =========================================================
+   WORKFLOW BODY
+   ========================================================= */
+
+.email-account-workflow .workflow-body {
+    min-height: 0;
+}
+
+.email-account-workflow .workflow-panel {
+    min-height: 0;
+}
+
+/* =========================================================
+   WORKFLOW FORM GRID
+   ========================================================= */
+
+.email-account-workflow .workflow-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 17px;
+}
+
+.email-account-workflow .workflow-field-full {
+    grid-column: 1 / -1;
+}
+
+.email-account-workflow .workflow-form-grid>label {
+    display: block;
+    min-width: 0;
+    color: var(--color-text);
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.email-account-workflow .workflow-form-grid input:not([type="checkbox"]),
+.email-account-workflow .workflow-form-grid select {
+    display: block;
+    width: 100%;
+    height: 38px;
+    margin-top: 7px;
+    padding: 0 11px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    outline: none;
+    background: var(--color-surface);
+    color: var(--color-text);
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 500;
+    transition:
+        border-color var(--transition-fast),
+        box-shadow var(--transition-fast);
+}
+
+.email-account-workflow .workflow-form-grid input:not([type="checkbox"])::placeholder {
+    color: var(--color-text-muted);
+}
+
+.email-account-workflow .workflow-form-grid input:not([type="checkbox"]):hover,
+.email-account-workflow .workflow-form-grid select:hover {
+    border-color: var(--color-border-strong);
+}
+
+.email-account-workflow .workflow-form-grid input:not([type="checkbox"]):focus,
+.email-account-workflow .workflow-form-grid select:focus {
+    border-color: #C9C9C1;
+    box-shadow: 0 0 0 3px var(--brand-lemon-soft);
+}
+
+.email-account-workflow .workflow-form-grid input:not([type="checkbox"]):disabled,
+.email-account-workflow .workflow-form-grid select:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+    background: var(--color-surface-subtle);
+}
+
+/* =========================================================
+   WORKFLOW CHECKBOX
+   ========================================================= */
+
+.email-account-workflow .workflow-checkbox {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+    cursor: pointer;
+}
+
+.email-account-workflow .workflow-checkbox input[type="checkbox"] {
+    width: 15px;
+    height: 15px;
+    margin: 1px 0 0;
+    flex-shrink: 0;
+    accent-color: var(--color-primary);
+}
+
+.email-account-workflow .workflow-checkbox>span {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.email-account-workflow .workflow-checkbox strong {
+    color: var(--color-text);
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.email-account-workflow .workflow-checkbox small {
+    color: var(--color-text-secondary);
+    font-size: 10px;
+    font-weight: 400;
+    line-height: 1.4;
+}
+
+/* =========================================================
+   WORKFLOW REVIEW
+   ========================================================= */
+
+.email-account-workflow .review-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.email-account-workflow .review-card {
+    min-width: 0;
+}
+
+.email-account-workflow .review-card strong {
+    overflow-wrap: anywhere;
+}
+
+.email-account-workflow .review-card p {
+    margin: 4px 0 0;
+}
+
+.email-account-workflow .review-card-full {
+    grid-column: 1 / -1;
+}
+
+.email-account-workflow .review-status {
+    margin-top: 10px;
+}
+
+.email-account-workflow .review-status strong {
+    display: inline-flex;
+    align-items: center;
+    min-height: 24px;
+    padding: 5px 8px;
+    border-radius: var(--radius-pill);
+    background: var(--brand-lemon-soft);
+    color: #5F5700;
+    font-size: 9px;
+    font-weight: 700;
+}
+
+.email-account-workflow .review-services {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+}
+
+.email-account-workflow .review-services span {
+    display: inline-flex;
+    align-items: center;
+    min-height: 25px;
+    padding: 5px 9px;
+    border-radius: var(--radius-sm);
+    background: var(--color-surface-muted);
+    color: var(--color-text);
+    font-size: 10px;
+    font-weight: 700;
+}
+
+/* =========================================================
+   WORKFLOW FOOTER
+   ========================================================= */
+
+.email-account-workflow .workflow-footer {
+    border-top: 1px solid var(--color-border);
+}
+
+/* =========================================================
+   WORKFLOW LOADING
+   ========================================================= */
+
+.email-account-workflow>.workflow-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-height: 420px;
+    color: var(--color-text-secondary);
+    font-size: 11px;
+}
+
+/* =========================================================
+   DELETE MODAL
+   ========================================================= */
+
+.email-account-delete-modal {
+    width: 430px;
+    max-width: calc(100vw - 24px);
+}
+
+.email-account-delete-modal .modal-body p {
+    margin: 0 0 10px;
+    color: var(--color-text-secondary);
+    font-size: 11px;
+    line-height: 1.5;
+}
+
+.email-account-delete-modal .modal-body p:last-child {
+    margin-bottom: 0;
+}
+
+.email-account-delete-modal .modal-body strong {
+    color: var(--color-text);
+}
+
+/* =========================================================
+   RESPONSIVE — WORKFLOW
+   ========================================================= */
+
+@media (max-width: 1000px) {
+    .email-account-workflow {
+        max-width: 100%;
+    }
+
+    .email-account-workflow-header {
+        padding: 22px;
+    }
+}
+
+@media (max-width: 800px) {
+
+    .email-account-workflow .workflow-form-grid,
+    .email-account-workflow .review-grid,
+    .email-account-connections {
+        grid-template-columns: 1fr;
+    }
+
+    .email-account-workflow .workflow-field-full,
+    .email-account-workflow .review-card-full {
+        grid-column: auto;
+    }
+
+    .email-account-workflow-header {
+        padding: 20px;
+    }
+}
+
+/* =========================================================
+   RESPONSIVE — PAGE
+   ========================================================= */
+
+@media (max-width: 700px) {
+    .email-accounts-page .page-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .email-accounts-page .page-header h1 {
+        font-size: 24px;
+    }
+
+    .email-accounts-page .page-header p {
+        font-size: 13px;
+    }
+
+    .email-accounts-page .page-header-actions {
+        width: 100%;
+    }
+
+    .email-accounts-page .page-header-actions .button {
+        flex: 1;
+    }
+
+    .email-accounts-page .workflow-breadcrumb {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .email-account-card-header {
+        flex-direction: column;
+        padding: 16px;
+    }
+
+    .email-account-status {
+        align-self: flex-start;
+    }
+
+    .email-account-card-footer {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .email-account-actions {
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    .email-account-workflow-header {
+        padding: 20px;
+    }
+
+    .email-account-workflow-header h2 {
+        font-size: 21px;
+    }
+}
+
+@media (max-width: 480px) {
+    .email-accounts-page .page-header-actions {
+        flex-direction: column;
+    }
+
+    .email-accounts-page .page-header-actions .button {
+        width: 100%;
+    }
+
+    .email-account-provider,
+    .email-account-connection {
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+
+    .email-account-workflow .workflow-form-grid {
+        gap: 14px;
+    }
+}

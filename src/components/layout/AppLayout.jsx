@@ -12,7 +12,7 @@ function AppLayout() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
     const saved = localStorage.getItem("omnicore-sidebar-collapsed");
 
-    return saved === "true";
+    return saved ? saved === "true" : false;
   });
 
   useEffect(() => {

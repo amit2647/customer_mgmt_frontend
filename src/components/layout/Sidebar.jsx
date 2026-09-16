@@ -29,7 +29,7 @@ function Sidebar({ collapsed, onToggle }) {
         <div className="brand-copy">
           <strong>OmniCore</strong>
 
-          <span>Customer Platform</span>
+          <span>CRM Platform</span>
         </div>
       </div>
 
@@ -50,26 +50,10 @@ function Sidebar({ collapsed, onToggle }) {
       </button>
 
       {/* ============================================================
-          OVERVIEW
+          MANAGEMENT
           ============================================================ */}
 
-      {/* <nav className="sidebar-nav" aria-label="Overview">
-        <NavLink
-          to="/"
-          end
-          className={navigationClass}
-          data-tooltip="Dashboard"
-        >
-          <span className="sidebar-icon" aria-hidden="true">
-            ▦
-          </span>
-
-          <span className="sidebar-link-label">Dashboard</span>
-        </NavLink>
-      </nav> */}
-
       <nav className="sidebar-nav" aria-label="Management">
-        
         <NavLink
           to="/"
           end
@@ -114,7 +98,7 @@ function Sidebar({ collapsed, onToggle }) {
             data-tooltip="Services"
           >
             <span className="sidebar-icon" aria-hidden="true">
-              ⚙
+              ◇
             </span>
 
             <span className="sidebar-link-label">Services</span>
@@ -129,23 +113,24 @@ function Sidebar({ collapsed, onToggle }) {
       <div className="sidebar-spacer" />
 
       {/* ============================================================
-          SYSTEM STATUS
+          SETTINGS
           ============================================================ */}
 
-      <div
-        className="sidebar-system-card"
-        title={collapsed ? "SOA Platform — Gateway connected" : undefined}
-      >
-        <div className="system-card-icon">S</div>
+      {hasPermission("system.integrations") && (
+        <nav className="sidebar-settings" aria-label="Settings">
+          <NavLink
+            to="/settings"
+            className={navigationClass}
+            data-tooltip="Settings"
+          >
+            <span className="sidebar-icon" aria-hidden="true">
+              ⚙
+            </span>
 
-        <div className="system-card-copy">
-          <strong>SOA Platform</strong>
-
-          <span>Gateway connected</span>
-        </div>
-
-        <span className="system-status" aria-label="System online" />
-      </div>
+            <span className="sidebar-link-label">Settings</span>
+          </NavLink>
+        </nav>
+      )}
 
       {/* ============================================================
           FOOTER

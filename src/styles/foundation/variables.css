@@ -80,3 +80,190 @@
     --header-height: 72px;
 }
 
+/* =========================================================
+   OMNICORE — DESIGN VARIABLES
+   ========================================================= */
+
+:root {
+    /* =======================================================
+     COLORS
+     ======================================================= */
+
+    --color-white: #ffffff;
+    --color-black: #000000;
+
+    --color-gray-50: #f8fafc;
+    --color-gray-100: #f1f5f9;
+    --color-gray-200: #e2e8f0;
+    --color-gray-300: #cbd5e1;
+    --color-gray-400: #94a3b8;
+    --color-gray-500: #64748b;
+    --color-gray-600: #475569;
+    --color-gray-700: #334155;
+    --color-gray-800: #1e293b;
+    --color-gray-900: #0f172a;
+
+    --color-blue-500: #3b82f6;
+    --color-blue-600: #2563eb;
+    --color-blue-700: #1d4ed8;
+
+    --color-green-500: #22c55e;
+    --color-green-600: #16a34a;
+
+    --color-red-500: #ef4444;
+    --color-red-600: #dc2626;
+
+    --color-amber-500: #f59e0b;
+    --color-amber-600: #d97706;
+
+    /* =======================================================
+     APPLICATION COLORS
+     ======================================================= */
+
+    --background-color: #f8fafc;
+
+    --surface-color: #ffffff;
+    --surface-subtle: #f8fafc;
+    --surface-muted: #f1f5f9;
+    --surface-hover: #f8fafc;
+
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --text-tertiary: #64748b;
+    --text-disabled: #94a3b8;
+
+    --border-color: #e2e8f0;
+    --border-color-strong: #cbd5e1;
+
+    --focus-ring-color: #3b82f6;
+    --focus-ring-color-alpha: rgba(59, 130, 246, 0.16);
+
+    --success-color: #16a34a;
+    --success-background: #f0fdf4;
+    --success-border: #bbf7d0;
+
+    --danger-color: #dc2626;
+    --danger-background: #fef2f2;
+    --danger-border: #fecaca;
+
+    --warning-color: #d97706;
+    --warning-background: #fffbeb;
+    --warning-border: #fde68a;
+
+    --info-color: #2563eb;
+    --info-background: #eff6ff;
+    --info-border: #bfdbfe;
+
+    /* =======================================================
+     TYPOGRAPHY
+     ======================================================= */
+
+    --font-family:
+        Inter,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Roboto,
+        Helvetica,
+        Arial,
+        sans-serif;
+
+    --font-size-xs: 11px;
+    --font-size-sm: 12px;
+    --font-size-md: 14px;
+    --font-size-lg: 16px;
+    --font-size-xl: 20px;
+    --font-size-2xl: 24px;
+    --font-size-3xl: 30px;
+
+    --font-weight-regular: 400;
+    --font-weight-medium: 500;
+    --font-weight-semibold: 600;
+    --font-weight-bold: 700;
+
+    --line-height-tight: 1.25;
+    --line-height-normal: 1.5;
+    --line-height-relaxed: 1.6;
+
+    /* =======================================================
+     SPACING
+     ======================================================= */
+
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 20px;
+    --space-6: 24px;
+    --space-7: 28px;
+    --space-8: 32px;
+    --space-10: 40px;
+    --space-12: 48px;
+    --space-16: 64px;
+
+    /* =======================================================
+     BORDER RADIUS
+     ======================================================= */
+
+    --border-radius-sm: 6px;
+    --border-radius-md: 8px;
+    --border-radius-lg: 12px;
+    --border-radius-xl: 16px;
+    --border-radius-full: 999px;
+
+    /* =======================================================
+     SHADOWS
+     ======================================================= */
+
+    --shadow-xs:
+        0 1px 2px rgba(15, 23, 42, 0.04);
+
+    --shadow-sm:
+        0 1px 3px rgba(15, 23, 42, 0.06),
+        0 1px 2px rgba(15, 23, 42, 0.04);
+
+    --shadow-md:
+        0 4px 12px rgba(15, 23, 42, 0.08),
+        0 2px 4px rgba(15, 23, 42, 0.04);
+
+    --shadow-lg:
+        0 10px 25px rgba(15, 23, 42, 0.10),
+        0 4px 10px rgba(15, 23, 42, 0.05);
+
+    /* =======================================================
+     LAYOUT
+     ======================================================= */
+
+    --header-height: 64px;
+
+    --sidebar-width: 240px;
+    --sidebar-collapsed-width: 76px;
+
+    --content-max-width: 1600px;
+
+    /* =======================================================
+     COMPONENT SIZING
+     ======================================================= */
+
+    --input-height: 42px;
+    --button-height: 40px;
+    --button-height-sm: 34px;
+
+    /* =======================================================
+     TRANSITIONS
+     ======================================================= */
+
+    --transition-fast: 0.15s ease;
+    --transition-normal: 0.2s ease;
+    --transition-slow: 0.3s ease;
+
+    /* =======================================================
+     Z-INDEX
+     ======================================================= */
+
+    --z-header: 100;
+    --z-sidebar: 200;
+    --z-dropdown: 300;
+    --z-modal: 1000;
+    --z-toast: 1100;
+}

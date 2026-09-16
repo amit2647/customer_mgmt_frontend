@@ -4,6 +4,7 @@
  */
 
 @import "./foundation/variables.css";
+@import "./foundation/themes.css";
 @import "./foundation/reset.css";
 @import "./layout/app-shell.css";
 @import "./layout/sidebar.css";
@@ -18,6 +19,8 @@
 @import "./utilities/base.css";
 @import "./utilities/responsive.css";
 @import "./features/workflows.css";
+@import "./features/email-accounts.css";
+@import "./features/appearance.css";
 @import "./layout/sidebar-collapse.css";
 @import "./pages/splash.css";
 @import "./pages/loading.css";
@@ -26,4 +29,5 @@
 @import "./dashboard/dashboard-skeleton.css";
 @import "./pages/onboarding.css";
 @import "./pages/login.css";
+@import "./pages/settings.css";
 @import "./components/user-menu.css";

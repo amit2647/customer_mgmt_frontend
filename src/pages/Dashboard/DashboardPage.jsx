@@ -226,7 +226,7 @@ function DashboardPage() {
 
       <header className="page-header dashboard-header">
         <div>
-          <span className="eyebrow">CUSTOMER OPERATIONS</span>
+          {/* <span className="eyebrow">CUSTOMER OPERATIONS</span> */}
 
           <h1>Dashboard</h1>
 

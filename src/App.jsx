@@ -19,6 +19,10 @@ import CustomerWorkflowPage from "./pages/Customers/CustomerWorkflowPage";
 
 import ServicesPage from "./pages/Services/ServicesPage";
 
+import SettingsPage from "./pages/Settings/SettingsPage";
+import EmailAccountsPage from "./pages/Settings/EmailAccountsPage";
+import AppearancePage from "./pages/Settings/AppearancePage";
+
 function App() {
   const navigate = useNavigate();
 
@@ -100,6 +104,13 @@ function App() {
           />
 
           <Route path="/services" element={<ServicesPage />} />
+          <Route path="/settings" element={<SettingsPage />} />
+
+          <Route
+            path="/settings/email-accounts"
+            element={<EmailAccountsPage />}
+          />
+          <Route path="/settings/appearance" element={<AppearancePage />} />
         </Route>
       </Route>
 
