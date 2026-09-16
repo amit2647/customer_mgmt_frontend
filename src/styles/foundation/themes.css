@@ -1,13 +1,33 @@
 /* =========================================================
    OMNICORE — THEME SYSTEM
+   =========================================================
    Four light application themes:
    - Lemon
-   - Ocean
-   - Emerald
-   - Violet
+   - Cobalt
+   - Mint
+   - Coral
+
+   Design principle:
+   Neutral black / white / grey foundation.
+   Theme color is used primarily as the accent.
 
    Dark mode is intentionally deferred.
    ========================================================= */
+
+
+/* =========================================================
+   SHARED / DEFAULT FOUNDATION
+   ========================================================= */
+
+:root {
+   /*
+     * Layout / UI variables that are not theme-specific
+     * can continue to live here.
+     *
+     * Theme-specific values are defined below.
+     */
+}
+
 
 /* =========================================================
    LEMON
@@ -15,328 +35,420 @@
    ========================================================= */
 
 html[data-theme="lemon"] {
-    --brand-lemon: #FFFF66;
-    --brand-yellow: #FFE566;
-    --brand-lemon-soft: #FFFFE6;
-    --brand-yellow-soft: #FFF5C7;
+   /* -----------------------------------------------------
+       BRAND
+       ----------------------------------------------------- */
 
-    --color-page: #F7F7F4;
-    --color-surface: #FFFFFF;
-    --color-surface-subtle: #FCFCF8;
-    --color-surface-muted: #F1F1EC;
-    --color-surface-hover: #F8F8F3;
-    --color-sidebar: #FFFFFF;
+   --brand-lemon: #FFFF66;
+   --brand-yellow: #FFE566;
+   --brand-lemon-soft: #FFFFE6;
+   --brand-yellow-soft: #FFF5C7;
 
-    --color-text: #171717;
-    --color-text-secondary: #686863;
-    --color-text-muted: #92928B;
-    --color-text-faint: #B5B5AE;
-    --color-text-disabled: #C4C4BD;
 
-    --color-border: #E5E5DF;
-    --color-border-strong: #D7D7CF;
-    --color-border-accent: #E3D94C;
+   /* -----------------------------------------------------
+       SURFACES
+       ----------------------------------------------------- */
 
-    --color-primary: #171717;
-    --color-primary-hover: #303030;
+   --color-page: #F7F7F5;
+   --color-surface: #FFFFFF;
+   --color-surface-subtle: #FCFCFB;
+   --color-surface-muted: #F1F1EF;
+   --color-surface-hover: #F7F7F5;
+   --color-sidebar: #FFFFFF;
 
-    --color-success: #4D5200;
-    --color-success-bg: #F8F8C9;
-    --color-success-border: #E3E3A1;
 
-    --color-warning: #756500;
-    --color-warning-bg: #FFF4B8;
-    --color-warning-border: #E8D87A;
+   /* -----------------------------------------------------
+       TEXT
+       ----------------------------------------------------- */
 
-    --color-danger: #694646;
-    --color-danger-bg: #F4EAEA;
-    --color-danger-border: #E3CACA;
+   --color-text: #171717;
+   --color-text-secondary: #686868;
+   --color-text-muted: #929292;
+   --color-text-faint: #B5B5B1;
+   --color-text-disabled: #C5C5C1;
 
-    --color-info: #5C5C57;
-    --color-info-bg: #F1F1EC;
-    --color-info-border: #D7D7CF;
 
-    /* Legacy compatibility */
-    --background-color: #F7F7F4;
-    --surface-color: #FFFFFF;
-    --surface-subtle: #FCFCF8;
-    --surface-muted: #F1F1EC;
-    --surface-hover: #F8F8F3;
+   /* -----------------------------------------------------
+       BORDERS
+       ----------------------------------------------------- */
 
-    --text-primary: #171717;
-    --text-secondary: #686863;
-    --text-tertiary: #92928B;
-    --text-muted: #92928B;
-    --text-disabled: #C4C4BD;
+   --color-border: #E5E5E2;
+   --color-border-strong: #D6D6D2;
+   --color-border-accent: #E3D94C;
 
-    --border-color: #E5E5DF;
-    --border-color-strong: #D7D7CF;
 
-    --focus-ring-color: #E3D94C;
-    --focus-ring-color-alpha: rgba(227, 217, 76, 0.28);
+   /* -----------------------------------------------------
+       PRIMARY
+       ----------------------------------------------------- */
 
-    --success-color: #4D5200;
-    --success-background: #F8F8C9;
-    --success-border: #E3E3A1;
+   --color-primary: #171717;
+   --color-primary-hover: #303030;
 
-    --danger-color: #694646;
-    --danger-background: #F4EAEA;
-    --danger-border: #E3CACA;
 
-    --warning-color: #756500;
-    --warning-background: #FFF4B8;
-    --warning-border: #E8D87A;
+   /* -----------------------------------------------------
+       STATUS
+       ----------------------------------------------------- */
 
-    --info-color: #5C5C57;
-    --info-background: #F1F1EC;
-    --info-border: #D7D7CF;
+   --color-success: #4D5200;
+   --color-success-bg: #F8F8C9;
+   --color-success-border: #E3E3A1;
+
+   --color-warning: #756500;
+   --color-warning-bg: #FFF4B8;
+   --color-warning-border: #E8D87A;
+
+   --color-danger: #694646;
+   --color-danger-bg: #F4EAEA;
+   --color-danger-border: #E3CACA;
+
+   --color-info: #5C5C57;
+   --color-info-bg: #F1F1EF;
+   --color-info-border: #D6D6D2;
+
+
+   /* -----------------------------------------------------
+       LEGACY COMPATIBILITY
+       ----------------------------------------------------- */
+
+   --background-color: #F7F7F5;
+   --surface-color: #FFFFFF;
+   --surface-subtle: #FCFCFB;
+   --surface-muted: #F1F1EF;
+   --surface-hover: #F7F7F5;
+
+   --text-primary: #171717;
+   --text-secondary: #686868;
+   --text-tertiary: #929292;
+   --text-muted: #929292;
+   --text-disabled: #C5C5C1;
+
+   --border-color: #E5E5E2;
+   --border-color-strong: #D6D6D2;
+
+   --focus-ring-color: #E3D94C;
+   --focus-ring-color-alpha: rgba(227, 217, 76, 0.28);
+
+   --success-color: #4D5200;
+   --success-background: #F8F8C9;
+   --success-border: #E3E3A1;
+
+   --danger-color: #694646;
+   --danger-background: #F4EAEA;
+   --danger-border: #E3CACA;
+
+   --warning-color: #756500;
+   --warning-background: #FFF4B8;
+   --warning-border: #E8D87A;
+
+   --info-color: #5C5C57;
+   --info-background: #F1F1EF;
+   --info-border: #D6D6D2;
 }
 
+
 /* =========================================================
-   OCEAN
-   Light blue theme
+   COBALT
+   Technical / precise blue theme
    ========================================================= */
 
-html[data-theme="ocean"] {
-    --brand-lemon: #60A5FA;
-    --brand-yellow: #93C5FD;
-    --brand-lemon-soft: #EFF6FF;
-    --brand-yellow-soft: #DBEAFE;
-
-    --color-page: #F6F9FC;
-    --color-surface: #FFFFFF;
-    --color-surface-subtle: #F8FAFC;
-    --color-surface-muted: #EEF4FA;
-    --color-surface-hover: #F1F6FB;
-    --color-sidebar: #FFFFFF;
-
-    --color-text: #172033;
-    --color-text-secondary: #596579;
-    --color-text-muted: #8A96A8;
-    --color-text-faint: #B8C1CE;
-    --color-text-disabled: #C9D1DC;
-
-    --color-border: #DFE7F0;
-    --color-border-strong: #CBD7E5;
-    --color-border-accent: #93C5FD;
-
-    --color-primary: #172033;
-    --color-primary-hover: #29364D;
-
-    --color-success: #166534;
-    --color-success-bg: #DCFCE7;
-    --color-success-border: #BBF7D0;
-
-    --color-warning: #92400E;
-    --color-warning-bg: #FEF3C7;
-    --color-warning-border: #FDE68A;
-
-    --color-danger: #991B1B;
-    --color-danger-bg: #FEE2E2;
-    --color-danger-border: #FECACA;
-
-    --color-info: #1D4ED8;
-    --color-info-bg: #DBEAFE;
-    --color-info-border: #BFDBFE;
-
-    /* Legacy compatibility */
-    --background-color: #F6F9FC;
-    --surface-color: #FFFFFF;
-    --surface-subtle: #F8FAFC;
-    --surface-muted: #EEF4FA;
-    --surface-hover: #F1F6FB;
-
-    --text-primary: #172033;
-    --text-secondary: #596579;
-    --text-tertiary: #8A96A8;
-    --text-muted: #8A96A8;
-    --text-disabled: #C9D1DC;
-
-    --border-color: #DFE7F0;
-    --border-color-strong: #CBD7E5;
-
-    --focus-ring-color: #60A5FA;
-    --focus-ring-color-alpha: rgba(96, 165, 250, 0.28);
-
-    --success-color: #166534;
-    --success-background: #DCFCE7;
-    --success-border: #BBF7D0;
-
-    --danger-color: #991B1B;
-    --danger-background: #FEE2E2;
-    --danger-border: #FECACA;
-
-    --warning-color: #92400E;
-    --warning-background: #FEF3C7;
-    --warning-border: #FDE68A;
-
-    --info-color: #1D4ED8;
-    --info-background: #DBEAFE;
-    --info-border: #BFDBFE;
+html[data-theme="cobalt"] {
+   /* ----------------------------------------------------- BRAND ----------------------------------------------------- */
+   --brand-lemon: #75D7FF;
+   --brand-yellow: #43C5F5;
+   --brand-lemon-soft: #EFFBFF;
+   --brand-yellow-soft: #D9F6FF;
+   /* ----------------------------------------------------- SURFACES ----------------------------------------------------- */
+   --color-page: #F7F7F6;
+   --color-surface: #FFFFFF;
+   --color-surface-subtle: #FCFCFB;
+   --color-surface-muted: #F1F2F3;
+   --color-surface-hover: #F6F9FA;
+   --color-sidebar: #FFFFFF;
+   /* ----------------------------------------------------- TEXT ----------------------------------------------------- */
+   --color-text: #171B1D;
+   --color-text-secondary: #626C71;
+   --color-text-muted: #929CA1;
+   --color-text-faint: #B8C1C5;
+   --color-text-disabled: #C8CED1;
+   /* ----------------------------------------------------- BORDERS ----------------------------------------------------- */
+   --color-border: #E3E7E9;
+   --color-border-strong: #D2D9DC;
+   --color-border-accent: #A8E7FA;
+   /* ----------------------------------------------------- PRIMARY ----------------------------------------------------- */
+   --color-primary: #171B1D;
+   --color-primary-hover: #30383B;
+   /* ----------------------------------------------------- STATUS ----------------------------------------------------- */
+   --color-success: #166534;
+   --color-success-bg: #DCFCE7;
+   --color-success-border: #BBF7D0;
+   --color-warning: #92400E;
+   --color-warning-bg: #FEF3C7;
+   --color-warning-border: #FDE68A;
+   --color-danger: #991B1B;
+   --color-danger-bg: #FEE2E2;
+   --color-danger-border: #FECACA;
+   --color-info: #0891B2;
+   --color-info-bg: #EFFBFF;
+   --color-info-border: #BDEFFF;
+   /* ----------------------------------------------------- LEGACY COMPATIBILITY ----------------------------------------------------- */
+   --background-color: #F7F7F6;
+   --surface-color: #FFFFFF;
+   --surface-subtle: #FCFCFB;
+   --surface-muted: #F1F2F3;
+   --surface-hover: #F6F9FA;
+   --text-primary: #171B1D;
+   --text-secondary: #626C71;
+   --text-tertiary: #929CA1;
+   --text-muted: #929CA1;
+   --text-disabled: #C8CED1;
+   --border-color: #E3E7E9;
+   --border-color-strong: #D2D9DC;
+   --focus-ring-color: #43C5F5;
+   --focus-ring-color-alpha: rgba(67, 197, 245, 0.28);
+   --success-color: #166534;
+   --success-background: #DCFCE7;
+   --success-border: #BBF7D0;
+   --danger-color: #991B1B;
+   --danger-background: #FEE2E2;
+   --danger-border: #FECACA;
+   --warning-color: #92400E;
+   --warning-background: #FEF3C7;
+   --warning-border: #FDE68A;
+   --info-color: #0891B2;
+   --info-background: #EFFBFF;
+   --info-border: #BDEFFF;
 }
 
+
 /* =========================================================
-   EMERALD
-   Light green theme
+   MINT
+   Fresh / modern green theme
    ========================================================= */
 
-html[data-theme="emerald"] {
-    --brand-lemon: #6EE7B7;
-    --brand-yellow: #A7F3D0;
-    --brand-lemon-soft: #ECFDF5;
-    --brand-yellow-soft: #D1FAE5;
+html[data-theme="mint"] {
+   /* -----------------------------------------------------
+       BRAND
+       ----------------------------------------------------- */
 
-    --color-page: #F5FAF8;
-    --color-surface: #FFFFFF;
-    --color-surface-subtle: #F8FCFA;
-    --color-surface-muted: #EDF7F2;
-    --color-surface-hover: #F1FAF5;
-    --color-sidebar: #FFFFFF;
+   --brand-lemon: #72E6B5;
+   --brand-yellow: #42D99A;
+   --brand-lemon-soft: #ECFFF7;
+   --brand-yellow-soft: #D5FAE9;
 
-    --color-text: #17251F;
-    --color-text-secondary: #5B6F65;
-    --color-text-muted: #899B92;
-    --color-text-faint: #B9C7C1;
-    --color-text-disabled: #CBD6D1;
 
-    --color-border: #DDE9E3;
-    --color-border-strong: #C8D9D0;
-    --color-border-accent: #86DDB7;
+   /* -----------------------------------------------------
+       SURFACES
+       ----------------------------------------------------- */
 
-    --color-primary: #17251F;
-    --color-primary-hover: #293D35;
+   --color-page: #F7F8F7;
+   --color-surface: #FFFFFF;
+   --color-surface-subtle: #FCFDFC;
+   --color-surface-muted: #F1F3F2;
+   --color-surface-hover: #F6F9F7;
+   --color-sidebar: #FFFFFF;
 
-    --color-success: #166534;
-    --color-success-bg: #DCFCE7;
-    --color-success-border: #BBF7D0;
 
-    --color-warning: #92400E;
-    --color-warning-bg: #FEF3C7;
-    --color-warning-border: #FDE68A;
+   /* -----------------------------------------------------
+       TEXT
+       ----------------------------------------------------- */
 
-    --color-danger: #991B1B;
-    --color-danger-bg: #FEE2E2;
-    --color-danger-border: #FECACA;
+   --color-text: #171B19;
+   --color-text-secondary: #626C67;
+   --color-text-muted: #929B96;
+   --color-text-faint: #BAC1BD;
+   --color-text-disabled: #C9CECB;
 
-    --color-info: #047857;
-    --color-info-bg: #D1FAE5;
-    --color-info-border: #A7F3D0;
 
-    /* Legacy compatibility */
-    --background-color: #F5FAF8;
-    --surface-color: #FFFFFF;
-    --surface-subtle: #F8FCFA;
-    --surface-muted: #EDF7F2;
-    --surface-hover: #F1FAF5;
+   /* -----------------------------------------------------
+       BORDERS
+       ----------------------------------------------------- */
 
-    --text-primary: #17251F;
-    --text-secondary: #5B6F65;
-    --text-tertiary: #899B92;
-    --text-muted: #899B92;
-    --text-disabled: #CBD6D1;
+   --color-border: #E3E7E5;
+   --color-border-strong: #D2D8D5;
+   --color-border-accent: #9AEAC5;
 
-    --border-color: #DDE9E3;
-    --border-color-strong: #C8D9D0;
 
-    --focus-ring-color: #34D399;
-    --focus-ring-color-alpha: rgba(52, 211, 153, 0.28);
+   /* -----------------------------------------------------
+       PRIMARY
+       ----------------------------------------------------- */
 
-    --success-color: #166534;
-    --success-background: #DCFCE7;
-    --success-border: #BBF7D0;
+   --color-primary: #171B19;
+   --color-primary-hover: #303733;
 
-    --danger-color: #991B1B;
-    --danger-background: #FEE2E2;
-    --danger-border: #FECACA;
 
-    --warning-color: #92400E;
-    --warning-background: #FEF3C7;
-    --warning-border: #FDE68A;
+   /* -----------------------------------------------------
+       STATUS
+       ----------------------------------------------------- */
 
-    --info-color: #047857;
-    --info-background: #D1FAE5;
-    --info-border: #A7F3D0;
+   --color-success: #166534;
+   --color-success-bg: #DCFCE7;
+   --color-success-border: #BBF7D0;
+
+   --color-warning: #92400E;
+   --color-warning-bg: #FEF3C7;
+   --color-warning-border: #FDE68A;
+
+   --color-danger: #991B1B;
+   --color-danger-bg: #FEE2E2;
+   --color-danger-border: #FECACA;
+
+   --color-info: #059669;
+   --color-info-bg: #ECFFF7;
+   --color-info-border: #B9F3D7;
+
+
+   /* -----------------------------------------------------
+       LEGACY COMPATIBILITY
+       ----------------------------------------------------- */
+
+   --background-color: #F7F8F7;
+   --surface-color: #FFFFFF;
+   --surface-subtle: #FCFDFC;
+   --surface-muted: #F1F3F2;
+   --surface-hover: #F6F9F7;
+
+   --text-primary: #171B19;
+   --text-secondary: #626C67;
+   --text-tertiary: #929B96;
+   --text-muted: #929B96;
+   --text-disabled: #C9CECB;
+
+   --border-color: #E3E7E5;
+   --border-color-strong: #D2D8D5;
+
+   --focus-ring-color: #42D99A;
+   --focus-ring-color-alpha: rgba(66, 217, 154, 0.28);
+
+   --success-color: #166534;
+   --success-background: #DCFCE7;
+   --success-border: #BBF7D0;
+
+   --danger-color: #991B1B;
+   --danger-background: #FEE2E2;
+   --danger-border: #FECACA;
+
+   --warning-color: #92400E;
+   --warning-background: #FEF3C7;
+   --warning-border: #FDE68A;
+
+   --info-color: #059669;
+   --info-background: #ECFFF7;
+   --info-border: #B9F3D7;
 }
 
+
 /* =========================================================
-   VIOLET
-   Light purple theme
+   CORAL
+   Warm / energetic theme
    ========================================================= */
 
-html[data-theme="violet"] {
-    --brand-lemon: #C4B5FD;
-    --brand-yellow: #DDD6FE;
-    --brand-lemon-soft: #F5F3FF;
-    --brand-yellow-soft: #EDE9FE;
+html[data-theme="coral"] {
+   /* -----------------------------------------------------
+       BRAND
+       ----------------------------------------------------- */
 
-    --color-page: #F8F7FC;
-    --color-surface: #FFFFFF;
-    --color-surface-subtle: #FBFAFE;
-    --color-surface-muted: #F2F0F8;
-    --color-surface-hover: #F6F4FB;
-    --color-sidebar: #FFFFFF;
+   --brand-lemon: #FF9B8A;
+   --brand-yellow: #FF735F;
+   --brand-lemon-soft: #FFF2EF;
+   --brand-yellow-soft: #FFE2DD;
 
-    --color-text: #201B2E;
-    --color-text-secondary: #696276;
-    --color-text-muted: #91899F;
-    --color-text-faint: #BEB8C8;
-    --color-text-disabled: #CDC8D5;
 
-    --color-border: #E6E1EE;
-    --color-border-strong: #D4CDDF;
-    --color-border-accent: #B9AAED;
+   /* -----------------------------------------------------
+       SURFACES
+       ----------------------------------------------------- */
 
-    --color-primary: #201B2E;
-    --color-primary-hover: #352E47;
+   --color-page: #F8F7F6;
+   --color-surface: #FFFFFF;
+   --color-surface-subtle: #FCFBFA;
+   --color-surface-muted: #F2F0EF;
+   --color-surface-hover: #F8F5F4;
+   --color-sidebar: #FFFFFF;
 
-    --color-success: #166534;
-    --color-success-bg: #DCFCE7;
-    --color-success-border: #BBF7D0;
 
-    --color-warning: #92400E;
-    --color-warning-bg: #FEF3C7;
-    --color-warning-border: #FDE68A;
+   /* -----------------------------------------------------
+       TEXT
+       ----------------------------------------------------- */
 
-    --color-danger: #991B1B;
-    --color-danger-bg: #FEE2E2;
-    --color-danger-border: #FECACA;
+   --color-text: #1C1918;
+   --color-text-secondary: #6B6461;
+   --color-text-muted: #968F8B;
+   --color-text-faint: #BDB7B3;
+   --color-text-disabled: #CDC8C5;
 
-    --color-info: #6D28D9;
-    --color-info-bg: #EDE9FE;
-    --color-info-border: #DDD6FE;
 
-    /* Legacy compatibility */
-    --background-color: #F8F7FC;
-    --surface-color: #FFFFFF;
-    --surface-subtle: #FBFAFE;
-    --surface-muted: #F2F0F8;
-    --surface-hover: #F6F4FB;
+   /* -----------------------------------------------------
+       BORDERS
+       ----------------------------------------------------- */
 
-    --text-primary: #201B2E;
-    --text-secondary: #696276;
-    --text-tertiary: #91899F;
-    --text-muted: #91899F;
-    --text-disabled: #CDC8D5;
+   --color-border: #E7E3E1;
+   --color-border-strong: #D8D2CF;
+   --color-border-accent: #FFB7AA;
 
-    --border-color: #E6E1EE;
-    --border-color-strong: #D4CDDF;
 
-    --focus-ring-color: #8B5CF6;
-    --focus-ring-color-alpha: rgba(139, 92, 246, 0.28);
+   /* -----------------------------------------------------
+       PRIMARY
+       ----------------------------------------------------- */
 
-    --success-color: #166534;
-    --success-background: #DCFCE7;
-    --success-border: #BBF7D0;
+   --color-primary: #1C1918;
+   --color-primary-hover: #36312F;
 
-    --danger-color: #991B1B;
-    --danger-background: #FEE2E2;
-    --danger-border: #FECACA;
 
-    --warning-color: #92400E;
-    --warning-background: #FEF3C7;
-    --warning-border: #FDE68A;
+   /* -----------------------------------------------------
+       STATUS
+       ----------------------------------------------------- */
 
-    --info-color: #6D28D9;
-    --info-background: #EDE9FE;
-    --info-border: #DDD6FE;
+   --color-success: #166534;
+   --color-success-bg: #DCFCE7;
+   --color-success-border: #BBF7D0;
+
+   --color-warning: #92400E;
+   --color-warning-bg: #FEF3C7;
+   --color-warning-border: #FDE68A;
+
+   --color-danger: #991B1B;
+   --color-danger-bg: #FEE2E2;
+   --color-danger-border: #FECACA;
+
+   --color-info: #E85D4A;
+   --color-info-bg: #FFF2EF;
+   --color-info-border: #FFD0C8;
+
+
+   /* -----------------------------------------------------
+       LEGACY COMPATIBILITY
+       ----------------------------------------------------- */
+
+   --background-color: #F8F7F6;
+   --surface-color: #FFFFFF;
+   --surface-subtle: #FCFBFA;
+   --surface-muted: #F2F0EF;
+   --surface-hover: #F8F5F4;
+
+   --text-primary: #1C1918;
+   --text-secondary: #6B6461;
+   --text-tertiary: #968F8B;
+   --text-muted: #968F8B;
+   --text-disabled: #CDC8C5;
+
+   --border-color: #E7E3E1;
+   --border-color-strong: #D8D2CF;
+
+   --focus-ring-color: #FF735F;
+   --focus-ring-color-alpha: rgba(255, 115, 95, 0.28);
+
+   --success-color: #166534;
+   --success-background: #DCFCE7;
+   --success-border: #BBF7D0;
+
+   --danger-color: #991B1B;
+   --danger-background: #FEE2E2;
+   --danger-border: #FECACA;
+
+   --warning-color: #92400E;
+   --warning-background: #FEF3C7;
+   --warning-border: #FDE68A;
+
+   --info-color: #E85D4A;
+   --info-background: #FFF2EF;
+   --info-border: #FFD0C8;
 }

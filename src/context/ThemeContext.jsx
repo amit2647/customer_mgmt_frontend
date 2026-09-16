@@ -5,7 +5,7 @@ const ThemeContext = createContext(null);
 const STORAGE_KEY = "omnicore-theme";
 const DEFAULT_THEME = "lemon";
 
-const VALID_THEMES = ["lemon", "ocean", "emerald", "violet"];
+const VALID_THEMES = ["lemon", "cobalt", "mint", "coral"];
 
 function getStoredTheme() {
   const storedTheme = localStorage.getItem(STORAGE_KEY);
