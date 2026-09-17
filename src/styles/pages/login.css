@@ -120,15 +120,15 @@
 
 .login-form input:focus {
     border-color: var(--color-text);
-    box-shadow: 0 0 0 3px rgba(23, 23, 23, 0.06);
+    box-shadow: 0 0 0 3px var(--focus-ring-color-alpha);
 }
 
 .login-error {
     padding: 11px 12px;
-    border: 1px solid #e3caca;
+    border: 1px solid var(--color-danger-border);
     border-radius: 8px;
-    background: #faf1f1;
-    color: #8a3434;
+    background: var(--color-danger-bg);
+    color: var(--color-danger);
     font-size: 10px;
     line-height: 1.45;
 }

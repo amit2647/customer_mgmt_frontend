@@ -32,7 +32,7 @@
 }
 
 .toolbar span {
-    color: #777770;
+    color: var(--color-text-muted);
     font-size: 12px;
 }
 

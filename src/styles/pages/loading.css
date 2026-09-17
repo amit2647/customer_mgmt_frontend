@@ -9,8 +9,7 @@
 
     width: 100%;
 
-    background: var(--color-background,
-            #f7f8fa);
+    background: var(--color-page);
 }
 
 .loading-screen-full {
@@ -96,7 +95,7 @@
     position: absolute;
     inset: 0;
 
-    border: 2px solid rgba(17, 24, 39, 0.08);
+    border: 2px solid color-mix(in srgb, var(--color-text) 8%, transparent);
 
     border-top-color: var(--color-primary,
             #111827);
@@ -148,7 +147,7 @@
 
     border-radius: 999px;
 
-    background: rgba(17, 24, 39, 0.07);
+    background: color-mix(in srgb, var(--color-text) 7%, transparent);
 }
 
 .loading-progress span {
@@ -187,7 +186,7 @@
 
     inset: 0;
 
-    border: 2px solid rgba(17, 24, 39, 0.10);
+    border: 2px solid color-mix(in srgb, var(--color-text) 10%, transparent);
 
     border-top-color: var(--color-primary,
             #111827);

@@ -18,7 +18,7 @@ a:focus-visible,
 input:focus-visible,
 select:focus-visible,
 textarea:focus-visible {
-    outline: 2px solid #D8CF42;
+    outline: 2px solid var(--focus-ring-color);
     outline-offset: 2px;
 }
 
@@ -38,12 +38,12 @@ textarea:focus-visible {
 
 .service-list::-webkit-scrollbar-thumb,
 .sidebar::-webkit-scrollbar-thumb {
-    background: #D2D2CA;
+    background: var(--color-border-strong);
     border-radius: var(--radius-pill);
 }
 
 .service-list::-webkit-scrollbar-thumb:hover,
 .sidebar::-webkit-scrollbar-thumb:hover {
-    background: #B8B8AF;
+    background: var(--color-text-faint);
 }
 

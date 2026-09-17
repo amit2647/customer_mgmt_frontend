@@ -103,7 +103,7 @@
 }
 
 .settings-card:not(.disabled):focus-visible {
-    outline: 2px solid #D8CF42;
+    outline: 2px solid var(--focus-ring-color);
     outline-offset: 2px;
 }
 

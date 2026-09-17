@@ -27,44 +27,13 @@
 
    /*
     * -------------------------------------------------------
-    * TYPOGRAPHY
+    * TYPOGRAPHY, RADIUS AND SHADOWS
     * -------------------------------------------------------
     *
-    * These may already be defined elsewhere.
-    * Keeping them here allows component CSS to reference
-    * a consistent font variable.
+    * Deliberately not defined here. They are not theme-dependent
+    * and live in variables.css; redefining them in this file
+    * silently overrode the fonts index.html actually loads.
     */
-
-   --font-body: "Inter", system-ui, -apple-system, BlinkMacSystemFont,
-      "Segoe UI", sans-serif;
-
-   --font-display: "Inter", system-ui, -apple-system, BlinkMacSystemFont,
-      "Segoe UI", sans-serif;
-
-
-   /*
-    * -------------------------------------------------------
-    * RADIUS
-    * -------------------------------------------------------
-    */
-
-   --radius-sm: 6px;
-   --radius-md: 10px;
-   --radius-lg: 14px;
-   --radius-pill: 999px;
-
-
-   /*
-    * -------------------------------------------------------
-    * SHADOWS
-    * -------------------------------------------------------
-    */
-
-   --shadow-card:
-      0 1px 2px rgba(16, 24, 40, 0.04);
-
-   --shadow-floating:
-      0 18px 45px rgba(16, 24, 40, 0.14);
 
 
    /*

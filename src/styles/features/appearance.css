@@ -204,9 +204,9 @@
 }
 
 .theme-card.selected {
-    border-color: var(--theme-accent);
+    border-color: var(--color-border-accent);
     box-shadow:
-        0 0 0 1px var(--theme-accent),
+        0 0 0 1px var(--color-border-accent),
         var(--shadow-card);
 }
 
@@ -386,8 +386,8 @@
 }
 
 .theme-card.selected .theme-selection {
-    border-color: var(--theme-accent);
-    background: var(--theme-accent);
+    border-color: var(--brand-lemon);
+    background: var(--brand-lemon);
     color: var(--color-text);
 }
 

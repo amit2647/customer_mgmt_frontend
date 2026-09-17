@@ -166,15 +166,15 @@
 }
 
 .email-accounts-page .alert-success {
-    border-color: #D9E4C2;
-    background: var(--brand-lemon-soft);
-    color: #4F5000;
+    border-color: var(--color-success-border);
+    background: var(--color-success-bg);
+    color: var(--color-success);
 }
 
 .email-accounts-page .alert-error {
-    border-color: #E2D6D0;
-    background: #FBF8F5;
-    color: #5A4545;
+    border-color: var(--color-danger-border);
+    background: var(--color-danger-bg);
+    color: var(--color-danger);
 }
 
 .email-accounts-page .alert-close {
@@ -301,7 +301,7 @@
 
 .email-account-status.active {
     background: var(--brand-lemon-soft);
-    color: #5F5700;
+    color: var(--color-brand-badge-text);
 }
 
 .email-account-status.inactive {
@@ -635,7 +635,7 @@
 
 .email-account-workflow .workflow-form-grid input:not([type="checkbox"]):focus,
 .email-account-workflow .workflow-form-grid select:focus {
-    border-color: #C9C9C1;
+    border-color: var(--color-border-strong);
     box-shadow: 0 0 0 3px var(--brand-lemon-soft);
 }
 

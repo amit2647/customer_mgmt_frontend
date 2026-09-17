@@ -15,11 +15,11 @@
 
     background:
         radial-gradient(circle at 20% 50%,
-            rgba(223, 255, 0, 0.055),
+            color-mix(in srgb, var(--brand-lemon) 5.5%, transparent),
             transparent 30%),
-        var(--color-background, #f7f8fa);
+        var(--color-page);
 
-    color: var(--color-text, #111827);
+    color: var(--color-text);
 }
 
 
@@ -45,8 +45,7 @@
 
     padding: 24px 42px;
 
-    border-bottom: 1px solid var(--color-border,
-            #eaecf0);
+    border-bottom: 1px solid var(--color-border);
 
     background: rgba(255, 255, 255, 0.78);
 
@@ -126,8 +125,7 @@
 
 
 .onboarding-tour-label {
-    color: var(--color-text-tertiary,
-            #98a2b3);
+    color: var(--color-text-muted);
 
     font-size: 10px;
     font-weight: 600;
@@ -160,8 +158,7 @@
 
 
 .onboarding-skip:hover {
-    color: var(--color-text,
-            #111827);
+    color: var(--color-text);
 
     background: rgba(16, 24, 40, 0.045);
 }
@@ -216,8 +213,8 @@
 
     background:
         linear-gradient(145deg,
-            #111827,
-            #1f2937);
+            var(--color-text),
+            var(--color-primary-hover));
 
     box-shadow:
         0 28px 70px rgba(16, 24, 40, 0.14),
@@ -448,8 +445,7 @@
 
     gap: 5px;
 
-    color: var(--color-text-tertiary,
-            #98a2b3);
+    color: var(--color-text-muted);
 
     font-size: 10px;
     font-weight: 600;
@@ -457,8 +453,7 @@
 
 
 .onboarding-step-count strong {
-    color: var(--color-text,
-            #111827);
+    color: var(--color-text);
 }
 
 
@@ -479,8 +474,7 @@
 
     padding: 20px 42px;
 
-    border-top: 1px solid var(--color-border,
-            #eaecf0);
+    border-top: 1px solid var(--color-border);
 
     background: rgba(255, 255, 255, 0.78);
 
@@ -495,8 +489,7 @@
 
 
 .onboarding-footer-hint {
-    color: var(--color-text-tertiary,
-            #98a2b3);
+    color: var(--color-text-muted);
 
     font-size: 10px;
     font-weight: 500;
@@ -829,7 +822,7 @@
 
     border-radius: 4px 4px 2px 2px;
 
-    background: rgba(223, 255, 0, 0.55);
+    background: color-mix(in srgb, var(--brand-lemon) 55%, transparent);
 }
 
 
@@ -908,9 +901,9 @@
 
 
 .lead-stage.active {
-    border-color: rgba(223, 255, 0, 0.25);
+    border-color: color-mix(in srgb, var(--brand-lemon) 25%, transparent);
 
-    background: rgba(223, 255, 0, 0.055);
+    background: color-mix(in srgb, var(--brand-lemon) 5.5%, transparent);
 }
 
 
@@ -1010,9 +1003,9 @@
 
     border-radius: 10px;
 
-    background: rgba(223, 255, 0, 0.85);
+    background: color-mix(in srgb, var(--brand-lemon) 85%, transparent);
 
-    color: #111827;
+    color: var(--color-text);
 
     font-size: 9px;
     font-weight: 800;
@@ -1098,7 +1091,7 @@
     background: var(--brand-lemon,
             #dfff00);
 
-    color: #111827;
+    color: var(--color-text);
 
     font-size: 11px;
     font-weight: 800;
@@ -1132,7 +1125,7 @@
 
     border-radius: 999px;
 
-    background: rgba(223, 255, 0, 0.12);
+    background: color-mix(in srgb, var(--brand-lemon) 12%, transparent);
 
     color: var(--brand-lemon,
             #dfff00);
@@ -1318,9 +1311,9 @@
 
 
 .service-ui-card.active {
-    border-color: rgba(223, 255, 0, 0.22);
+    border-color: color-mix(in srgb, var(--brand-lemon) 22%, transparent);
 
-    background: rgba(223, 255, 0, 0.055);
+    background: color-mix(in srgb, var(--brand-lemon) 5.5%, transparent);
 }
 
 
@@ -1349,7 +1342,7 @@
     background: var(--brand-lemon,
             #dfff00);
 
-    color: #111827;
+    color: var(--color-text);
 }
 
 
@@ -1401,7 +1394,7 @@
 
     border-radius: 8px;
 
-    background: rgba(223, 255, 0, 0.16);
+    background: color-mix(in srgb, var(--brand-lemon) 16%, transparent);
 }
 
 

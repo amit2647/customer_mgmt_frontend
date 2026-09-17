@@ -12,9 +12,9 @@
 
     background:
         radial-gradient(circle at 50% 40%,
-            rgba(255, 214, 10, 0.055),
+            color-mix(in srgb, var(--brand-yellow) 5.5%, transparent),
             transparent 28%),
-        var(--color-background, #f7f8fa);
+        var(--color-page);
 
     opacity: 1;
     visibility: visible;
@@ -79,7 +79,7 @@
 
     border-radius: 27px;
 
-    border: 1px solid rgba(17, 24, 39, 0.08);
+    border: 1px solid color-mix(in srgb, var(--color-text) 8%, transparent);
 
     animation: splash-ring 1.8s ease-in-out infinite;
 }
@@ -176,8 +176,7 @@
 .splash-status {
     margin: 12px 0 0;
 
-    color: var(--color-text-tertiary,
-            #98a2b3);
+    color: var(--color-text-muted);
 
     font-family: var(--font-body,
             "DM Sans",
