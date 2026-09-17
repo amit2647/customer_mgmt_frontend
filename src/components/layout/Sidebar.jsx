@@ -68,18 +68,20 @@ function Sidebar({ collapsed, onToggle }) {
           ============================================================ */}
 
       <nav className="sidebar-nav" aria-label="Management">
-        <NavLink
-          to="/"
-          end
-          className={navigationClass}
-          data-tooltip="Dashboard"
-        >
-          <span className="sidebar-icon" aria-hidden="true">
-            <SquaresFour size={20} weight="regular" />
-          </span>
+        {hasPermission("reports.read") && (
+          <NavLink
+            to="/"
+            end
+            className={navigationClass}
+            data-tooltip="Dashboard"
+          >
+            <span className="sidebar-icon" aria-hidden="true">
+              <SquaresFour size={20} weight="regular" />
+            </span>
 
-          <span className="sidebar-link-label">Dashboard</span>
-        </NavLink>
+            <span className="sidebar-link-label">Dashboard</span>
+          </NavLink>
+        )}
 
         {hasPermission("leads.read") && (
           <NavLink to="/leads" className={navigationClass} data-tooltip="Leads">

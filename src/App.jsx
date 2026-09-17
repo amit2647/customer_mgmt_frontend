@@ -5,6 +5,8 @@ import SplashScreen from "./components/common/SplashScreen";
 import OnboardingScreen from "./components/common/OnboardingScreen";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 
+import { useAuth } from "./context/AuthContext";
+
 import AppLayout from "./components/layout/AppLayout";
 
 import LoginPage from "./pages/Login/LoginPage";
@@ -22,6 +24,33 @@ import ServicesPage from "./pages/Services/ServicesPage";
 import SettingsPage from "./pages/Settings/SettingsPage";
 import EmailAccountsPage from "./pages/Settings/EmailAccountsPage";
 import AppearancePage from "./pages/Settings/AppearancePage";
+
+// Checked in order when a user cannot open the dashboard.
+const LANDING_FALLBACKS = [
+  ["leads.read", "/leads"],
+  ["customers.read", "/customers"],
+  ["services.read", "/services"],
+  ["system.integrations", "/settings"],
+];
+
+// "/" is both the post-login landing route and the catch-all target, so a role
+// without reports.read would otherwise be dropped onto a dashboard that 403s.
+function HomeRoute() {
+  const { user } = useAuth();
+
+  const permissions = Array.isArray(user?.permissions) ? user.permissions : [];
+
+  if (permissions.includes("reports.read")) {
+    return <DashboardPage />;
+  }
+
+  const fallback = LANDING_FALLBACKS.find(([permission]) =>
+    permissions.includes(permission),
+  );
+
+  // With no accessible page at all, the dashboard's own error is as good as any.
+  return fallback ? <Navigate to={fallback[1]} replace /> : <DashboardPage />;
+}
 
 function App() {
   const navigate = useNavigate();
@@ -86,7 +115,7 @@ function App() {
 
       <Route element={<ProtectedRoute />}>
         <Route element={<AppLayout />}>
-          <Route path="/" element={<DashboardPage />} />
+          <Route path="/" element={<HomeRoute />} />
 
           <Route path="/leads" element={<LeadsPage />} />
 
