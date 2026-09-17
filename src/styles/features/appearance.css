@@ -388,7 +388,7 @@
 .theme-card.selected .theme-selection {
     border-color: var(--brand-lemon);
     background: var(--brand-lemon);
-    color: var(--color-text);
+    color: var(--color-on-accent);
 }
 
 /* =========================================================

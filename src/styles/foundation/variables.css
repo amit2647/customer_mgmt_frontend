@@ -66,13 +66,17 @@
     --radius-xl: 20px;
     --radius-pill: 999px;
 
-    /* Shadows */
+    /* Shadows — colour and strength are themed, so dark themes can deepen them
+       instead of casting a near-invisible navy shadow on a dark page. */
+    --shadow-color: 16 24 40;
+    --shadow-strength: 1;
+
     --shadow-card:
-        0 1px 2px rgba(16, 24, 40, 0.04);
+        0 1px 2px rgb(var(--shadow-color) / calc(0.04 * var(--shadow-strength)));
     --shadow-card-hover:
-        0 10px 28px rgba(16, 24, 40, 0.07);
+        0 10px 28px rgb(var(--shadow-color) / calc(0.07 * var(--shadow-strength)));
     --shadow-floating:
-        0 18px 45px rgba(16, 24, 40, 0.14);
+        0 18px 45px rgb(var(--shadow-color) / calc(0.14 * var(--shadow-strength)));
 }
 
 /* =========================================================

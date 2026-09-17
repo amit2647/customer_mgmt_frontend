@@ -249,7 +249,7 @@
     flex-shrink: 0;
     border-radius: var(--radius-sm);
     background: var(--brand-lemon);
-    color: var(--color-primary);
+    color: var(--color-on-accent);
     font-size: 13px;
     font-weight: 800;
 }

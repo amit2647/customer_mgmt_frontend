@@ -209,15 +209,15 @@
 }
 
 .dashboard-stat-card:first-child .dashboard-stat-icon {
-    background: color-mix(in srgb, var(--color-primary) 8%, transparent);
-    color: var(--color-primary);
+    background: color-mix(in srgb, var(--color-on-accent) 10%, transparent);
+    color: var(--color-on-accent);
 }
 
 .dashboard-stat-card:first-child .dashboard-stat-label,
 .dashboard-stat-card:first-child .dashboard-stat-value,
 .dashboard-stat-card:first-child .dashboard-stat-footer,
 .dashboard-stat-card:first-child .dashboard-stat-link {
-    color: var(--color-primary);
+    color: var(--color-on-accent);
 }
 
 
@@ -633,7 +633,7 @@
 
 .source-row:first-child .source-rank {
     background: var(--brand-lemon);
-    color: var(--color-primary);
+    color: var(--color-on-accent);
 }
 
 .source-name {
@@ -720,7 +720,7 @@
     border-radius: 50%;
 
     background: var(--brand-lemon);
-    color: var(--color-primary);
+    color: var(--color-on-accent);
 
     font-size: 10px;
     font-weight: 800;
@@ -891,7 +891,7 @@
 
 .quick-action:hover .quick-action-icon {
     background: var(--brand-lemon);
-    color: var(--color-primary);
+    color: var(--color-on-accent);
 }
 
 .quick-action-content {
@@ -994,7 +994,7 @@
 
 .service-demand-row:first-child .service-demand-rank {
     background: var(--brand-lemon);
-    color: var(--color-primary);
+    color: var(--color-on-accent);
 }
 
 .service-demand-header>strong {
@@ -1344,10 +1344,12 @@
 
 .service-summary-item:first-child .service-summary-icon {
     background: var(--brand-lemon);
+    color: var(--color-on-accent);
 }
 
 .service-summary-item:nth-child(2) .service-summary-icon {
     background: var(--brand-yellow);
+    color: var(--color-on-accent);
 }
 
 .service-summary-icon {

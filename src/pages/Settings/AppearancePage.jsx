@@ -9,6 +9,7 @@ const themeOptions = [
     accent: "#FFFF66",
     accentStrong: "#FFE566",
     soft: "#FFFFE6",
+    surface: "#FFFFFF",
     mode: "Light",
   },
 
@@ -19,27 +20,30 @@ const themeOptions = [
     accent: "#75D7FF",
     accentStrong: "#43C5F5",
     soft: "#EFFBFF",
+    surface: "#FFFFFF",
     mode: "Light",
   },
 
   {
     id: "mint",
     name: "Mint",
-    description: "A fresh and modern green palette.",
+    description: "A fresh green accent on a deep neutral.",
     accent: "#72E6B5",
     accentStrong: "#42D99A",
-    soft: "#ECFFF7",
-    mode: "Light",
+    soft: "#17241F",
+    surface: "#191F1B",
+    mode: "Dark",
   },
 
   {
     id: "coral",
     name: "Coral",
-    description: "A warm and energetic coral palette.",
+    description: "A warm coral accent on a deep neutral.",
     accent: "#FF9B8A",
     accentStrong: "#FF735F",
-    soft: "#FFF2EF",
-    mode: "Light",
+    soft: "#2A1A17",
+    surface: "#1E1917",
+    mode: "Dark",
   },
 ];
 
@@ -123,7 +127,12 @@ function AppearancePage() {
                     <span />
                   </div>
 
-                  <div className="theme-preview-main">
+                  <div
+                    className="theme-preview-main"
+                    style={{
+                      background: option.surface,
+                    }}
+                  >
                     <div className="theme-preview-header">
                       <span />
                       <span />

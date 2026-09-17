@@ -56,9 +56,9 @@ function Sidebar({ collapsed, onToggle }) {
       >
         <span className="sidebar-toggle-icon" aria-hidden="true">
           {collapsed ? (
-            <CaretRight size={16} weight="bold" />
+            <CaretRight size={12} weight="bold" />
           ) : (
-            <CaretLeft size={16} weight="bold" />
+            <CaretLeft size={12} weight="bold" />
           )}
         </span>
       </button>

@@ -130,7 +130,7 @@
 
 .settings-card:not(.disabled):hover .settings-card-icon {
     background: var(--brand-lemon);
-    color: var(--color-primary);
+    color: var(--color-on-accent);
 }
 
 /* =========================================================

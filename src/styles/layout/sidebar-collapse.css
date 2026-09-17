@@ -143,11 +143,10 @@
 }
 
 
+/* No width/height here: it would override the icon component's size prop,
+   which is where the caret is sized. */
 .sidebar-toggle-icon svg {
     display: block;
-
-    width: 18px;
-    height: 18px;
 }
 
 
@@ -277,7 +276,7 @@
 
     background: var(--color-primary);
 
-    color: var(--color-surface);
+    color: var(--color-on-primary);
 
     content: attr(data-tooltip);
 

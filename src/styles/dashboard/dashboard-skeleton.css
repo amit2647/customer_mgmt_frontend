@@ -21,11 +21,13 @@
 
     border-radius: 6px;
 
+    /* Mixed from --color-text so the shimmer inverts with the theme: a dark
+       sweep on light surfaces, a light one on dark. */
     background:
         linear-gradient(90deg,
-            rgba(16, 24, 40, 0.055) 0%,
-            rgba(16, 24, 40, 0.095) 45%,
-            rgba(16, 24, 40, 0.055) 100%);
+            color-mix(in srgb, var(--color-text) 6%, transparent) 0%,
+            color-mix(in srgb, var(--color-text) 11%, transparent) 45%,
+            color-mix(in srgb, var(--color-text) 6%, transparent) 100%);
 
     background-size: 200% 100%;
 

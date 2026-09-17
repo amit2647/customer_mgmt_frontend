@@ -1,17 +1,19 @@
 /* =========================================================
    OMNICORE — THEME SYSTEM
    =========================================================
-   Four light application themes:
-   - Lemon
-   - Cobalt
-   - Mint
-   - Coral
+   Four application themes:
+   - Lemon   (light)
+   - Cobalt  (light)
+   - Mint    (dark)
+   - Coral   (dark)
 
    Design principle:
    Neutral black / white / grey foundation.
    Theme color is used primarily as the accent.
 
-   Dark mode is intentionally deferred.
+   Mint and Coral are dark. Nothing outside this file needs
+   to know that: components reference the semantic variables
+   below, so inverting the neutrals is enough.
 
    IMPORTANT:
    All component-level colors should reference these
@@ -69,6 +71,12 @@
 
    --color-primary: #171717;
    --color-primary-hover: #303030;
+
+   /* Text that sits on a --color-primary chip when the accent is not used. */
+   --color-on-primary: #FFFFFF;
+
+   /* Text/icons sitting on a --brand-lemon accent fill. */
+   --color-on-accent: #171717;
 
    --color-success: #4D5200;
    --color-success-bg: #F8F8C9;
@@ -188,6 +196,8 @@ html[data-theme="lemon"] {
 
    --color-primary: #171717;
    --color-primary-hover: #303030;
+   --color-on-primary: #FFFFFF;
+   --color-on-accent: #171717;
 
 
    /* -----------------------------------------------------
@@ -335,6 +345,8 @@ html[data-theme="cobalt"] {
 
    --color-primary: #171B1D;
    --color-primary-hover: #30383B;
+   --color-on-primary: #FFFFFF;
+   --color-on-accent: #171B1D;
 
 
    /* -----------------------------------------------------
@@ -411,29 +423,31 @@ html[data-theme="cobalt"] {
 
 
 /* =========================================================
-   MINT
-   Fresh / modern green theme
+   MINT — DARK
+   Fresh green accent on a deep neutral
    ========================================================= */
 
 html[data-theme="mint"] {
 
    /* -----------------------------------------------------
       BRAND
+      Accent hues are unchanged from the light variant; only
+      the neutral foundation is inverted.
       ----------------------------------------------------- */
 
    --brand-lemon: #72E6B5;
    --brand-yellow: #42D99A;
-   --brand-lemon-soft: #ECFFF7;
-   --brand-yellow-soft: #D5FAE9;
+   --brand-lemon-soft: #17241F;
+   --brand-yellow-soft: #1B2C25;
 
 
    /* -----------------------------------------------------
       BRAND BADGE / TAG
       ----------------------------------------------------- */
 
-   --color-brand-badge-bg: #ECFFF7;
-   --color-brand-badge-border: #B9F3D7;
-   --color-brand-badge-text: #047857;
+   --color-brand-badge-bg: #17241F;
+   --color-brand-badge-border: #2F4C40;
+   --color-brand-badge-text: #72E6B5;
 
 
    /* -----------------------------------------------------
@@ -441,146 +455,132 @@ html[data-theme="mint"] {
       ----------------------------------------------------- */
 
    --color-review-status-bg: #72E6B5;
-   --color-review-status-text: #171B19;
+   --color-review-status-text: #0E1D16;
 
 
    /* -----------------------------------------------------
       SURFACES
+      Page is darkest; surfaces step lighter so cards read as
+      elevated, and --color-primary sits lighter still so the
+      accent text on chips and buttons keeps its contrast.
       ----------------------------------------------------- */
 
-   --color-page: #F7F8F7;
-   --color-surface: #FFFFFF;
-   --color-surface-subtle: #FCFDFC;
-   --color-surface-muted: #F1F3F2;
-   --color-surface-hover: #F6F9F7;
-   --color-sidebar: #FFFFFF;
+   --color-page: #121714;
+   --color-surface: #191F1B;
+   --color-surface-subtle: #161C19;
+   --color-surface-muted: #222925;
+   --color-surface-hover: #1F2723;
+   --color-sidebar: #161C19;
 
 
    /* -----------------------------------------------------
       TEXT
       ----------------------------------------------------- */
 
-   --color-text: #171B19;
-   --color-text-secondary: #626C67;
-   --color-text-muted: #929B96;
-   --color-text-faint: #BAC1BD;
-   --color-text-disabled: #C9CECB;
+   --color-text: #E6EDE9;
+   --color-text-secondary: #A3AFA8;
+   --color-text-muted: #7C8A83;
+   --color-text-faint: #5E6B65;
+   --color-text-disabled: #4A554F;
 
 
    /* -----------------------------------------------------
       BORDERS
       ----------------------------------------------------- */
 
-   --color-border: #E3E7E5;
-   --color-border-strong: #D2D8D5;
-   --color-border-accent: #9AEAC5;
+   --color-border: #2A322E;
+   --color-border-strong: #3A443E;
+   --color-border-accent: #3F6B58;
 
 
    /* -----------------------------------------------------
       PRIMARY
       ----------------------------------------------------- */
 
-   --color-primary: #171B19;
-   --color-primary-hover: #303733;
+   --color-primary: #2A322E;
+   --color-primary-hover: #343E38;
+   --color-on-primary: #E6EDE9;
+   --color-on-accent: #0E1D16;
 
 
    /* -----------------------------------------------------
       STATUS
+      Inverted: light text on a deep tinted background.
       ----------------------------------------------------- */
 
-   --color-success: #166534;
-   --color-success-bg: #DCFCE7;
-   --color-success-border: #BBF7D0;
+   --color-success: #6EE7A8;
+   --color-success-bg: #14291E;
+   --color-success-border: #27492F;
 
-   --color-warning: #92400E;
-   --color-warning-bg: #FEF3C7;
-   --color-warning-border: #FDE68A;
+   --color-warning: #F5C97A;
+   --color-warning-bg: #2A2114;
+   --color-warning-border: #4A3A1E;
 
-   --color-danger: #991B1B;
-   --color-danger-bg: #FEE2E2;
-   --color-danger-border: #FECACA;
+   --color-danger: #F79B9B;
+   --color-danger-bg: #2C1A1A;
+   --color-danger-border: #4E2A2A;
 
-   --color-info: #059669;
-   --color-info-bg: #ECFFF7;
-   --color-info-border: #B9F3D7;
+   --color-info: #72E6B5;
+   --color-info-bg: #17241F;
+   --color-info-border: #2F4C40;
 
 
    /* -----------------------------------------------------
       SEMANTIC STATUS TEXT
       ----------------------------------------------------- */
 
-   --color-status-neutral-text: #555D59;
-   --color-status-info-text: #047857;
-   --color-status-contacted-text: #047857;
-   --color-status-qualified-text: #047857;
-   --color-status-lost-text: #991B1B;
+   --color-status-neutral-text: #A3AFA8;
+   --color-status-info-text: #72E6B5;
+   --color-status-contacted-text: #72E6B5;
+   --color-status-qualified-text: #72E6B5;
+   --color-status-lost-text: #F79B9B;
 
 
    /* -----------------------------------------------------
-      LEGACY COMPATIBILITY
+      FOCUS
       ----------------------------------------------------- */
 
-   --background-color: #F7F8F7;
-
-   --surface-color: #FFFFFF;
-   --surface-subtle: #FCFDFC;
-   --surface-muted: #F1F3F2;
-   --surface-hover: #F6F9F7;
-
-   --text-primary: #171B19;
-   --text-secondary: #626C67;
-   --text-tertiary: #929B96;
-   --text-muted: #929B96;
-   --text-disabled: #C9CECB;
-
-   --border-color: #E3E7E5;
-   --border-color-strong: #D2D8D5;
-
    --focus-ring-color: #42D99A;
-   --focus-ring-color-alpha: rgba(66, 217, 154, 0.28);
+   --focus-ring-color-alpha: rgba(66, 217, 154, 0.34);
 
-   --success-color: #166534;
-   --success-background: #DCFCE7;
-   --success-border: #BBF7D0;
 
-   --danger-color: #991B1B;
-   --danger-background: #FEE2E2;
-   --danger-border: #FECACA;
+   /* -----------------------------------------------------
+      DEPTH
+      A navy shadow is invisible on a dark page, so shadows
+      become black and are cast harder.
+      ----------------------------------------------------- */
 
-   --warning-color: #92400E;
-   --warning-background: #FEF3C7;
-   --warning-border: #FDE68A;
-
-   --info-color: #059669;
-   --info-background: #ECFFF7;
-   --info-border: #B9F3D7;
+   --shadow-color: 0 0 0;
+   --shadow-strength: 3.5;
 }
 
 
 /* =========================================================
-   CORAL
-   Warm / energetic theme
+   CORAL — DARK
+   Warm coral accent on a deep neutral
    ========================================================= */
 
 html[data-theme="coral"] {
 
    /* -----------------------------------------------------
       BRAND
+      Accent hues are unchanged from the light variant; only
+      the neutral foundation is inverted.
       ----------------------------------------------------- */
 
    --brand-lemon: #FF9B8A;
    --brand-yellow: #FF735F;
-   --brand-lemon-soft: #FFF2EF;
-   --brand-yellow-soft: #FFE2DD;
+   --brand-lemon-soft: #2A1A17;
+   --brand-yellow-soft: #33201C;
 
 
    /* -----------------------------------------------------
       BRAND BADGE / TAG
       ----------------------------------------------------- */
 
-   --color-brand-badge-bg: #FFF2EF;
-   --color-brand-badge-border: #FFD0C8;
-   --color-brand-badge-text: #9F3A2D;
+   --color-brand-badge-bg: #2A1A17;
+   --color-brand-badge-border: #50312B;
+   --color-brand-badge-text: #FF9B8A;
 
 
    /* -----------------------------------------------------
@@ -588,117 +588,101 @@ html[data-theme="coral"] {
       ----------------------------------------------------- */
 
    --color-review-status-bg: #FF9B8A;
-   --color-review-status-text: #1C1918;
+   --color-review-status-text: #24110D;
 
 
    /* -----------------------------------------------------
       SURFACES
+      Page is darkest; surfaces step lighter so cards read as
+      elevated, and --color-primary sits lighter still so the
+      accent text on chips and buttons keeps its contrast.
       ----------------------------------------------------- */
 
-   --color-page: #F8F7F6;
-   --color-surface: #FFFFFF;
-   --color-surface-subtle: #FCFBFA;
-   --color-surface-muted: #F2F0EF;
-   --color-surface-hover: #F8F5F4;
-   --color-sidebar: #FFFFFF;
+   --color-page: #171311;
+   --color-surface: #1E1917;
+   --color-surface-subtle: #1B1614;
+   --color-surface-muted: #28211E;
+   --color-surface-hover: #241E1B;
+   --color-sidebar: #1B1614;
 
 
    /* -----------------------------------------------------
       TEXT
       ----------------------------------------------------- */
 
-   --color-text: #1C1918;
-   --color-text-secondary: #6B6461;
-   --color-text-muted: #968F8B;
-   --color-text-faint: #BDB7B3;
-   --color-text-disabled: #CDC8C5;
+   --color-text: #F0EAE8;
+   --color-text-secondary: #B2A6A1;
+   --color-text-muted: #8A7C77;
+   --color-text-faint: #6B5F5A;
+   --color-text-disabled: #554B47;
 
 
    /* -----------------------------------------------------
       BORDERS
       ----------------------------------------------------- */
 
-   --color-border: #E7E3E1;
-   --color-border-strong: #D8D2CF;
-   --color-border-accent: #FFB7AA;
+   --color-border: #322A27;
+   --color-border-strong: #443A36;
+   --color-border-accent: #7A4437;
 
 
    /* -----------------------------------------------------
       PRIMARY
       ----------------------------------------------------- */
 
-   --color-primary: #1C1918;
-   --color-primary-hover: #36312F;
+   --color-primary: #322A27;
+   --color-primary-hover: #3D3430;
+   --color-on-primary: #F0EAE8;
+   --color-on-accent: #24110D;
 
 
    /* -----------------------------------------------------
       STATUS
+      Inverted: light text on a deep tinted background.
       ----------------------------------------------------- */
 
-   --color-success: #166534;
-   --color-success-bg: #DCFCE7;
-   --color-success-border: #BBF7D0;
+   --color-success: #6EE7A8;
+   --color-success-bg: #14291E;
+   --color-success-border: #27492F;
 
-   --color-warning: #92400E;
-   --color-warning-bg: #FEF3C7;
-   --color-warning-border: #FDE68A;
+   --color-warning: #F5C97A;
+   --color-warning-bg: #2A2114;
+   --color-warning-border: #4A3A1E;
 
-   --color-danger: #991B1B;
-   --color-danger-bg: #FEE2E2;
-   --color-danger-border: #FECACA;
+   --color-danger: #F79B9B;
+   --color-danger-bg: #2C1A1A;
+   --color-danger-border: #4E2A2A;
 
-   --color-info: #E85D4A;
-   --color-info-bg: #FFF2EF;
-   --color-info-border: #FFD0C8;
+   --color-info: #FF9B8A;
+   --color-info-bg: #2A1A17;
+   --color-info-border: #50312B;
 
 
    /* -----------------------------------------------------
       SEMANTIC STATUS TEXT
       ----------------------------------------------------- */
 
-   --color-status-neutral-text: #5E5754;
-   --color-status-info-text: #9F3A2D;
-   --color-status-contacted-text: #9F3A2D;
-   --color-status-qualified-text: #9F3A2D;
-   --color-status-lost-text: #991B1B;
+   --color-status-neutral-text: #B2A6A1;
+   --color-status-info-text: #FF9B8A;
+   --color-status-contacted-text: #FF9B8A;
+   --color-status-qualified-text: #FF9B8A;
+   --color-status-lost-text: #F79B9B;
 
 
    /* -----------------------------------------------------
-      LEGACY COMPATIBILITY
+      FOCUS
       ----------------------------------------------------- */
 
-   --background-color: #F8F7F6;
-
-   --surface-color: #FFFFFF;
-   --surface-subtle: #FCFBFA;
-   --surface-muted: #F2F0EF;
-   --surface-hover: #F8F5F4;
-
-   --text-primary: #1C1918;
-   --text-secondary: #6B6461;
-   --text-tertiary: #968F8B;
-   --text-muted: #968F8B;
-   --text-disabled: #CDC8C5;
-
-   --border-color: #E7E3E1;
-   --border-color-strong: #D8D2CF;
-
    --focus-ring-color: #FF735F;
-   --focus-ring-color-alpha: rgba(255, 115, 95, 0.28);
+   --focus-ring-color-alpha: rgba(255, 115, 95, 0.34);
 
-   --success-color: #166534;
-   --success-background: #DCFCE7;
-   --success-border: #BBF7D0;
 
-   --danger-color: #991B1B;
-   --danger-background: #FEE2E2;
-   --danger-border: #FECACA;
+   /* -----------------------------------------------------
+      DEPTH
+      A navy shadow is invisible on a dark page, so shadows
+      become black and are cast harder.
+      ----------------------------------------------------- */
 
-   --warning-color: #92400E;
-   --warning-background: #FEF3C7;
-   --warning-border: #FDE68A;
-
-   --info-color: #E85D4A;
-   --info-background: #FFF2EF;
-   --info-border: #FFD0C8;
+   --shadow-color: 0 0 0;
+   --shadow-strength: 3.5;
 }
