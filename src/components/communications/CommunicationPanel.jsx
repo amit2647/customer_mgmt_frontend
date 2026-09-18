@@ -3,7 +3,8 @@ import { useCallback, useEffect, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { getCommunications } from "../../api/emails";
 
-import EmailThreadList from "./EmailThreadList";
+import EmailThreadList, { groupIntoThreads } from "./EmailThreadList";
+import EmailThreadModal from "./EmailThreadModal";
 import EmailComposer from "./EmailComposer";
 
 /*
@@ -29,6 +30,7 @@ function CommunicationPanel({ record }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [composer, setComposer] = useState(null);
+  const [openThread, setOpenThread] = useState(null);
 
   const load = useCallback(async () => {
     if (!canRead) {
@@ -47,9 +49,11 @@ function CommunicationPanel({ record }) {
         limit: FETCH_LIMIT,
       });
 
-      setCommunications(
-        Array.isArray(data) ? data : (data?.communications ?? []),
-      );
+      const rows = Array.isArray(data) ? data : (data?.communications ?? []);
+
+      setCommunications(rows);
+
+      return rows;
     } catch (requestError) {
       console.error("Failed to load communications:", requestError);
 
@@ -64,8 +68,27 @@ function CommunicationPanel({ record }) {
   }, [load]);
 
   async function handleSent() {
+    const rows = await load();
+
     setComposer(null);
-    await load();
+
+    // Keep the thread open behind the composer and refresh it in place, so a
+    // sent reply appears in the conversation the user was already reading.
+    setOpenThread((current) => {
+      if (!current) {
+        return null;
+      }
+
+      const refreshed = groupIntoThreads(
+        (rows ?? []).filter((item) => item.channel === "email"),
+      ).find((thread) => thread.key === current.key);
+
+      return refreshed ?? null;
+    });
+  }
+
+  function handleReply(thread, recipient) {
+    setComposer({ conversation: thread, recipient });
   }
 
   if (!canRead) {
@@ -121,10 +144,16 @@ function CommunicationPanel({ record }) {
         <EmailThreadList
           communications={emailCommunications}
           loading={loading}
+          onOpen={setOpenThread}
+        />
+      )}
+
+      {openThread && (
+        <EmailThreadModal
+          thread={openThread}
           canSend={canSend}
-          onReply={(conversation, recipient) =>
-            setComposer({ conversation, recipient })
-          }
+          onReply={handleReply}
+          onClose={() => setOpenThread(null)}
         />
       )}
 
@@ -133,6 +162,7 @@ function CommunicationPanel({ record }) {
           conversation={composer.conversation}
           recipient={composer.recipient}
           record={record}
+          stacked={Boolean(openThread)}
           onSent={handleSent}
           onClose={() => setComposer(null)}
         />

@@ -243,7 +243,8 @@
 }
 
 /* =========================================================
-   THREADS
+   THREAD LIST
+   Reads as an inbox: sender, subject + snippet, date.
    ========================================================= */
 
 .email-thread-list {
@@ -252,49 +253,220 @@
     list-style: none;
 }
 
-.email-thread+.email-thread {
+.email-thread-list li+li .email-thread-row {
     border-top: 1px solid var(--color-border);
 }
 
-.email-thread-head {
+.email-thread-row {
     display: flex;
     align-items: center;
-    justify-content: space-between;
     gap: 16px;
     width: 100%;
-    padding: 14px 20px;
+    padding: 13px 20px;
     border: 0;
     background: transparent;
     color: inherit;
+    font-family: var(--font-body);
     text-align: left;
     cursor: pointer;
+    transition: background var(--transition-fast);
 }
 
-.email-thread-head:hover {
+.email-thread-row:hover {
     background: var(--color-surface-hover);
 }
 
-.email-thread-subject {
+.email-thread-who {
+    flex: 0 0 168px;
     min-width: 0;
     overflow: hidden;
     color: var(--color-text);
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 700;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
 
-.email-thread-meta {
+.email-thread-text {
+    display: flex;
+    flex: 1 1 auto;
+    align-items: baseline;
+    gap: 8px;
+    min-width: 0;
+}
+
+.email-thread-subject {
+    flex-shrink: 0;
+    max-width: 45%;
+    overflow: hidden;
+    color: var(--color-text);
+    font-size: 12px;
+    font-weight: 650;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.email-thread-snippet {
+    min-width: 0;
+    overflow: hidden;
+    color: var(--color-text-muted);
+    font-size: 12px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.email-thread-side {
     display: flex;
     flex-shrink: 0;
-    gap: 14px;
+    align-items: center;
+    gap: 10px;
+}
+
+.email-thread-count {
+    min-width: 19px;
+    padding: 2px 6px;
+    border-radius: var(--radius-pill);
+    background: var(--color-surface-muted);
+    color: var(--color-text-secondary);
+    font-size: 10px;
+    font-weight: 700;
+    text-align: center;
+}
+
+.email-thread-flag {
+    padding: 2px 7px;
+    border: 1px solid var(--color-danger-border);
+    border-radius: var(--radius-pill);
+    background: var(--color-danger-bg);
+    color: var(--color-danger);
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.email-thread-date {
+    color: var(--color-text-muted);
+    font-size: 11px;
+    white-space: nowrap;
+}
+
+/* =========================================================
+   OVERLAY VARIANTS
+   .modal itself is shared with other dialogs, so the blur and
+   placement changes live on modifiers rather than on .modal.
+   ========================================================= */
+
+/*
+ * No backdrop-filter on either. Separation comes from scrim depth plus the
+ * dialog's own elevation ring below, which costs nothing to composite — blur
+ * repaints the whole viewport on every frame behind it.
+ */
+
+/* Reading a thread: barely dim, the record stays legible behind. */
+.modal.modal-thread {
+    background: rgba(0, 0, 0, 0.34);
+    backdrop-filter: none;
+}
+
+/* Opened from inside the thread dialog, which already dimmed the page. */
+.modal.modal-compose.modal-stacked {
+    background: transparent;
+}
+
+/* Writing: push the page back so the composer holds attention. */
+.modal.modal-compose {
+    place-items: end end;
+    padding: 0 26px 26px 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: none;
+}
+
+/* Stands in for the blur: a deep cast plus a hairline edge, so the dialog reads
+   as lifted off the page. Black rather than a token, for the same reason as the
+   scrims above — this must darken under every theme. */
+.modal.modal-thread .thread-shell {
+    box-shadow:
+        0 0 0 1px var(--color-border),
+        0 30px 80px -14px rgba(0, 0, 0, 0.55);
+}
+
+.modal.modal-compose .composer-shell {
+    box-shadow: 0 30px 80px -14px rgba(0, 0, 0, 0.6);
+}
+
+/* =========================================================
+   THREAD MODAL
+   ========================================================= */
+
+.thread-shell {
+    display: flex;
+    flex-direction: column;
+    width: 1280px;
+    max-width: calc(100vw - 48px);
+    height: 70vh;
+    max-height: calc(100vh - 80px);
+    overflow: hidden;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-floating);
+}
+
+.thread-titlebar {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    flex-shrink: 0;
+    padding: 18px 24px;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.thread-titlebar h2 {
+    margin: 0 0 4px;
+    color: var(--color-text);
+    font-family: var(--font-display);
+    font-size: 15px;
+    font-weight: 750;
+    letter-spacing: -0.02em;
+}
+
+.thread-titlebar span {
     color: var(--color-text-muted);
     font-size: 11px;
 }
 
-.email-thread-body {
-    padding: 4px 20px 18px;
+.thread-titlebar button,
+.composer-titlebar button {
+    flex-shrink: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--color-text-muted);
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.thread-titlebar button:hover,
+.composer-titlebar button:hover {
+    color: var(--color-text);
+}
+
+.thread-messages {
+    flex: 1 1 auto;
+    padding: 8px 24px 20px;
+    overflow-y: auto;
     background: var(--color-surface-subtle);
+}
+
+.thread-footer {
+    display: flex;
+    justify-content: flex-end;
+    flex-shrink: 0;
+    padding: 16px 24px;
+    border-top: 1px solid var(--color-border);
 }
 
 /* =========================================================
@@ -319,7 +491,7 @@
     align-items: baseline;
     justify-content: space-between;
     gap: 12px;
-    margin-bottom: 8px;
+    margin-bottom: 4px;
 }
 
 .email-message header strong {
@@ -330,6 +502,13 @@
 
 .email-message header span {
     flex-shrink: 0;
+    color: var(--color-text-muted);
+    font-size: 11px;
+}
+
+.email-message-to {
+    display: block;
+    margin-bottom: 8px;
     color: var(--color-text-muted);
     font-size: 11px;
 }
@@ -351,38 +530,389 @@
     font-weight: 700;
 }
 
-.email-thread-actions {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 12px;
-}
-
 /* =========================================================
    COMPOSER
-   Shell comes from components/forms.css .modal
+   Gmail-inspired mail compose structure
+   ========================================================= */
+
+.modal .composer-shell {
+    display: flex;
+    flex-direction: column;
+
+    width: 760px;
+    max-width: calc(100vw - 52px);
+
+    height: 560px;
+    max-height: calc(100vh - 40px);
+
+    padding: 0;
+
+    overflow: hidden;
+
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-lg);
+
+    background: var(--color-surface);
+
+    box-shadow:
+        0 0 0 1px rgba(255, 255, 255, 0.02),
+        0 30px 80px -14px rgba(0, 0, 0, 0.6);
+}
+
+
+/* =========================================================
+   TITLE BAR
+   ========================================================= */
+
+.composer-titlebar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    flex-shrink: 0;
+
+    min-height: 48px;
+
+    padding: 0 18px;
+
+    border-bottom: 1px solid var(--color-border);
+
+    background: var(--color-surface-muted);
+
+    color: var(--color-text);
+}
+
+.composer-titlebar span {
+    font-family: var(--font-display);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.composer-close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 30px;
+    height: 30px;
+
+    padding: 0;
+
+    border: 0;
+    border-radius: var(--radius-sm);
+
+    background: transparent;
+
+    color: var(--color-text-muted);
+
+    font-size: 19px;
+    line-height: 1;
+
+    cursor: pointer;
+
+    transition:
+        background var(--transition-fast),
+        color var(--transition-fast);
+}
+
+.composer-close:hover {
+    background: var(--color-surface-hover);
+    color: var(--color-text);
+}
+
+
+/* =========================================================
+   ERROR
    ========================================================= */
 
 .composer-error {
-    margin-bottom: 12px;
-    padding: 9px 11px;
+    flex-shrink: 0;
+
+    margin: 12px 18px 0;
+
+    padding: 8px 10px;
+
     border: 1px solid var(--color-danger-border);
     border-radius: var(--radius-sm);
+
     background: var(--color-danger-bg);
+
     color: var(--color-danger);
+
     font-size: 12px;
 }
 
-.composer-body {
-    resize: vertical;
-    font-family: var(--font-body);
-    line-height: 1.55;
+
+/* =========================================================
+   ADDRESS / SUBJECT ROWS
+   ========================================================= */
+
+.composer-field {
+    position: relative;
+
+    display: flex;
+    align-items: center;
+
+    flex-shrink: 0;
+
+    min-height: 48px;
+
+    padding: 0 26px;
 }
 
-.modal-actions {
+
+/*
+ * Gmail-style inset divider.
+ */
+.composer-field::after {
+    position: absolute;
+
+    right: 26px;
+    bottom: 0;
+    left: 26px;
+
+    height: 1px;
+
+    background: var(--color-border);
+
+    content: "";
+}
+
+
+/* To label */
+
+.composer-field label {
+    flex: 0 0 auto;
+
+    margin-right: 14px;
+
+    color: var(--color-text-muted);
+
+    font-size: 13px;
+    font-weight: 500;
+
+    line-height: 1;
+}
+
+
+/* Inputs */
+
+.composer-field input {
+    display: block;
+
+    width: 100%;
+
+    min-width: 0;
+
+    padding: 0;
+
+    border: 0 !important;
+    outline: none !important;
+
+    background: transparent !important;
+
+    color: var(--color-text);
+
+    font-family: var(--font-body);
+    font-size: 13px;
+    line-height: 1.4;
+
+    box-shadow: none !important;
+}
+
+
+/*
+ * Remove browser / global focus styling.
+ */
+.composer-field input:focus,
+.composer-field input:focus-visible {
+    border: 0 !important;
+    outline: none !important;
+
+    background: transparent !important;
+
+    box-shadow: none !important;
+}
+
+
+/* Subject */
+
+.composer-subject input {
+    padding-left: 0;
+}
+
+.composer-subject input::placeholder {
+    color: var(--color-text-muted);
+}
+
+
+/* =========================================================
+   MESSAGE BODY
+   ========================================================= */
+
+/*
+ * This wrapper is the actual flexible writing area.
+ *
+ * The textarea itself should behave like a canvas,
+ * not like an input control.
+ */
+
+.composer-body-wrap {
+    flex: 1 1 auto;
+
+    min-height: 0;
+
     display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-    margin-top: 6px;
+
+    background: var(--color-surface);
+}
+
+
+.composer-body {
+    display: block;
+
+    flex: 1 1 auto;
+
+    width: 100%;
+    min-width: 0;
+    min-height: 0;
+
+    padding: 18px 26px 20px;
+
+    border: 0 !important;
+    outline: none !important;
+
+    border-radius: 0;
+
+    background: transparent !important;
+
+    color: var(--color-text);
+
+    font-family: var(--font-body);
+    font-size: 13px;
+    line-height: 1.65;
+
+    resize: none;
+
+    box-shadow: none !important;
+}
+
+
+/*
+ * Critical:
+ *
+ * Do NOT give the message body a green focus border/background.
+ * Gmail keeps the writing area visually open.
+ */
+
+.composer-body:focus,
+.composer-body:focus-visible {
+    border: 0 !important;
+    outline: none !important;
+
+    background: transparent !important;
+
+    box-shadow: none !important;
+}
+
+
+/* Placeholder */
+
+.composer-body::placeholder {
+    color: var(--color-text-faint);
+
+    opacity: 1;
+}
+
+
+/* =========================================================
+   FOOTER
+   ========================================================= */
+
+.composer-footer {
+    display: flex;
+    align-items: center;
+
+    flex-shrink: 0;
+
+    min-height: 64px;
+
+    padding: 10px 18px;
+
+    border-top: 1px solid var(--color-border);
+
+    background: var(--color-surface);
+}
+
+
+/* =========================================================
+   SEND
+   ========================================================= */
+
+.composer-send {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-width: 82px;
+    height: 38px;
+
+    padding: 0 22px;
+
+    border: 0;
+    border-radius: var(--radius-pill);
+
+    background: var(--color-primary);
+
+    color: var(--brand-lemon);
+
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition:
+        background var(--transition-fast),
+        opacity var(--transition-fast);
+}
+
+.composer-send:hover:not(:disabled) {
+    background: var(--color-primary-hover);
+}
+
+.composer-send:disabled {
+    cursor: not-allowed;
+    opacity: 0.65;
+}
+
+
+/* =========================================================
+   DISCARD
+   ========================================================= */
+
+.composer-discard {
+    margin-left: auto;
+
+    padding: 8px 4px;
+
+    border: 0;
+
+    background: transparent;
+
+    color: var(--color-text-muted);
+
+    font-family: var(--font-body);
+    font-size: 12px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition: color var(--transition-fast);
+}
+
+.composer-discard:hover {
+    color: var(--color-danger);
 }
 
 /* =========================================================
@@ -396,13 +926,29 @@
         gap: 12px;
     }
 
-    .email-thread-head {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 6px;
-    }
-
     .record-detail-item {
         flex-basis: 140px;
+    }
+
+    .modal.modal-compose {
+        place-items: center;
+        padding: 20px;
+    }
+
+    .modal .composer-shell {
+        height: auto;
+        max-width: 100%;
+    }
+
+    .thread-shell {
+        height: auto;
+    }
+
+    .email-thread-who {
+        flex-basis: 110px;
+    }
+
+    .email-thread-snippet {
+        display: none;
     }
 }

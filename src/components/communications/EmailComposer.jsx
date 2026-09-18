@@ -3,14 +3,21 @@ import { useState } from "react";
 import { replyToConversation, sendEmail } from "../../api/emails";
 
 /*
- * Handles both a new email and an in-thread reply.
+ * Compose and in-thread reply, laid out like a mail client: a title bar, compact
+ * underlined address rows, an unbounded body, and the send action on a footer bar.
  *
- * When `conversation` is supplied the reply endpoint is used, which resolves the
- * sending account and the In-Reply-To / References headers from the thread's
- * latest delivery. Subject is optional there — the server falls back to the
- * conversation's own subject.
+ * There is no Cc/Bcc: email-service's send endpoint accepts to/subject/text/html
+ * and replyTo only, and offering fields that are silently dropped would be worse
+ * than not offering them.
  */
-function EmailComposer({ conversation = null, recipient = "", record, onSent, onClose }) {
+function EmailComposer({
+  conversation = null,
+  recipient = "",
+  record,
+  stacked = false,
+  onSent,
+  onClose,
+}) {
   const isReply = Boolean(conversation);
 
   const [to, setTo] = useState(recipient);
@@ -72,21 +79,31 @@ function EmailComposer({ conversation = null, recipient = "", record, onSent, on
   }
 
   return (
-    <div className="modal">
-      <form onSubmit={handleSubmit}>
-        <div className="modal-head">
-          <h2>{isReply ? "Reply" : "New Email"}</h2>
+    <div className={`modal modal-compose${stacked ? " modal-stacked" : ""}`}>
+      <form className="composer-shell" onSubmit={handleSubmit}>
+        {/* Header */}
+        <div className="composer-titlebar">
+          <span>{isReply ? "Reply" : "New Message"}</span>
 
-          <button type="button" onClick={onClose} aria-label="Close">
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close"
+            className="composer-close"
+          >
             ×
           </button>
         </div>
 
+        {/* Error */}
         {error && <div className="composer-error">{error}</div>}
 
-        <label>
-          To
+        {/* Recipient */}
+        <div className="composer-field composer-recipient">
+          <label htmlFor="composer-to">To</label>
+
           <input
+            id="composer-to"
             type="email"
             value={to}
             onChange={(e) => setTo(e.target.value)}
@@ -94,42 +111,47 @@ function EmailComposer({ conversation = null, recipient = "", record, onSent, on
             disabled={sending}
             autoFocus={!to}
           />
-        </label>
+        </div>
 
-        <label>
-          Subject
+        {/* Subject */}
+        <div className="composer-field composer-subject">
           <input
+            id="composer-subject"
+            type="text"
+            aria-label="Subject"
             value={subject}
             onChange={(e) => setSubject(e.target.value)}
             placeholder={isReply ? "Keeps the thread subject" : "Subject"}
             disabled={sending}
           />
-        </label>
+        </div>
 
-        <label>
-          Message
+        {/* Message body */}
+        <div className="composer-body-wrap">
           <textarea
             className="composer-body"
             value={body}
             onChange={(e) => setBody(e.target.value)}
-            rows={10}
+            placeholder="Write your message..."
             disabled={sending}
             autoFocus={Boolean(to)}
           />
-        </label>
+        </div>
 
-        <div className="modal-actions">
-          <button
-            type="button"
-            className="secondary-button"
-            onClick={onClose}
-            disabled={sending}
-          >
-            Cancel
+        {/* Footer */}
+        <div className="composer-footer">
+          <button type="submit" className="composer-send" disabled={sending}>
+            {sending ? "Sending..." : "Send"}
           </button>
 
-          <button type="submit" className="button button-primary" disabled={sending}>
-            {sending ? "Sending..." : "Send"}
+          <button
+            type="button"
+            className="composer-discard"
+            onClick={onClose}
+            disabled={sending}
+            title="Discard"
+          >
+            Discard
           </button>
         </div>
       </form>
