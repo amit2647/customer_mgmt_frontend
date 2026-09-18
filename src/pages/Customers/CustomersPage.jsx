@@ -57,6 +57,10 @@ function CustomersPage() {
    * =========================================================
    */
 
+  function handleView(customer) {
+    navigate(`/customers/${customer.id}`);
+  }
+
   function handleEdit(customer) {
     navigate(`/customers/${customer.id}/edit`);
   }
@@ -129,6 +133,7 @@ function CustomersPage() {
       ) : (
         <CustomerTable
           customers={customers}
+          onView={handleView}
           onEdit={handleEdit}
           onDelete={handleDelete}
         />

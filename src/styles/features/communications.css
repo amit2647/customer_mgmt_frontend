@@ -1,0 +1,408 @@
+/* =========================================================
+   OMNICORE — COMMUNICATIONS
+   Record detail pages and the per-channel communication panel.
+   ========================================================= */
+
+.record-detail-page {
+    width: 100%;
+    max-width: 1600px;
+    margin: 0 auto;
+}
+
+/* =========================================================
+   PAGE CHROME
+   These classes are defined per-page across the codebase
+   (.appearance-page, .email-accounts-page), so the detail
+   page needs its own copy to match them.
+   ========================================================= */
+
+.record-detail-page .workflow-breadcrumb {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 18px;
+}
+
+.record-detail-page .workflow-breadcrumb>button {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--color-text-secondary);
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.record-detail-page .workflow-breadcrumb>button:hover {
+    color: var(--color-text);
+    text-decoration: underline;
+}
+
+.record-detail-page .workflow-context {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--color-text-muted);
+    font-size: 10px;
+}
+
+.record-detail-page .workflow-context span {
+    font-weight: 700;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+}
+
+.record-detail-page .workflow-context strong {
+    color: var(--color-text);
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.record-detail-page .page-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 24px;
+}
+
+.record-detail-page .page-eyebrow {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--color-text-muted);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+.record-detail-page .page-header h1 {
+    margin: 0 0 6px;
+    color: var(--color-text);
+    font-family: var(--font-display);
+    font-size: 30px;
+    font-weight: 750;
+    line-height: 1.15;
+    letter-spacing: -0.035em;
+}
+
+.record-detail-page .page-header p {
+    margin: 0;
+    color: var(--color-text-secondary);
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.record-detail-page .page-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+/* =========================================================
+   RECORD DETAILS
+   Label above value, so each field is self-describing.
+   ========================================================= */
+
+.record-details {
+    /* Flex, not grid: grid tracks are fixed once laid out, so a short last row
+       leaves dead space at its end. Flex items grow into whatever is left. */
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px;
+    margin-bottom: 24px;
+    overflow: hidden;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-border);
+    box-shadow: var(--shadow-card);
+}
+
+.record-detail-item {
+    display: flex;
+    flex: 1 1 190px;
+    flex-direction: column;
+    gap: 7px;
+    min-width: 0;
+    padding: 14px 18px;
+    background: var(--color-surface);
+}
+
+.record-detail-item>span {
+    color: var(--color-text-muted);
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+}
+
+.record-detail-value {
+    min-width: 0;
+    overflow: hidden;
+    color: var(--color-text);
+    font-size: 13px;
+    font-weight: 650;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.record-detail-value.empty {
+    color: var(--color-text-faint);
+    font-weight: 500;
+}
+
+.record-detail-value a {
+    color: var(--color-text);
+    text-decoration: none;
+}
+
+.record-detail-value a:hover {
+    text-decoration: underline;
+}
+
+/* =========================================================
+   PANEL
+   ========================================================= */
+
+.communication-panel {
+    overflow: hidden;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-card);
+}
+
+.communication-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 18px 20px;
+}
+
+.communication-eyebrow {
+    display: block;
+    margin-bottom: 6px;
+    color: var(--color-text-muted);
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+}
+
+.communication-header h2 {
+    margin: 0;
+    color: var(--color-text);
+    font-family: var(--font-display);
+    font-size: 17px;
+    font-weight: 750;
+    letter-spacing: -0.025em;
+}
+
+/* =========================================================
+   CHANNEL SECTIONS
+   Each channel is its own section rather than a merged feed.
+   ========================================================= */
+
+.communication-channels {
+    display: flex;
+    gap: 4px;
+    padding: 0 20px;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.communication-channel {
+    padding: 9px 12px;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    background: transparent;
+    color: var(--color-text-muted);
+    font-family: var(--font-body);
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: color var(--transition-fast), border-color var(--transition-fast);
+}
+
+.communication-channel:hover {
+    color: var(--color-text);
+}
+
+.communication-channel.active {
+    border-bottom-color: var(--color-border-accent);
+    color: var(--color-text);
+}
+
+.communication-empty {
+    padding: 34px 20px;
+    color: var(--color-text-muted);
+    font-size: 12px;
+    text-align: center;
+}
+
+/* =========================================================
+   THREADS
+   ========================================================= */
+
+.email-thread-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.email-thread+.email-thread {
+    border-top: 1px solid var(--color-border);
+}
+
+.email-thread-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    width: 100%;
+    padding: 14px 20px;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+
+.email-thread-head:hover {
+    background: var(--color-surface-hover);
+}
+
+.email-thread-subject {
+    min-width: 0;
+    overflow: hidden;
+    color: var(--color-text);
+    font-size: 13px;
+    font-weight: 700;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.email-thread-meta {
+    display: flex;
+    flex-shrink: 0;
+    gap: 14px;
+    color: var(--color-text-muted);
+    font-size: 11px;
+}
+
+.email-thread-body {
+    padding: 4px 20px 18px;
+    background: var(--color-surface-subtle);
+}
+
+/* =========================================================
+   MESSAGES
+   ========================================================= */
+
+.email-message {
+    margin-top: 12px;
+    padding: 12px 14px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-surface);
+}
+
+/* Outbound is accented so a thread scans as a conversation. */
+.email-message-outbound {
+    border-left: 3px solid var(--color-border-accent);
+}
+
+.email-message header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.email-message header strong {
+    color: var(--color-text);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.email-message header span {
+    flex-shrink: 0;
+    color: var(--color-text-muted);
+    font-size: 11px;
+}
+
+.email-message p {
+    margin: 0;
+    color: var(--color-text-secondary);
+    font-size: 12px;
+    line-height: 1.55;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.email-message-failed {
+    display: inline-block;
+    margin-top: 8px;
+    color: var(--color-danger);
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.email-thread-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 12px;
+}
+
+/* =========================================================
+   COMPOSER
+   Shell comes from components/forms.css .modal
+   ========================================================= */
+
+.composer-error {
+    margin-bottom: 12px;
+    padding: 9px 11px;
+    border: 1px solid var(--color-danger-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-danger-bg);
+    color: var(--color-danger);
+    font-size: 12px;
+}
+
+.composer-body {
+    resize: vertical;
+    font-family: var(--font-body);
+    line-height: 1.55;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 6px;
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 700px) {
+    .communication-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .email-thread-head {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+    }
+
+    .record-detail-item {
+        flex-basis: 140px;
+    }
+}

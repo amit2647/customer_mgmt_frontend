@@ -21,6 +21,7 @@
 @import "./features/workflows.css";
 @import "./features/email-accounts.css";
 @import "./features/appearance.css";
+@import "./features/communications.css";
 @import "./layout/sidebar-collapse.css";
 @import "./pages/splash.css";
 @import "./pages/loading.css";

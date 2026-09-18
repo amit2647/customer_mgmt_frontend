@@ -1,7 +1,7 @@
 import ChannelBadge from "../common/ChannelBadge";
 import StatusBadge from "../common/StatusBadge";
 
-function LeadTable({ leads, onConvert, onEdit, onDelete }) {
+function LeadTable({ leads, onConvert, onEdit, onDelete, onView }) {
   return (
     <section className="card">
       <table>
@@ -64,6 +64,10 @@ function LeadTable({ leads, onConvert, onEdit, onDelete }) {
               <td>
                 <div className="table-actions">
                   {/* Edit */}
+                  <button className="link" onClick={() => onView(lead)}>
+                    View
+                  </button>
+
                   <button className="link" onClick={() => onEdit(lead)}>
                     Edit
                   </button>

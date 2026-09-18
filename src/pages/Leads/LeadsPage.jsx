@@ -54,6 +54,10 @@ function LeadsPage() {
    * =========================================================
    */
 
+  function handleView(lead) {
+    navigate(`/leads/${lead.id}`);
+  }
+
   function handleEdit(lead) {
     navigate(`/leads/${lead.id}/edit`);
   }
@@ -150,6 +154,7 @@ function LeadsPage() {
       ) : (
         <LeadTable
           leads={leads}
+          onView={handleView}
           onEdit={handleEdit}
           onDelete={handleDelete}
           onConvert={handleConvert}

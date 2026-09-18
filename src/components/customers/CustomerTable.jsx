@@ -1,4 +1,4 @@
-function CustomerTable({ customers, onEdit, onDelete }) {
+function CustomerTable({ customers, onEdit, onDelete, onView }) {
   return (
     <section className="card">
       <table>
@@ -58,6 +58,10 @@ function CustomerTable({ customers, onEdit, onDelete }) {
               {/* Actions */}
               <td>
                 <div className="table-actions">
+                  <button className="link" onClick={() => onView(customer)}>
+                    View
+                  </button>
+
                   <button className="link" onClick={() => onEdit(customer)}>
                     Edit
                   </button>

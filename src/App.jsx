@@ -14,9 +14,11 @@ import LoginPage from "./pages/Login/LoginPage";
 import DashboardPage from "./pages/Dashboard/DashboardPage";
 
 import LeadsPage from "./pages/Leads/LeadsPage";
+import LeadDetailPage from "./pages/Leads/LeadDetailPage";
 import LeadWorkflowPage from "./pages/Leads/LeadWorkflowPage";
 
 import CustomersPage from "./pages/Customers/CustomersPage";
+import CustomerDetailPage from "./pages/Customers/CustomerDetailPage";
 import CustomerWorkflowPage from "./pages/Customers/CustomerWorkflowPage";
 
 import ServicesPage from "./pages/Services/ServicesPage";
@@ -121,11 +123,15 @@ function App() {
 
           <Route path="/leads/new" element={<LeadWorkflowPage />} />
 
+          <Route path="/leads/:id" element={<LeadDetailPage />} />
+
           <Route path="/leads/:id/edit" element={<LeadWorkflowPage />} />
 
           <Route path="/customers" element={<CustomersPage />} />
 
           <Route path="/customers/new" element={<CustomerWorkflowPage />} />
+
+          <Route path="/customers/:id" element={<CustomerDetailPage />} />
 
           <Route
             path="/customers/:id/edit"
