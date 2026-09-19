@@ -1,172 +1,344 @@
 /* =========================================================
-   LOGIN
+   OMNICORE — LOGIN
+   Split screen: abstract gradient art / minimal form.
+
+   Semi-flat: flat fills, one soft shadow, hairline borders,
+   no bevels or inner glows. Every colour is a theme token,
+   so the artwork re-tints per theme — including the two
+   dark ones — rather than shipping fixed images.
    ========================================================= */
 
 .login-page {
-    min-height: 100vh;
     display: grid;
-    place-items: center;
-    padding: 32px;
+    grid-template-columns: 1.05fr 1fr;
+    min-height: 100vh;
     background: var(--color-page);
 }
 
-.login-shell {
-    width: min(420px, 100%);
+/* =========================================================
+   ART PANEL
+   ========================================================= */
+
+.login-art {
+    position: relative;
+    display: flex;
+    overflow: hidden;
+    background:
+        linear-gradient(150deg,
+            var(--brand-lemon-soft) 0%,
+            var(--color-surface) 52%,
+            var(--color-surface-muted) 100%);
 }
+
+/* Soft colour fields. blur() on a static decorative element is cheap —
+   unlike backdrop-filter, it composites once rather than every frame. */
+.login-blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(58px);
+    pointer-events: none;
+}
+
+.login-blob-a {
+    top: -12%;
+    left: -8%;
+    width: 46%;
+    padding-bottom: 46%;
+    background: var(--brand-lemon);
+    opacity: 0.55;
+}
+
+.login-blob-b {
+    right: -14%;
+    bottom: 6%;
+    width: 52%;
+    padding-bottom: 52%;
+    background: var(--brand-yellow);
+    opacity: 0.38;
+}
+
+.login-blob-c {
+    top: 38%;
+    left: 30%;
+    width: 34%;
+    padding-bottom: 34%;
+    background: var(--color-border-accent);
+    opacity: 0.3;
+}
+
+/* Faint ruled grid: the flat, geometric half of the composition. */
+.login-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+        linear-gradient(to right,
+            color-mix(in srgb, var(--color-text) 6%, transparent) 1px,
+            transparent 1px),
+        linear-gradient(to bottom,
+            color-mix(in srgb, var(--color-text) 6%, transparent) 1px,
+            transparent 1px);
+    background-size: 56px 56px;
+    mask-image: radial-gradient(circle at 30% 45%, #000 10%, transparent 72%);
+    pointer-events: none;
+}
+
+.login-art-content {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 40px;
+    width: 100%;
+    padding: 48px;
+}
+
+.login-art-copy h2 {
+    max-width: 15ch;
+    margin: 0 0 16px;
+    color: var(--color-text);
+    font-family: var(--font-display);
+    font-size: 40px;
+    font-weight: 750;
+    line-height: 1.12;
+    letter-spacing: -0.035em;
+}
+
+.login-art-copy p {
+    max-width: 44ch;
+    margin: 0;
+    color: var(--color-text-secondary);
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.login-art-points {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.login-art-points li {
+    padding: 7px 13px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-pill);
+    background: color-mix(in srgb, var(--color-surface) 72%, transparent);
+    color: var(--color-text-secondary);
+    font-size: 11px;
+    font-weight: 650;
+}
+
+/* =========================================================
+   BRAND
+   ========================================================= */
 
 .login-brand {
     display: flex;
     align-items: center;
-    justify-content: center;
     gap: 11px;
-    margin-bottom: 24px;
 }
 
 .login-brand-mark {
     display: grid;
     place-items: center;
-    width: 42px;
-    height: 42px;
-    border-radius: 11px;
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-md);
     background: var(--color-primary);
     color: var(--brand-lemon);
     font-size: 12px;
     font-weight: 800;
-    letter-spacing: -0.04em;
+    letter-spacing: -0.03em;
 }
 
-.login-brand strong {
-    display: block;
+.login-brand-name {
     color: var(--color-text);
-    font-size: 17px;
+    font-family: var(--font-display);
+    font-size: 15px;
     font-weight: 750;
     letter-spacing: -0.02em;
 }
 
-.login-brand span {
-    display: block;
-    margin-top: 2px;
-    color: var(--color-text-muted);
-    font-size: 10px;
+/* Shown only when the art panel is hidden on narrow screens. */
+.login-brand-compact {
+    display: none;
+    margin-bottom: 36px;
 }
 
-.login-card {
-    padding: 30px;
-    border: 1px solid var(--color-border);
-    border-radius: 18px;
-    background: var(--color-surface);
-    box-shadow: 0 18px 50px rgba(23, 23, 23, 0.07);
+/* =========================================================
+   FORM PANEL
+   ========================================================= */
+
+.login-panel {
+    display: grid;
+    place-items: center;
+    padding: 48px 32px;
+    background: var(--color-page);
+}
+
+.login-form-wrap {
+    width: 100%;
+    max-width: 372px;
 }
 
 .login-heading {
-    margin-bottom: 26px;
+    margin-bottom: 30px;
 }
 
 .login-eyebrow {
-    display: inline-block;
-    margin-bottom: 9px;
+    display: block;
+    margin-bottom: 12px;
     color: var(--color-text-muted);
-    font-size: 9px;
+    font-size: 10px;
     font-weight: 800;
-    letter-spacing: 0.12em;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
 }
 
 .login-heading h1 {
-    margin: 0;
+    margin: 0 0 8px;
     color: var(--color-text);
-    font-size: 28px;
+    font-family: var(--font-display);
+    font-size: 30px;
     font-weight: 750;
+    line-height: 1.15;
     letter-spacing: -0.035em;
 }
 
 .login-heading p {
-    margin: 8px 0 0;
+    margin: 0;
     color: var(--color-text-secondary);
-    font-size: 11px;
+    font-size: 13px;
     line-height: 1.55;
 }
 
 .login-form {
     display: flex;
     flex-direction: column;
-    gap: 17px;
+    gap: 16px;
 }
 
 .login-form label {
     display: flex;
     flex-direction: column;
     gap: 7px;
-    color: var(--color-text);
-    font-size: 10px;
-    font-weight: 700;
+    color: var(--color-text-secondary);
+    font-size: 12px;
+    font-weight: 650;
 }
 
 .login-form input {
     width: 100%;
-    height: 44px;
-    padding: 0 13px;
+    height: var(--input-height);
+    padding: 0 14px;
     border: 1px solid var(--color-border);
-    border-radius: 9px;
-    outline: none;
+    border-radius: var(--radius-sm);
     background: var(--color-surface);
     color: var(--color-text);
-    font-family: inherit;
-    font-size: 11px;
+    font-family: var(--font-body);
+    font-size: 13px;
     transition:
-        border-color 0.15s ease,
-        box-shadow 0.15s ease;
-    box-sizing: border-box;
+        border-color var(--transition-fast),
+        box-shadow var(--transition-fast);
+}
+
+.login-form input::placeholder {
+    color: var(--color-text-faint);
 }
 
 .login-form input:focus {
-    border-color: var(--color-text);
+    outline: none;
+    border-color: var(--color-border-accent);
     box-shadow: 0 0 0 3px var(--focus-ring-color-alpha);
 }
 
 .login-error {
-    padding: 11px 12px;
+    padding: 10px 12px;
     border: 1px solid var(--color-danger-border);
-    border-radius: 8px;
+    border-radius: var(--radius-sm);
     background: var(--color-danger-bg);
     color: var(--color-danger);
-    font-size: 10px;
+    font-size: 12px;
     line-height: 1.45;
 }
 
 .login-submit {
-    width: 100%;
     height: 44px;
-    margin-top: 2px;
+    margin-top: 6px;
     border: 0;
-    border-radius: 9px;
+    border-radius: var(--radius-sm);
     background: var(--color-primary);
     color: var(--brand-lemon);
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 700;
     cursor: pointer;
-    font-family: inherit;
-    font-size: 11px;
-    font-weight: 750;
     transition:
-        transform 0.15s ease,
-        opacity 0.15s ease;
+        background var(--transition-fast),
+        transform var(--transition-fast);
 }
 
 .login-submit:hover:not(:disabled) {
-    transform: translateY(-1px);
+    background: var(--color-primary-hover);
+}
+
+.login-submit:active:not(:disabled) {
+    transform: translateY(1px);
 }
 
 .login-submit:disabled {
     cursor: not-allowed;
-    opacity: 0.55;
+    opacity: 0.65;
 }
 
 .login-footer {
     display: flex;
     justify-content: space-between;
-    gap: 12px;
-    margin-top: 22px;
-    padding-top: 17px;
+    gap: 16px;
+    margin-top: 32px;
+    padding-top: 18px;
     border-top: 1px solid var(--color-border);
     color: var(--color-text-muted);
-    font-size: 9px;
+    font-size: 10px;
+    font-weight: 650;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
 }
 
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 980px) {
+    .login-page {
+        grid-template-columns: 1fr;
+    }
+
+    /* The artwork is decoration, not content — drop it rather than
+       stacking it above the form and pushing the fields below the fold. */
+    .login-art {
+        display: none;
+    }
+
+    .login-brand-compact {
+        display: flex;
+    }
+}
+
+@media (max-width: 480px) {
+    .login-panel {
+        padding: 32px 20px;
+    }
+
+    .login-heading h1 {
+        font-size: 26px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .login-submit {
+        transition: none;
+    }
+}

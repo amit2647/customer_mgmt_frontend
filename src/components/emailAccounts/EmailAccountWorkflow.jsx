@@ -586,7 +586,7 @@ function EmailAccountWorkflow({ accountId = null, onComplete, onCancel }) {
                 <p>{form.provider}</p>
 
                 <div className="review-status">
-                  <strong>{form.is_active ? "Active" : "Inactive"}</strong>
+                  {form.is_active ? "Active" : "Inactive"}
                 </div>
               </div>
 
@@ -600,11 +600,9 @@ function EmailAccountWorkflow({ accountId = null, onComplete, onCancel }) {
                 <p>{form.smtp_username}</p>
 
                 <div className="review-status">
-                  <strong>
-                    {form.smtp_secure
-                      ? "Secure connection"
-                      : "Standard connection"}
-                  </strong>
+                  {form.smtp_secure
+                    ? "Secure connection"
+                    : "Standard connection"}
                 </div>
               </div>
 
@@ -620,11 +618,9 @@ function EmailAccountWorkflow({ accountId = null, onComplete, onCancel }) {
                 <p>{form.imap_mailbox}</p>
 
                 <div className="review-status">
-                  <strong>
-                    {form.imap_secure
-                      ? "Secure connection"
-                      : "Standard connection"}
-                  </strong>
+                  {form.imap_secure
+                    ? "Secure connection"
+                    : "Standard connection"}
                 </div>
               </div>
 
