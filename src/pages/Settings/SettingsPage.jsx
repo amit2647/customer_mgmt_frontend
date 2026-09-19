@@ -36,7 +36,8 @@ function SettingsPage() {
       description:
         "Create and manage reusable email templates for customer communication.",
       icon: "T",
-      disabled: true,
+      path: "/settings/email-templates",
+      permission: "email.templates.read",
     },
     {
       id: "email-automations",
@@ -44,7 +45,8 @@ function SettingsPage() {
       description:
         "Configure automated email workflows based on events and conditions.",
       icon: "A",
-      disabled: true,
+      path: "/settings/email-automations",
+      permission: "email.automations.read",
     },
     {
       id: "users-roles",

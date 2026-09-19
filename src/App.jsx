@@ -26,6 +26,10 @@ import ServicesPage from "./pages/Services/ServicesPage";
 import SettingsPage from "./pages/Settings/SettingsPage";
 import EmailAccountsPage from "./pages/Settings/EmailAccountsPage";
 import AppearancePage from "./pages/Settings/AppearancePage";
+import EmailTemplatesPage from "./pages/Settings/EmailTemplatesPage";
+import EmailAutomationsPage from "./pages/Settings/EmailAutomationsPage";
+import EmailTemplateFormPage from "./pages/Settings/EmailTemplateFormPage";
+import EmailAutomationFormPage from "./pages/Settings/EmailAutomationFormPage";
 
 // Checked in order when a user cannot open the dashboard.
 const LANDING_FALLBACKS = [
@@ -146,6 +150,33 @@ function App() {
             element={<EmailAccountsPage />}
           />
           <Route path="/settings/appearance" element={<AppearancePage />} />
+
+          <Route path="/settings/email-templates" element={<EmailTemplatesPage />} />
+
+          <Route
+            path="/settings/email-templates/new"
+            element={<EmailTemplateFormPage />}
+          />
+
+          <Route
+            path="/settings/email-templates/:id/edit"
+            element={<EmailTemplateFormPage />}
+          />
+
+          <Route
+            path="/settings/email-automations"
+            element={<EmailAutomationsPage />}
+          />
+
+          <Route
+            path="/settings/email-automations/new"
+            element={<EmailAutomationFormPage />}
+          />
+
+          <Route
+            path="/settings/email-automations/:id/edit"
+            element={<EmailAutomationFormPage />}
+          />
         </Route>
       </Route>
 

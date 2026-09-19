@@ -1,0 +1,538 @@
+/* =========================================================
+   OMNICORE — EMAIL SETTINGS
+   Templates and automations screens under Settings.
+   ========================================================= */
+
+.settings-sub-page {
+    width: 100%;
+    max-width: 1600px;
+    margin: 0 auto;
+}
+
+/* Page chrome is defined per-page across this codebase (.appearance-page,
+   .email-accounts-page), so these screens need their own copy to match. */
+
+.settings-sub-page .workflow-breadcrumb {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 18px;
+}
+
+.settings-sub-page .workflow-breadcrumb>button {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--color-text-secondary);
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.settings-sub-page .workflow-breadcrumb>button:hover {
+    color: var(--color-text);
+    text-decoration: underline;
+}
+
+.settings-sub-page .workflow-context {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--color-text-muted);
+    font-size: 10px;
+}
+
+.settings-sub-page .workflow-context span {
+    font-weight: 700;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+}
+
+.settings-sub-page .workflow-context strong {
+    color: var(--color-text);
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.settings-sub-page .page-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 24px;
+}
+
+.settings-sub-page .page-header h1 {
+    margin: 0 0 6px;
+    color: var(--color-text);
+    font-family: var(--font-display);
+    font-size: 30px;
+    font-weight: 750;
+    line-height: 1.15;
+    letter-spacing: -0.035em;
+}
+
+.settings-sub-page .page-header p {
+    max-width: 68ch;
+    margin: 0;
+    color: var(--color-text-secondary);
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.settings-sub-page .page-header code {
+    padding: 2px 5px;
+    border-radius: var(--radius-sm);
+    background: var(--color-surface-muted);
+    color: var(--color-text);
+    font-size: 12px;
+}
+
+.settings-sub-page .page-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+.settings-sub-page .alert {
+    margin-bottom: 18px;
+    padding: 10px 12px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    font-size: 12px;
+}
+
+.settings-sub-page .alert-success {
+    border-color: var(--color-success-border);
+    background: var(--color-success-bg);
+    color: var(--color-success);
+}
+
+.settings-sub-page .alert-error {
+    border-color: var(--color-danger-border);
+    background: var(--color-danger-bg);
+    color: var(--color-danger);
+}
+
+/* =========================================================
+   TABLE CELLS
+   ========================================================= */
+
+.settings-empty {
+    padding: 34px 20px;
+    color: var(--color-text-muted);
+    font-size: 12px;
+    text-align: center;
+}
+
+.settings-row-hint {
+    display: block;
+    margin-top: 3px;
+    color: var(--color-text-muted);
+    font-size: 11px;
+    line-height: 1.4;
+}
+
+.settings-cell-muted {
+    max-width: 320px;
+    overflow: hidden;
+    color: var(--color-text-secondary);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.settings-event {
+    padding: 3px 8px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-pill);
+    background: var(--color-surface-muted);
+    color: var(--color-text-secondary);
+    font-size: 10px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+/* Off is the resting state, so only the on state takes the accent. */
+.settings-pill {
+    padding: 3px 9px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-pill);
+    background: var(--color-surface-muted);
+    color: var(--color-text-muted);
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.settings-pill.on {
+    border-color: var(--color-border-accent);
+    background: var(--brand-lemon);
+    color: var(--color-on-accent);
+}
+
+/* =========================================================
+   FORM PAGE
+   Create and edit are their own routes, matching how leads and
+   customers are edited, so a long template body has room.
+   ========================================================= */
+
+.settings-form-card {
+    /* Two columns like .workflow-form-grid, and full page width so the card's
+       left edge lines up with the breadcrumb and heading above it. A single
+       column stretched this wide leaves one long field per row and a dead
+       gutter beside it. */
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px 20px;
+    width: 100%;
+    padding: 38px 40px 42px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-card);
+}
+
+.settings-form-card label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    color: var(--color-text-secondary);
+    font-size: 12px;
+    font-weight: 650;
+}
+
+.settings-form-card input,
+.settings-form-card select,
+.settings-form-card textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-surface);
+    color: var(--color-text);
+    font-family: var(--font-body);
+    font-size: 13px;
+}
+
+.settings-form-card input:focus,
+.settings-form-card select:focus,
+.settings-form-card textarea:focus {
+    outline: none;
+    border-color: var(--color-border-accent);
+    box-shadow: 0 0 0 3px var(--focus-ring-color-alpha);
+}
+
+.settings-form-body {
+    line-height: 1.6;
+    resize: vertical;
+}
+
+/* =========================================================
+   TOGGLE
+   ========================================================= */
+
+.toggle-field {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+
+    width: 100%;
+    min-height: 58px;
+    padding: 10px 12px;
+
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+
+    background: var(--color-surface-subtle);
+
+    cursor: pointer;
+
+    transition:
+        border-color var(--transition-fast),
+        background var(--transition-fast);
+}
+
+
+.toggle-field.on {
+    border-color: var(--color-border-accent);
+    background: var(--brand-lemon-soft);
+}
+
+
+/* =========================================================
+   TOGGLE — OVERRIDE FORM LABEL STYLES
+   ========================================================= */
+
+.settings-form-card .toggle-field {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 16px;
+
+    min-height: 68px;
+    width: 100%;
+
+    padding: 12px 16px;
+
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+
+    background: var(--color-surface-subtle);
+
+    cursor: pointer;
+
+    transition:
+        border-color var(--transition-fast),
+        background var(--transition-fast);
+}
+
+
+/* =========================================================
+   TOGGLE COPY — LEFT
+   ========================================================= */
+
+.settings-form-card .toggle-field .toggle-copy {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+
+    flex: 1 1 auto;
+    min-width: 0;
+
+    gap: 3px;
+}
+
+.settings-form-card .toggle-field .toggle-copy strong {
+    color: var(--color-text);
+
+    font-size: 12px;
+    font-weight: 650;
+    line-height: 1.25;
+}
+
+.settings-form-card .toggle-field .toggle-copy span {
+    max-width: 100%;
+
+    overflow: hidden;
+
+    color: var(--color-text-muted);
+
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 1.35;
+
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+
+/* =========================================================
+   TOGGLE CONTROL — RIGHT
+   ========================================================= */
+
+.settings-form-card .toggle-field .toggle-switch,
+.settings-form-card .toggle-field .toggle-state {
+    flex-shrink: 0;
+}
+
+
+/* =========================================================
+   ON STATE
+   ========================================================= */
+
+.settings-form-card .toggle-field.on {
+    border-color: var(--color-border-accent);
+    background: var(--brand-lemon-soft);
+}
+
+/* =========================================================
+   LEFT SIDE
+   Label
+   Description
+   ========================================================= */
+
+.toggle-copy {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+
+    flex: 1 1 auto;
+    min-width: 0;
+
+    gap: 3px;
+}
+
+.toggle-copy strong {
+    color: var(--color-text);
+
+    font-size: 12px;
+    font-weight: 650;
+    line-height: 1.25;
+}
+
+.toggle-copy span {
+    max-width: 100%;
+
+    overflow: hidden;
+
+    color: var(--color-text-muted);
+
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 1.35;
+
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+
+/* =========================================================
+   NATIVE CHECKBOX
+   ========================================================= */
+
+.toggle-field input {
+    position: absolute;
+
+    width: 1px;
+    height: 1px;
+
+    opacity: 0;
+    pointer-events: none;
+}
+
+
+/* =========================================================
+   SWITCH
+   ========================================================= */
+
+.toggle-switch {
+    position: relative;
+
+    flex-shrink: 0;
+
+    width: 36px;
+    height: 20px;
+
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-pill);
+
+    background: var(--color-surface-muted);
+
+    transition:
+        background var(--transition-fast),
+        border-color var(--transition-fast);
+}
+
+.toggle-thumb {
+    position: absolute;
+
+    top: 2px;
+    left: 2px;
+
+    width: 14px;
+    height: 14px;
+
+    border-radius: 50%;
+
+    background: var(--color-text-muted);
+
+    transition:
+        transform var(--transition-fast),
+        background var(--transition-fast);
+}
+
+
+/* =========================================================
+   ON STATE
+   ========================================================= */
+
+.toggle-field.on .toggle-switch {
+    border-color: var(--color-border-accent);
+    background: var(--brand-lemon);
+}
+
+.toggle-field.on .toggle-thumb {
+    background: var(--color-on-accent);
+    transform: translateX(16px);
+}
+
+
+/* =========================================================
+   KEYBOARD FOCUS
+   ========================================================= */
+
+.toggle-field input:focus-visible+.toggle-switch {
+    outline: 2px solid var(--focus-ring-color);
+    outline-offset: 2px;
+}
+
+
+/* =========================================================
+   ON / OFF STATE
+   ========================================================= */
+
+.toggle-state {
+    flex-shrink: 0;
+
+    min-width: 24px;
+
+    color: var(--color-text-muted);
+
+    font-size: 10px;
+    font-weight: 700;
+
+    text-transform: uppercase;
+}
+
+.toggle-field.on .toggle-state {
+    color: var(--color-text);
+}
+
+
+/* =========================================================
+   DISABLED
+   ========================================================= */
+
+.toggle-field input:disabled~.toggle-switch,
+.toggle-field input:disabled~.toggle-state {
+    opacity: 0.55;
+}
+
+.toggle-field:has(input:disabled) {
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.settings-field-full {
+    grid-column: 1 / -1;
+}
+
+.settings-form-actions {
+    display: flex;
+    grid-column: 1 / -1;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 4px;
+}
+
+@media (max-width: 700px) {
+    .settings-sub-page .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 14px;
+    }
+
+    .settings-cell-muted {
+        max-width: 180px;
+    }
+
+    .settings-form-card {
+        grid-template-columns: 1fr;
+        padding: 24px 20px;
+    }
+}

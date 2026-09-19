@@ -22,6 +22,7 @@
 @import "./features/email-accounts.css";
 @import "./features/appearance.css";
 @import "./features/communications.css";
+@import "./features/email-settings.css";
 @import "./layout/sidebar-collapse.css";
 @import "./pages/splash.css";
 @import "./pages/loading.css";
