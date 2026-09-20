@@ -33,7 +33,6 @@ import EmailAutomationFormPage from "./pages/Settings/EmailAutomationFormPage";
 import UsersRolesPage from "./pages/Settings/UsersRolesPage";
 import UserFormPage from "./pages/Settings/UserFormPage";
 import OrganizationPage from "./pages/Settings/OrganizationPage";
-import RolesPage from "./pages/Settings/RolesPage";
 import RoleFormPage from "./pages/Settings/RoleFormPage";
 
 // Checked in order when a user cannot open the dashboard.
@@ -190,8 +189,6 @@ function App() {
           <Route path="/settings/users/:id/edit" element={<UserFormPage />} />
 
           <Route path="/settings/organization" element={<OrganizationPage />} />
-
-          <Route path="/settings/roles" element={<RolesPage />} />
 
           <Route path="/settings/roles/new" element={<RoleFormPage />} />
 

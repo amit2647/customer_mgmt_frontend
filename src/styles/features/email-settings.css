@@ -673,74 +673,134 @@
     font-size: 11px;
 }
 
-.permission-groups {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-    gap: 12px;
-}
-
-.permission-group {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    padding: 12px 14px;
+.permission-table-wrap {
+    overflow: hidden;
     border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
-    background: var(--color-surface-subtle);
 }
 
-.permission-group-head {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 10px;
-    margin-bottom: 6px;
-    padding-bottom: 6px;
+.permission-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.permission-table th {
+    padding: 9px 14px;
     border-bottom: 1px solid var(--color-border);
-}
-
-.permission-group-head strong {
-    color: var(--color-text);
+    background: var(--color-surface-muted);
+    color: var(--color-text-muted);
     font-size: 10px;
     font-weight: 800;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.09em;
+    text-align: left;
     text-transform: uppercase;
 }
 
-.permission-item {
-    display: flex;
-    flex-direction: row;
-    align-items: flex-start;
-    gap: 9px;
-    padding: 5px 4px;
-    border-radius: var(--radius-sm);
-    cursor: pointer;
+.permission-table td {
+    padding: 8px 14px;
+    border-bottom: 1px solid var(--color-border);
+    vertical-align: middle;
 }
 
-.permission-item:hover {
-    background: var(--color-surface-hover);
+.permission-table tbody:last-child tr:last-child td {
+    border-bottom: 0;
 }
 
-.permission-item input {
-    width: auto;
-    margin: 2px 0 0;
-    flex-shrink: 0;
+/* Group header row: also carries that group's select-all. */
+.permission-group-row td {
+    padding: 9px 14px;
+    background: var(--color-surface-subtle);
+    color: var(--color-text);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
 }
 
-.permission-item span {
+.permission-group-row td:last-child {
+    text-align: right;
+}
+
+.permission-check-col {
+    width: 44px;
+    text-align: center;
+}
+
+.permission-table tr.selected td {
+    background: color-mix(in srgb, var(--color-border-accent) 9%, transparent);
+}
+
+.permission-table label {
     display: flex;
     flex-direction: column;
     gap: 1px;
-    min-width: 0;
+    cursor: pointer;
 }
 
-.permission-item strong {
+.permission-table label strong {
     color: var(--color-text);
     font-size: 12px;
     font-weight: 600;
 }
 
-.permission-item code {
+.permission-table label span {
     color: var(--color-text-muted);
+    font-size: 11px;
+    line-height: 1.4;
+}
+
+.permission-table code {
+    color: var(--color-text-muted);
+    font-size: 11px;
+    white-space: nowrap;
+}
+
+/* =========================================================
+   TABS
+   ========================================================= */
+
+.settings-tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 18px;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.settings-tab {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    background: transparent;
+    color: var(--color-text-muted);
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: color var(--transition-fast), border-color var(--transition-fast);
+}
+
+.settings-tab:hover {
+    color: var(--color-text);
+}
+
+.settings-tab.active {
+    border-bottom-color: var(--color-border-accent);
+    color: var(--color-text);
+}
+
+.settings-tab span {
+    padding: 1px 7px;
+    border-radius: var(--radius-pill);
+    background: var(--color-surface-muted);
+    color: var(--color-text-secondary);
     font-size: 10px;
+    font-weight: 700;
+}
+
+.settings-tab.active span {
+    background: var(--brand-lemon);
+    color: var(--color-on-accent);
 }

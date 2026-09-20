@@ -107,7 +107,7 @@ function RoleFormPage() {
         await createRole({ ...form, permissionCodes: [...selected] });
       }
 
-      navigate("/settings/roles");
+      navigate("/settings/users?tab=roles");
     } catch (requestError) {
       setError(requestError.message || "Failed to save the role.");
     } finally {
@@ -128,8 +128,8 @@ function RoleFormPage() {
   return (
     <main className="page settings-sub-page settings-form-page">
       <div className="workflow-breadcrumb">
-        <button type="button" onClick={() => navigate("/settings/roles")}>
-          ← Back to Roles
+        <button type="button" onClick={() => navigate("/settings/users?tab=roles")}>
+          ← Back to Users &amp; Roles
         </button>
 
         <div className="workflow-context">
@@ -195,44 +195,72 @@ function RoleFormPage() {
             </span>
           </div>
 
-          <div className="permission-groups">
-            {groups.map((group) => {
-              const allOn = group.items.every((item) => selected.has(item.code));
+          <div className="permission-table-wrap">
+            <table className="permission-table">
+              <thead>
+                <tr>
+                  <th className="permission-check-col" />
+                  <th>Permission</th>
+                  <th>Code</th>
+                </tr>
+              </thead>
 
-              return (
-                <div key={group.name} className="permission-group">
-                  <div className="permission-group-head">
-                    <strong>{group.name.replace(/_/g, " ")}</strong>
+              {groups.map((group) => {
+                const allOn = group.items.every((item) => selected.has(item.code));
 
-                    {!readOnly && (
-                      <button
-                        type="button"
-                        className="link"
-                        onClick={() => toggleGroup(group.items, allOn)}
+                return (
+                  <tbody key={group.name}>
+                    {/* Group header doubles as the select-all control. */}
+                    <tr className="permission-group-row">
+                      <td colSpan={2}>{group.name.replace(/_/g, " ")}</td>
+
+                      <td>
+                        {!readOnly && (
+                          <button
+                            type="button"
+                            className="link"
+                            onClick={() => toggleGroup(group.items, allOn)}
+                          >
+                            {allOn ? "Clear" : "Select all"}
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+
+                    {group.items.map((permission) => (
+                      <tr
+                        key={permission.id}
+                        className={selected.has(permission.code) ? "selected" : ""}
                       >
-                        {allOn ? "Clear" : "Select all"}
-                      </button>
-                    )}
-                  </div>
+                        <td className="permission-check-col">
+                          <input
+                            id={`perm-${permission.id}`}
+                            type="checkbox"
+                            checked={selected.has(permission.code)}
+                            onChange={() => toggle(permission.code)}
+                            disabled={saving || readOnly}
+                          />
+                        </td>
 
-                  {group.items.map((permission) => (
-                    <label key={permission.id} className="permission-item">
-                      <input
-                        type="checkbox"
-                        checked={selected.has(permission.code)}
-                        onChange={() => toggle(permission.code)}
-                        disabled={saving || readOnly}
-                      />
+                        <td>
+                          <label htmlFor={`perm-${permission.id}`}>
+                            <strong>{permission.name}</strong>
 
-                      <span>
-                        <strong>{permission.name}</strong>
-                        <code>{permission.code}</code>
-                      </span>
-                    </label>
-                  ))}
-                </div>
-              );
-            })}
+                            {permission.description && (
+                              <span>{permission.description}</span>
+                            )}
+                          </label>
+                        </td>
+
+                        <td>
+                          <code>{permission.code}</code>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                );
+              })}
+            </table>
           </div>
         </div>
 
@@ -240,7 +268,7 @@ function RoleFormPage() {
           <button
             type="button"
             className="secondary-button"
-            onClick={() => navigate("/settings/roles")}
+            onClick={() => navigate("/settings/users?tab=roles")}
             disabled={saving}
           >
             {readOnly ? "Back" : "Cancel"}
