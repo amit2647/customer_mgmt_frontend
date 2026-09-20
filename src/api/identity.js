@@ -69,3 +69,18 @@ export function updateOrganization(id, data) {
     body: JSON.stringify(data),
   });
 }
+
+export function getAccessGrants() {
+  return request("/access-grants");
+}
+
+export function createAccessGrant(data) {
+  return request("/access-grants", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
+
+export function revokeAccessGrant(id) {
+  return request(`/access-grants/${id}/revoke`, { method: "POST" });
+}

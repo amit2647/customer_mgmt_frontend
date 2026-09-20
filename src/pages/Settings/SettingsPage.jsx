@@ -58,6 +58,15 @@ function SettingsPage() {
       permission: "users.read",
     },
     {
+      id: "access",
+      title: "Just-in-time Access",
+      description:
+        "Grant someone one screen for a limited time. Starts and stops working immediately.",
+      icon: "⏱",
+      path: "/settings/access",
+      permission: "users.read",
+    },
+    {
       id: "organization",
       title: "Organization",
       description:

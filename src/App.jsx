@@ -34,6 +34,7 @@ import UsersRolesPage from "./pages/Settings/UsersRolesPage";
 import UserFormPage from "./pages/Settings/UserFormPage";
 import OrganizationPage from "./pages/Settings/OrganizationPage";
 import RoleFormPage from "./pages/Settings/RoleFormPage";
+import AccessGrantsPage from "./pages/Settings/AccessGrantsPage";
 
 // Checked in order when a user cannot open the dashboard.
 const LANDING_FALLBACKS = [
@@ -193,6 +194,8 @@ function App() {
           <Route path="/settings/roles/new" element={<RoleFormPage />} />
 
           <Route path="/settings/roles/:id/edit" element={<RoleFormPage />} />
+
+          <Route path="/settings/access" element={<AccessGrantsPage />} />
         </Route>
       </Route>
 

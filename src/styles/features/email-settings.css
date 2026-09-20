@@ -804,3 +804,67 @@
     background: var(--brand-lemon);
     color: var(--color-on-accent);
 }
+
+/* =========================================================
+   SECTION HEADS (access grants)
+   ========================================================= */
+
+.settings-section-head {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.settings-section-head strong {
+    color: var(--color-text);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.settings-section-head span {
+    padding: 1px 7px;
+    border-radius: var(--radius-pill);
+    background: var(--color-surface-muted);
+    color: var(--color-text-secondary);
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.settings-history {
+    margin-top: 18px;
+}
+
+/* =========================================================
+   GRANT PICKERS
+   Screens and permissions are separate tables: a screen is the
+   common request, and the permission list is scoped to the
+   screens chosen so the relevant handful is findable.
+   ========================================================= */
+
+/* Deliberately no max-height: filtering by screen keeps the list to nine rows at
+   most, and a scroll box hid the permissions below the fold. */
+
+.permission-hint {
+    margin: 0 0 10px;
+    color: var(--color-text-muted);
+    font-size: 11px;
+    line-height: 1.5;
+}
+
+.permission-group-count {
+    margin-left: 8px;
+    padding: 1px 6px;
+    border-radius: var(--radius-pill);
+    background: var(--color-surface-muted);
+    color: var(--color-text-secondary);
+    font-size: 9px;
+    font-weight: 700;
+}
+
+.grant-permission-empty {
+    border: 1px dashed var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface-subtle);
+}
