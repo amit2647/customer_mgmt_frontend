@@ -54,7 +54,8 @@ function SettingsPage() {
       description:
         "Manage users, roles, permissions, and access to the platform.",
       icon: "U",
-      disabled: true,
+      path: "/settings/users",
+      permission: "users.read",
     },
     {
       id: "organization",
@@ -62,7 +63,8 @@ function SettingsPage() {
       description:
         "Manage organization information and organization-level configuration.",
       icon: "O",
-      disabled: true,
+      path: "/settings/organization",
+      permission: "organization.read",
     },
   ];
 

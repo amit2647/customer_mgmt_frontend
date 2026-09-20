@@ -30,6 +30,11 @@ import EmailTemplatesPage from "./pages/Settings/EmailTemplatesPage";
 import EmailAutomationsPage from "./pages/Settings/EmailAutomationsPage";
 import EmailTemplateFormPage from "./pages/Settings/EmailTemplateFormPage";
 import EmailAutomationFormPage from "./pages/Settings/EmailAutomationFormPage";
+import UsersRolesPage from "./pages/Settings/UsersRolesPage";
+import UserFormPage from "./pages/Settings/UserFormPage";
+import OrganizationPage from "./pages/Settings/OrganizationPage";
+import RolesPage from "./pages/Settings/RolesPage";
+import RoleFormPage from "./pages/Settings/RoleFormPage";
 
 // Checked in order when a user cannot open the dashboard.
 const LANDING_FALLBACKS = [
@@ -177,6 +182,20 @@ function App() {
             path="/settings/email-automations/:id/edit"
             element={<EmailAutomationFormPage />}
           />
+
+          <Route path="/settings/users" element={<UsersRolesPage />} />
+
+          <Route path="/settings/users/new" element={<UserFormPage />} />
+
+          <Route path="/settings/users/:id/edit" element={<UserFormPage />} />
+
+          <Route path="/settings/organization" element={<OrganizationPage />} />
+
+          <Route path="/settings/roles" element={<RolesPage />} />
+
+          <Route path="/settings/roles/new" element={<RoleFormPage />} />
+
+          <Route path="/settings/roles/:id/edit" element={<RoleFormPage />} />
         </Route>
       </Route>
 
