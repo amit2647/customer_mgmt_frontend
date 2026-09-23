@@ -2,12 +2,15 @@ import { useEffect, useMemo, useState } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 
 import Sidebar from "./Sidebar";
+import AssistantPanel from "../assistant/AssistantPanel";
 import { useAuth } from "../../context/AuthContext";
 
 function AppLayout() {
   const navigate = useNavigate();
 
   const { user, logout } = useAuth();
+
+  const [assistantOpen, setAssistantOpen] = useState(false);
 
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
     const saved = localStorage.getItem("omnicore-sidebar-collapsed");
@@ -102,6 +105,22 @@ function AppLayout() {
               ======================================================= */}
 
           <div className="global-header-right">
+            {/* What it can do is decided server-side from the caller's
+                permissions, so the button itself needs no gate. */}
+            <button
+              type="button"
+              className={`assistant-button ${assistantOpen ? "active" : ""}`}
+              onClick={() => setAssistantOpen((current) => !current)}
+              title="Ask the assistant"
+              aria-expanded={assistantOpen}
+            >
+              <span className="assistant-button-spark" aria-hidden="true">
+                ✦
+              </span>
+
+              <span className="assistant-button-label">Assistant</span>
+            </button>
+
             <div className="header-divider" />
 
             <div className="user-menu" title="Account">
@@ -128,6 +147,11 @@ function AppLayout() {
         <main className="app-content">
           <Outlet />
         </main>
+
+        <AssistantPanel
+          open={assistantOpen}
+          onClose={() => setAssistantOpen(false)}
+        />
       </div>
     </div>
   );
