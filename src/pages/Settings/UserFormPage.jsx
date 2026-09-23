@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
+import { useAuth } from "../../context/AuthContext";
 import { createUser, getRoles, getUser, updateUser } from "../../api/identity";
 
 const EMPTY = {
@@ -14,8 +15,21 @@ const EMPTY = {
 function UserFormPage() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const isEditing = Boolean(id);
+
+  const permissions = Array.isArray(user?.permissions) ? user.permissions : [];
+
+  // Assigning a role is gated on system.settings server-side; mirroring it here
+  // means the field is visibly locked rather than failing on save.
+  const canAssignRole = permissions.includes("system.settings");
+
+  // Changing your own role is refused by the API: demoting yourself removes the
+  // permission needed to undo it.
+  const isSelf = isEditing && Number(id) === Number(user?.userId);
+
+  const roleLocked = isEditing && (!canAssignRole || isSelf);
 
   const [form, setForm] = useState(EMPTY);
   const [roles, setRoles] = useState([]);
@@ -66,12 +80,14 @@ function UserFormPage() {
       setError("");
 
       if (isEditing) {
-        // The update endpoint accepts name, email and status only — role and
-        // password are not editable here.
+        // Password is still not editable here. roleCode is omitted rather than
+        // sent unchanged when the field is locked, so a no-op edit never trips
+        // the server's role-change permission check.
         await updateUser(id, {
           name: form.name,
           email: form.email,
           status: form.status,
+          ...(roleLocked ? {} : { roleCode: form.roleCode }),
         });
       } else {
         // organizationId is taken from the caller's token by identity-service,
@@ -120,7 +136,7 @@ function UserFormPage() {
 
           <p>
             {isEditing
-              ? "Role and password cannot be changed here. Remove and re-invite the user to give them a different role."
+              ? "Changing a role takes effect the next time this person signs in, because permissions are carried in their session. Passwords cannot be changed here."
               : "The user is added to your organization and can sign in immediately with the password you set."}
           </p>
         </div>
@@ -174,10 +190,10 @@ function UserFormPage() {
           <select
             value={form.roleCode}
             onChange={(e) => update("roleCode", e.target.value)}
-            disabled={saving || isEditing}
-            required={!isEditing}
+            disabled={saving || roleLocked}
+            required
           >
-            {isEditing && !form.roleCode && <option value="">—</option>}
+            {!form.roleCode && <option value="">Select a role...</option>}
 
             {roles.map((role) => (
               <option key={role.id} value={role.code}>
@@ -185,6 +201,14 @@ function UserFormPage() {
               </option>
             ))}
           </select>
+
+          {roleLocked && (
+            <span className="settings-row-hint">
+              {isSelf
+                ? "You cannot change your own role."
+                : "Only an administrator can change someone's role."}
+            </span>
+          )}
         </label>
 
         <label>
