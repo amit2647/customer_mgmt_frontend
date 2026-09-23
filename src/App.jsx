@@ -1,15 +1,17 @@
 import { useState } from "react";
-import { Navigate, Route, Routes, useNavigate } from "react-router-dom";
+import { Navigate, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 
 import SplashScreen from "./components/common/SplashScreen";
 import OnboardingScreen from "./components/common/OnboardingScreen";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
+import RequirePermission from "./components/auth/RequirePermission";
 
 import { useAuth } from "./context/AuthContext";
 
 import AppLayout from "./components/layout/AppLayout";
 
 import LoginPage from "./pages/Login/LoginPage";
+import GuestAccessPage from "./pages/Guest/GuestAccessPage";
 
 import DashboardPage from "./pages/Dashboard/DashboardPage";
 
@@ -65,6 +67,14 @@ function HomeRoute() {
 
 function App() {
   const navigate = useNavigate();
+  const location = useLocation();
+
+  /*
+   * A guest arriving on an invite link gets neither splash nor onboarding:
+   * onboarding ends by sending the visitor to /login, which is exactly where
+   * someone without an account must not be sent.
+   */
+  const isInviteLink = location.pathname.startsWith("/access/");
 
   const [showSplash, setShowSplash] = useState(true);
 
@@ -92,7 +102,7 @@ function App() {
    * ---------------------------------------------------------
    */
 
-  if (showSplash) {
+  if (showSplash && !isInviteLink) {
     return <SplashScreen onComplete={handleSplashComplete} />;
   }
 
@@ -102,7 +112,7 @@ function App() {
    * ---------------------------------------------------------
    */
 
-  if (showOnboarding) {
+  if (showOnboarding && !isInviteLink) {
     return <OnboardingScreen onComplete={handleOnboardingComplete} />;
   }
 
@@ -120,6 +130,9 @@ function App() {
 
       <Route path="/login" element={<LoginPage />} />
 
+      {/* Invite links for external guests — no session required to open it. */}
+      <Route path="/access/:token" element={<GuestAccessPage />} />
+
       {/* =====================================================
           PROTECTED APPLICATION
           ===================================================== */}
@@ -128,74 +141,111 @@ function App() {
         <Route element={<AppLayout />}>
           <Route path="/" element={<HomeRoute />} />
 
-          <Route path="/leads" element={<LeadsPage />} />
+          {/* Each screen is gated on the permission its API actually needs.
+              Hiding the nav link is not enough on its own: the URL still mounts
+              the page, and pages swallow the 403 differently — ServicesPage
+              renders an empty catalog rather than an access error. */}
 
-          <Route path="/leads/new" element={<LeadWorkflowPage />} />
+          <Route element={<RequirePermission permission="leads.read" />}>
+            <Route path="/leads" element={<LeadsPage />} />
 
-          <Route path="/leads/:id" element={<LeadDetailPage />} />
+            <Route path="/leads/new" element={<LeadWorkflowPage />} />
 
-          <Route path="/leads/:id/edit" element={<LeadWorkflowPage />} />
+            <Route path="/leads/:id" element={<LeadDetailPage />} />
 
-          <Route path="/customers" element={<CustomersPage />} />
+            <Route path="/leads/:id/edit" element={<LeadWorkflowPage />} />
+          </Route>
 
-          <Route path="/customers/new" element={<CustomerWorkflowPage />} />
+          <Route element={<RequirePermission permission="customers.read" />}>
+            <Route path="/customers" element={<CustomersPage />} />
 
-          <Route path="/customers/:id" element={<CustomerDetailPage />} />
+            <Route path="/customers/new" element={<CustomerWorkflowPage />} />
 
-          <Route
-            path="/customers/:id/edit"
-            element={<CustomerWorkflowPage />}
-          />
+            <Route path="/customers/:id" element={<CustomerDetailPage />} />
 
-          <Route path="/services" element={<ServicesPage />} />
+            <Route
+              path="/customers/:id/edit"
+              element={<CustomerWorkflowPage />}
+            />
+          </Route>
+
+          <Route element={<RequirePermission permission="services.read" />}>
+            <Route path="/services" element={<ServicesPage />} />
+          </Route>
+
+          {/* The settings landing filters its own cards, so it stays open — the
+              sub-routes below carry the same permissions those cards use. */}
           <Route path="/settings" element={<SettingsPage />} />
 
-          <Route
-            path="/settings/email-accounts"
-            element={<EmailAccountsPage />}
-          />
           <Route path="/settings/appearance" element={<AppearancePage />} />
 
-          <Route path="/settings/email-templates" element={<EmailTemplatesPage />} />
+          <Route
+            element={<RequirePermission permission="system.integrations" />}
+          >
+            <Route
+              path="/settings/email-accounts"
+              element={<EmailAccountsPage />}
+            />
+          </Route>
 
           <Route
-            path="/settings/email-templates/new"
-            element={<EmailTemplateFormPage />}
-          />
+            element={<RequirePermission permission="email.templates.read" />}
+          >
+            <Route
+              path="/settings/email-templates"
+              element={<EmailTemplatesPage />}
+            />
+
+            <Route
+              path="/settings/email-templates/new"
+              element={<EmailTemplateFormPage />}
+            />
+
+            <Route
+              path="/settings/email-templates/:id/edit"
+              element={<EmailTemplateFormPage />}
+            />
+          </Route>
 
           <Route
-            path="/settings/email-templates/:id/edit"
-            element={<EmailTemplateFormPage />}
-          />
+            element={<RequirePermission permission="email.automations.read" />}
+          >
+            <Route
+              path="/settings/email-automations"
+              element={<EmailAutomationsPage />}
+            />
 
-          <Route
-            path="/settings/email-automations"
-            element={<EmailAutomationsPage />}
-          />
+            <Route
+              path="/settings/email-automations/new"
+              element={<EmailAutomationFormPage />}
+            />
 
-          <Route
-            path="/settings/email-automations/new"
-            element={<EmailAutomationFormPage />}
-          />
+            <Route
+              path="/settings/email-automations/:id/edit"
+              element={<EmailAutomationFormPage />}
+            />
+          </Route>
 
-          <Route
-            path="/settings/email-automations/:id/edit"
-            element={<EmailAutomationFormPage />}
-          />
+          <Route element={<RequirePermission permission="users.read" />}>
+            <Route path="/settings/users" element={<UsersRolesPage />} />
 
-          <Route path="/settings/users" element={<UsersRolesPage />} />
+            <Route path="/settings/users/new" element={<UserFormPage />} />
 
-          <Route path="/settings/users/new" element={<UserFormPage />} />
+            <Route path="/settings/users/:id/edit" element={<UserFormPage />} />
 
-          <Route path="/settings/users/:id/edit" element={<UserFormPage />} />
+            <Route path="/settings/roles/new" element={<RoleFormPage />} />
 
-          <Route path="/settings/organization" element={<OrganizationPage />} />
+            <Route path="/settings/roles/:id/edit" element={<RoleFormPage />} />
 
-          <Route path="/settings/roles/new" element={<RoleFormPage />} />
+            <Route path="/settings/access" element={<AccessGrantsPage />} />
+          </Route>
 
-          <Route path="/settings/roles/:id/edit" element={<RoleFormPage />} />
-
-          <Route path="/settings/access" element={<AccessGrantsPage />} />
+          <Route element={<RequirePermission permission="organization.read" />}>
+            <Route
+              path="/settings/organization"
+              element={<OrganizationPage />}
+            />
+          </Route>
         </Route>
       </Route>
 

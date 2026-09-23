@@ -96,6 +96,21 @@
     flex-shrink: 0;
 }
 
+/* Page rhythm. The breadcrumb, heading and alerts each carry their own
+   margin-bottom, but cards and the grant form carried none — so the invite
+   panel and the form sat flush against the Active table beneath them. One rule
+   for every top-level block keeps the gaps down the page equal. */
+
+.settings-sub-page>.card,
+.settings-sub-page>form,
+.settings-sub-page>section {
+    margin-bottom: 24px;
+}
+
+.settings-sub-page>:last-child {
+    margin-bottom: 0;
+}
+
 .settings-sub-page .alert {
     margin-bottom: 18px;
     padding: 10px 12px;
@@ -832,8 +847,9 @@
     font-weight: 700;
 }
 
+/* Spacing now comes from the page rhythm rule above, not from this card. */
 .settings-history {
-    margin-top: 18px;
+    margin-top: 0;
 }
 
 /* =========================================================
@@ -867,4 +883,59 @@
     border: 1px dashed var(--color-border);
     border-radius: var(--radius-md);
     background: var(--color-surface-subtle);
+}
+
+/* =========================================================
+   GUEST INVITE LINK
+   ========================================================= */
+
+/*
+ * The link is only ever on screen once, so the panel is deliberately loud —
+ * losing it means revoking the grant and issuing a new one.
+ */
+.invite-card {
+    border: 1px solid var(--color-primary);
+}
+
+/* .card has no padding of its own — its usual child is a full-bleed table, and
+   .settings-section-head brings its own gutter. Everything below the head here
+   is plain content, so it has to take the same gutter by hand or it runs into
+   the card's border. */
+
+.invite-card .permission-hint,
+.invite-card .invite-link-row,
+.invite-card .settings-form-actions {
+    padding-right: 18px;
+    padding-left: 18px;
+}
+
+.invite-card .permission-hint {
+    margin: 14px 0 14px;
+}
+
+.invite-card .settings-form-actions {
+    margin-top: 0;
+    padding-bottom: 18px;
+}
+
+.invite-link-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+}
+
+.invite-link {
+    flex: 1 1 320px;
+    min-width: 0;
+    padding: 10px 12px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface-alt);
+    color: var(--color-text);
+    font-size: 12px;
+    /* The token has no spaces, so it has to be allowed to break mid-word or it
+       pushes the panel wider than the page. */
+    word-break: break-all;
 }

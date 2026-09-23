@@ -84,3 +84,15 @@ export function createAccessGrant(data) {
 export function revokeAccessGrant(id) {
   return request(`/access-grants/${id}/revoke`, { method: "POST" });
 }
+
+/*
+ * Exchanges an invite token for a guest session. Unauthenticated — the token in
+ * the body is the credential, so this is the one call here that works with no
+ * bearer token present.
+ */
+export function redeemAccessInvite(token) {
+  return request("/access-grants/redeem", {
+    method: "POST",
+    body: JSON.stringify({ token }),
+  });
+}

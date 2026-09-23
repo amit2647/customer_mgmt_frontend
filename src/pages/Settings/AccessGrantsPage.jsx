@@ -45,9 +45,25 @@ const DURATIONS = [
 
 const EMPTY = {
   user_id: "",
+  subject_email: "",
   duration_minutes: 60,
   reason: "",
 };
+
+// Someone with an account is granted against their user id; someone without one
+// gets an invite link instead, so the two paths need different inputs.
+const RECIPIENTS = [
+  {
+    value: "member",
+    label: "Someone in this workspace",
+    hint: "Adds the permission to an account that already exists.",
+  },
+  {
+    value: "external",
+    label: "External person (no account)",
+    hint: "Creates a one-off link that signs them in as a guest.",
+  },
+];
 
 // Permission codes are "group.action", so the prefix groups them without a
 // second list to maintain.
@@ -103,6 +119,9 @@ function AccessGrantsPage() {
   const [form, setForm] = useState(EMPTY);
   const [screens, setScreens] = useState(new Set());
   const [extraPermissions, setExtraPermissions] = useState(new Set());
+  const [recipient, setRecipient] = useState("member");
+  const [invite, setInvite] = useState(null);
+  const [copied, setCopied] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -212,6 +231,17 @@ function AccessGrantsPage() {
     setForm(EMPTY);
     setScreens(new Set());
     setExtraPermissions(new Set());
+    setRecipient("member");
+  }
+
+  async function copyInviteLink() {
+    try {
+      await navigator.clipboard.writeText(invite.url);
+      setCopied(true);
+    } catch {
+      // Clipboard access can be refused; the link is on screen to copy by hand.
+      setCopied(false);
+    }
   }
 
   async function handleGrant(event) {
@@ -226,18 +256,38 @@ function AccessGrantsPage() {
       setSaving(true);
       setError("");
 
+      const external = recipient === "external";
+
       const result = await createAccessGrant({
-        user_id: Number(form.user_id),
+        user_id: external ? null : Number(form.user_id),
+        subject_email: external ? form.subject_email.trim() : null,
         duration_minutes: Number(form.duration_minutes),
         reason: form.reason,
         permission_codes: selectedCodes,
       });
 
+      const email = form.subject_email.trim();
+
       resetForm();
       setShowForm(false);
-      setSuccess(
-        `Granted ${result?.count ?? selectedCodes.length} permission(s). Takes effect immediately.`,
-      );
+
+      if (external && result?.inviteToken) {
+        /*
+         * Shown once and never again — the server keeps only a hash of it. If
+         * this panel is dismissed before the link is sent, the grant has to be
+         * revoked and reissued.
+         */
+        setCopied(false);
+        setInvite({
+          email,
+          url: `${window.location.origin}/access/${result.inviteToken}`,
+        });
+        setSuccess("");
+      } else {
+        setSuccess(
+          `Granted ${result?.count ?? selectedCodes.length} permission(s). Takes effect immediately.`,
+        );
+      }
 
       await load();
     } catch (requestError) {
@@ -248,7 +298,9 @@ function AccessGrantsPage() {
   }
 
   async function handleRevoke(grant) {
-    if (!window.confirm(`Revoke ${grant.permission_code} from ${grant.user_name}?`)) {
+    const who = grant.user_name || grant.subject_email;
+
+    if (!window.confirm(`Revoke ${grant.permission_code} from ${who}?`)) {
       return;
     }
 
@@ -305,28 +357,102 @@ function AccessGrantsPage() {
         )}
       </div>
 
+      {invite && (
+        <section className="card invite-card">
+          <div className="settings-section-head">
+            <strong>Access link for {invite.email}</strong>
+
+            <span>shown once</span>
+          </div>
+
+          <p className="permission-hint">
+            Send this to them yourself. It works until the grant expires or is
+            revoked, and it cannot be shown again — closing this panel loses it.
+          </p>
+
+          <div className="invite-link-row">
+            <code className="invite-link">{invite.url}</code>
+
+            <button
+              type="button"
+              className="button button-primary"
+              onClick={copyInviteLink}
+            >
+              {copied ? "Copied" : "Copy link"}
+            </button>
+          </div>
+
+          <div className="settings-form-actions">
+            <button
+              type="button"
+              className="secondary-button"
+              onClick={() => setInvite(null)}
+            >
+              I have sent it
+            </button>
+          </div>
+        </section>
+      )}
+
       {success && <div className="alert alert-success">{success}</div>}
       {error && <div className="alert alert-error" role="alert">{error}</div>}
 
       {showForm && (
         <form className="settings-form-card" onSubmit={handleGrant}>
           <label>
-            Who
+            Who is this for
             <select
-              value={form.user_id}
-              onChange={(e) => setForm({ ...form, user_id: e.target.value })}
+              value={recipient}
+              onChange={(e) => setRecipient(e.target.value)}
               disabled={saving}
-              required
             >
-              <option value="">Select a user...</option>
-
-              {users.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.name} — {item.role_name || item.role_code}
+              {RECIPIENTS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
                 </option>
               ))}
             </select>
+            <span className="settings-row-hint">
+              {RECIPIENTS.find((option) => option.value === recipient)?.hint}
+            </span>
           </label>
+
+          {recipient === "member" ? (
+            <label>
+              Person
+              <select
+                value={form.user_id}
+                onChange={(e) => setForm({ ...form, user_id: e.target.value })}
+                disabled={saving}
+                required
+              >
+                <option value="">Select a user...</option>
+
+                {users.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {item.name} — {item.role_name || item.role_code}
+                  </option>
+                ))}
+              </select>
+            </label>
+          ) : (
+            <label>
+              Email address
+              <input
+                type="email"
+                value={form.subject_email}
+                onChange={(e) =>
+                  setForm({ ...form, subject_email: e.target.value })
+                }
+                placeholder="auditor@partner.com"
+                disabled={saving}
+                required
+              />
+              <span className="settings-row-hint">
+                The link is shown here once — we do not email it for you.
+              </span>
+            </label>
+          )}
 
           <div className="settings-field-full">
             <div className="permission-header">
@@ -541,7 +667,13 @@ function AccessGrantsPage() {
                   <td>
                     <strong>{grant.user_name || grant.subject_email}</strong>
 
-                    <span className="settings-row-hint">{grant.user_email}</span>
+                    <span className="settings-row-hint">
+                      {grant.is_invite
+                        ? grant.redeemed_at
+                          ? `Guest · opened ${formatWhen(grant.redeemed_at)}`
+                          : "Guest · link not opened yet"
+                        : grant.user_email}
+                    </span>
                   </td>
 
                   <td>

@@ -261,3 +261,25 @@
         display: none;
     }
 }
+/* =========================================================
+   ACCESS DENIED
+   ========================================================= */
+
+.access-denied {
+    max-width: 520px;
+    margin: 48px auto;
+    padding: 28px;
+    text-align: center;
+}
+
+.access-denied h1 {
+    margin: 0 0 10px;
+    font-size: 18px;
+}
+
+.access-denied p {
+    margin: 0;
+    color: var(--color-text-muted);
+    font-size: 13px;
+    line-height: 1.6;
+}
