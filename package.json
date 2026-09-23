@@ -11,7 +11,9 @@
         "jwt-decode": "^4.0.0",
         "react": "latest",
         "react-dom": "latest",
+        "react-markdown": "^9.0.1",
         "react-router-dom": "latest",
+        "remark-gfm": "^4.0.0",
         "vite": "latest"
     }
 }
