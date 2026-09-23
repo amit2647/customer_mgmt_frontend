@@ -1,12 +1,17 @@
 import { useEffect, useMemo, useState } from "react";
-import { Outlet, useNavigate } from "react-router-dom";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
 
 import Sidebar from "./Sidebar";
 import AssistantPanel from "../assistant/AssistantPanel";
+import { AssistantProvider } from "../../context/AssistantContext";
 import { useAuth } from "../../context/AuthContext";
 
-function AppLayout() {
+function AppLayoutInner() {
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // The docked panel would duplicate the page it expands into.
+  const onAssistantPage = location.pathname === "/assistant";
 
   const { user, logout } = useAuth();
 
@@ -109,10 +114,20 @@ function AppLayout() {
                 permissions, so the button itself needs no gate. */}
             <button
               type="button"
-              className={`assistant-button ${assistantOpen ? "active" : ""}`}
-              onClick={() => setAssistantOpen((current) => !current)}
-              title="Ask the assistant"
-              aria-expanded={assistantOpen}
+              className={`assistant-button ${
+                assistantOpen || onAssistantPage ? "active" : ""
+              }`}
+              onClick={() =>
+                onAssistantPage
+                  ? navigate("/")
+                  : setAssistantOpen((current) => !current)
+              }
+              title={
+                onAssistantPage
+                  ? "Leave the assistant page"
+                  : "Ask the assistant"
+              }
+              aria-expanded={assistantOpen || onAssistantPage}
             >
               <span className="assistant-button-spark" aria-hidden="true">
                 ✦
@@ -149,11 +164,24 @@ function AppLayout() {
         </main>
 
         <AssistantPanel
-          open={assistantOpen}
+          open={assistantOpen && !onAssistantPage}
           onClose={() => setAssistantOpen(false)}
         />
       </div>
     </div>
+  );
+}
+
+/*
+ * The provider wraps the layout rather than sitting inside it, so the docked
+ * panel and the /assistant route — which renders through the Outlet below —
+ * read the same conversation.
+ */
+function AppLayout() {
+  return (
+    <AssistantProvider>
+      <AppLayoutInner />
+    </AssistantProvider>
   );
 }
 

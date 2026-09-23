@@ -53,10 +53,10 @@
     display: flex;
     flex-direction: column;
 
-    width: 400px;
+    width: 520px;
     max-width: calc(100vw - 32px);
-    height: 560px;
-    max-height: calc(100vh - 120px);
+    height: 640px;
+    max-height: calc(100vh - 110px);
 
     overflow: hidden;
 
@@ -97,17 +97,23 @@
     flex-shrink: 0;
 }
 
-.assistant-close {
-    padding: 2px 6px;
+.assistant-icon-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    padding: 0;
     border: 0;
     border-radius: var(--radius-sm);
     background: transparent;
     color: var(--color-text-muted);
     font-size: 13px;
+    line-height: 1;
     cursor: pointer;
 }
 
-.assistant-close:hover {
+.assistant-icon-button:hover {
     background: var(--color-surface-muted);
     color: var(--color-text);
 }
@@ -157,9 +163,148 @@
     border-radius: var(--radius-md);
     font-size: 12.5px;
     line-height: 1.55;
-    /* Replies arrive as plain text with newlines, not markup. */
-    white-space: pre-wrap;
     word-break: break-word;
+}
+
+/* The user's own text is not parsed as Markdown, so its newlines have to be
+   preserved here rather than by block elements. */
+.assistant-message.user,
+.assistant-typing {
+    white-space: pre-wrap;
+}
+
+/* =========================================================
+   MARKDOWN INSIDE A BUBBLE
+   The model replies in Markdown. Every block element is
+   reset at the bubble's edges so the padding above stays
+   the visual boundary.
+   ========================================================= */
+
+.assistant-message.assistant> :first-child {
+    margin-top: 0;
+}
+
+.assistant-message.assistant> :last-child {
+    margin-bottom: 0;
+}
+
+.assistant-message.assistant p {
+    margin: 0 0 8px;
+}
+
+.assistant-message.assistant ul,
+.assistant-message.assistant ol {
+    margin: 0 0 8px;
+    padding-left: 20px;
+}
+
+.assistant-message.assistant li {
+    margin-bottom: 3px;
+}
+
+.assistant-message.assistant li:last-child {
+    margin-bottom: 0;
+}
+
+.assistant-message.assistant li>p {
+    margin: 0;
+}
+
+.assistant-message.assistant h1,
+.assistant-message.assistant h2,
+.assistant-message.assistant h3,
+.assistant-message.assistant h4 {
+    margin: 12px 0 6px;
+    color: var(--color-text);
+    font-family: var(--font-display);
+    font-weight: 750;
+    letter-spacing: -0.01em;
+}
+
+/* A chat bubble is not a document: headings are only a step up from body text
+   rather than the page-level sizes they would otherwise take. */
+.assistant-message.assistant h1 {
+    font-size: 15px;
+}
+
+.assistant-message.assistant h2 {
+    font-size: 14px;
+}
+
+.assistant-message.assistant h3,
+.assistant-message.assistant h4 {
+    font-size: 13px;
+}
+
+.assistant-message.assistant strong {
+    color: var(--color-text);
+    font-weight: 700;
+}
+
+.assistant-message.assistant a {
+    color: var(--color-text);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+.assistant-message.assistant code {
+    padding: 1px 5px;
+    border-radius: var(--radius-sm);
+    background: var(--color-surface-muted);
+    font-size: 11.5px;
+    /* Ids and codes must not be split across lines mid-token. */
+    word-break: normal;
+}
+
+.assistant-message.assistant pre {
+    margin: 0 0 8px;
+    padding: 10px 11px;
+    overflow-x: auto;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface-muted);
+}
+
+.assistant-message.assistant pre code {
+    padding: 0;
+    background: none;
+    font-size: 11.5px;
+    line-height: 1.5;
+    white-space: pre;
+}
+
+.assistant-message.assistant blockquote {
+    margin: 0 0 8px;
+    padding-left: 10px;
+    border-left: 2px solid var(--color-border-strong);
+    color: var(--color-text-secondary);
+}
+
+.assistant-message.assistant hr {
+    margin: 10px 0;
+    border: 0;
+    border-top: 1px solid var(--color-border);
+}
+
+/* GFM tables. The wrapper cannot scroll independently here, so the table is
+   allowed to shrink instead of forcing the bubble wider than the panel. */
+.assistant-message.assistant table {
+    width: 100%;
+    margin: 0 0 8px;
+    border-collapse: collapse;
+    font-size: 11.5px;
+}
+
+.assistant-message.assistant th,
+.assistant-message.assistant td {
+    padding: 5px 8px;
+    border: 1px solid var(--color-border);
+    text-align: left;
+}
+
+.assistant-message.assistant th {
+    background: var(--color-surface-muted);
+    font-weight: 700;
 }
 
 .assistant-message.user {
@@ -275,5 +420,83 @@
 
     .assistant-button-label {
         display: none;
+    }
+}
+
+
+/* =========================================================
+   FULL PAGE
+   The same thread on a page of its own, for longer sessions
+   or wide tables the docked panel would squeeze.
+   ========================================================= */
+
+.assistant-page {
+    display: flex;
+    flex-direction: column;
+
+    /*
+     * Fills the viewport so the composer sits at the bottom of the screen
+     * rather than below the fold.
+     *
+     * Measured from the viewport rather than set to height: 100%, because
+     * .app-content gets its height from `flex: 1` and a percentage height
+     * against that resolves inconsistently. The subtraction is the sticky
+     * header plus .app-content's own 34px/48px vertical padding.
+     */
+    height: calc(100vh - var(--header-height) - 82px);
+    min-height: 420px;
+}
+
+.assistant-page .page-header {
+    flex-shrink: 0;
+}
+
+.assistant-page-card {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    /* Without this a flex child refuses to shrink below its content, and the
+       thread scrolls the page instead of itself. */
+    min-height: 0;
+    overflow: hidden;
+}
+
+/*
+ * Wider than the panel, but still measured: full-bleed chat lines on a large
+ * monitor are hard to read.
+ *
+ * The reading column is formed with padding rather than by centring each child
+ * with auto margins — auto margins beat align-self, which would drag the user's
+ * right-aligned bubbles back into the middle.
+ */
+.assistant-page .assistant-thread {
+    gap: 14px;
+    padding: 28px max(28px, calc((100% - 860px) / 2));
+}
+
+.assistant-page .assistant-message {
+    max-width: 78%;
+}
+
+.assistant-page .assistant-composer {
+    padding: 16px max(28px, calc((100% - 860px) / 2));
+}
+
+.assistant-page .assistant-composer input {
+    padding: 11px 14px;
+    font-size: 13px;
+}
+
+@media (max-width: 900px) {
+    .assistant-page .assistant-thread {
+        padding: 18px;
+    }
+
+    .assistant-page .assistant-composer {
+        padding: 14px 18px;
+    }
+
+    .assistant-page .assistant-message {
+        max-width: 88%;
     }
 }

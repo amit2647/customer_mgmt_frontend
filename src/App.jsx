@@ -12,6 +12,7 @@ import AppLayout from "./components/layout/AppLayout";
 
 import LoginPage from "./pages/Login/LoginPage";
 import GuestAccessPage from "./pages/Guest/GuestAccessPage";
+import AssistantPage from "./pages/Assistant/AssistantPage";
 
 import DashboardPage from "./pages/Dashboard/DashboardPage";
 
@@ -145,6 +146,10 @@ function App() {
               Hiding the nav link is not enough on its own: the URL still mounts
               the page, and pages swallow the 403 differently — ServicesPage
               renders an empty catalog rather than an access error. */}
+
+          {/* No permission gate: the assistant is open to anyone signed in.
+              What it can actually do is filtered per-tool server-side. */}
+          <Route path="/assistant" element={<AssistantPage />} />
 
           <Route element={<RequirePermission permission="leads.read" />}>
             <Route path="/leads" element={<LeadsPage />} />
