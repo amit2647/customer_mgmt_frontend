@@ -4,6 +4,7 @@ import {
   CaretLeft,
   CaretRight,
   GearSix,
+  Sparkle,
   Package,
   SquaresFour,
   UserCircle,
@@ -127,6 +128,26 @@ function Sidebar({ collapsed, onToggle }) {
           ============================================================ */}
 
       <div className="sidebar-spacer" />
+
+      {/* ============================================================
+          ASSISTANT
+          ============================================================ */}
+
+      {/* No permission gate: the assistant is open to anyone signed in, and
+          what it can actually do is filtered per-tool server-side. */}
+      <nav className="sidebar-assistant" aria-label="Assistant">
+        <NavLink
+          to="/assistant"
+          className={navigationClass}
+          data-tooltip="Assistant"
+        >
+          <span className="sidebar-icon" aria-hidden="true">
+            <Sparkle size={20} weight="regular" />
+          </span>
+
+          <span className="sidebar-link-label">Assistant</span>
+        </NavLink>
+      </nav>
 
       {/* ============================================================
           SETTINGS

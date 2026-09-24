@@ -452,6 +452,7 @@
 }
 
 .assistant-page-card {
+    position: relative;
     display: flex;
     flex-direction: column;
     flex: 1 1 auto;
@@ -498,5 +499,235 @@
 
     .assistant-page .assistant-message {
         max-width: 88%;
+    }
+}
+
+/* =========================================================
+   GLASS
+   Scoped to the two assistant surfaces on purpose — this is
+   the assistant's own material, not a product-wide style.
+   ========================================================= */
+
+.assistant-panel,
+.assistant-page-card {
+    /* Light themes: a white frost. Overridden below for the dark themes, where
+       a white veil would wash the page out instead of deepening it. */
+    --glass-fill: rgba(255, 255, 255, 0.58);
+    --glass-fill-strong: rgba(255, 255, 255, 0.72);
+    --glass-edge: rgba(255, 255, 255, 0.85);
+    --glass-rim: rgba(17, 17, 17, 0.1);
+    --glass-drop: 0 24px 60px -20px rgba(17, 17, 17, 0.32);
+}
+
+html[data-theme="mint"] .assistant-panel,
+html[data-theme="mint"] .assistant-page-card,
+html[data-theme="coral"] .assistant-panel,
+html[data-theme="coral"] .assistant-page-card {
+    --glass-fill: rgba(255, 255, 255, 0.06);
+    --glass-fill-strong: rgba(255, 255, 255, 0.09);
+    --glass-edge: rgba(255, 255, 255, 0.16);
+    --glass-rim: rgba(0, 0, 0, 0.45);
+    --glass-drop: 0 26px 64px -20px rgba(0, 0, 0, 0.66);
+}
+
+/*
+ * No `position` here. The panel is already `position: fixed` above, and
+ * restating it as relative in this shared block silently unpinned it from the
+ * bottom-right corner — same specificity, later in the file. Fixed and relative
+ * both establish a containing block for the ::before edge, so neither surface
+ * needs anything set here.
+ */
+.assistant-panel,
+.assistant-page-card {
+    border: 1px solid var(--glass-edge);
+    background: var(--glass-fill);
+    box-shadow:
+        var(--glass-drop),
+        inset 0 1px 0 var(--glass-edge);
+    /* saturate lifts the colour that the blur would otherwise flatten. */
+    -webkit-backdrop-filter: blur(22px) saturate(150%);
+    backdrop-filter: blur(22px) saturate(150%);
+}
+
+/*
+ * A one-pixel gradient along the top edge, brightest where light would land.
+ * This is what reads as "pane of glass" rather than "translucent box".
+ */
+.assistant-panel::before,
+.assistant-page-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    height: 1px;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        var(--glass-edge) 22%,
+        var(--glass-edge) 78%,
+        transparent
+    );
+    pointer-events: none;
+}
+
+/* The bars keep a touch more body so text stays readable over whatever the
+   glass is sitting on. */
+.assistant-panel .assistant-head,
+.assistant-panel .assistant-composer,
+.assistant-page-card .assistant-composer {
+    background: var(--glass-fill-strong);
+    border-color: var(--glass-edge);
+}
+
+.assistant-page-card .assistant-composer {
+    border-top: 1px solid var(--glass-edge);
+}
+
+/* Bubbles sit on glass, so they need their own opacity to stay legible. */
+.assistant-panel .assistant-message.assistant,
+.assistant-page .assistant-message.assistant {
+    border-color: var(--glass-edge);
+    background: var(--glass-fill-strong);
+}
+
+.assistant-panel .assistant-suggestions li,
+.assistant-page .assistant-suggestions li {
+    border-color: var(--glass-edge);
+    background: var(--glass-fill);
+}
+
+/* Without a backdrop-filter the fill alone is too thin to read against. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+
+    .assistant-panel,
+    .assistant-page-card {
+        background: var(--color-surface);
+    }
+}
+
+.assistant-head {
+    align-items: center;
+    gap: 12px;
+}
+
+.assistant-head-copy {
+    min-width: 0;
+}
+
+/* =========================================================
+   SIDEBAR ENTRY
+   ========================================================= */
+
+/* Matches .sidebar-nav: the sidebar itself supplies the gutter, and
+   .sidebar-settings below carries no padding of its own either. */
+.sidebar-assistant {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    margin-bottom: 4px;
+}
+
+/* =========================================================
+   AI ORB
+   The orb itself is `thinking-orbs` painting a transparent
+   2D canvas. Deliberately no background, border, radius or
+   shadow anywhere in here — anything of the sort would show
+   up as a plate behind the dots instead of letting the glass
+   through.
+   ========================================================= */
+
+.ai-orb {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    background: none;
+    border: 0;
+}
+
+/* The canvas carries its own width and height from the size preset. */
+.ai-orb canvas {
+    display: block;
+    background: transparent;
+}
+
+/*
+ * The hero orb, scaled up.
+ *
+ * 64 is the largest size the library has — resolvePreset() throws above it,
+ * because the presets are a three-key lookup rather than a formula — so a
+ * bigger orb can only come from scaling the raster, which costs some
+ * sharpness. Soft-edged dots take that far better than text or hairlines
+ * would, and one knob keeps it easy to dial back.
+ *
+ * The margin reserves the height the transform does not: a scale leaves layout
+ * untouched, so without it the orb would grow straight through its caption.
+ */
+.ai-orb-lg {
+    --orb-scale: 1.9;
+}
+
+.ai-orb-lg canvas {
+    transform: scale(var(--orb-scale));
+    transform-origin: center;
+    margin: calc(64px * (var(--orb-scale) - 1) / 2) 0;
+}
+
+/* Small screens get less of the increase — the panel is only so wide. */
+@media (max-width: 900px) {
+    .ai-orb-lg {
+        --orb-scale: 1.45;
+    }
+}
+
+.ai-orb-caption {
+    color: var(--color-text-muted);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    transition: color 400ms ease;
+}
+
+/* The orb carries the state; the caption only has to keep up with it. */
+.ai-orb.is-listening .ai-orb-caption {
+    color: var(--color-text-secondary);
+}
+
+.ai-orb.is-processing .ai-orb-caption,
+.ai-orb.is-responding .ai-orb-caption,
+.ai-orb.is-confirming .ai-orb-caption {
+    color: var(--color-text);
+}
+
+/* =========================================================
+   ORB PLACEMENT
+   ========================================================= */
+
+.assistant-stage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    padding: 40px 20px 12px;
+}
+
+.assistant-page-heading {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    min-width: 0;
+}
+
+.assistant-page-heading .ai-orb {
+    margin-top: 4px;
+    flex-shrink: 0;
+}
+
+@media (max-width: 900px) {
+    .assistant-stage {
+        padding: 24px 16px 8px;
     }
 }
