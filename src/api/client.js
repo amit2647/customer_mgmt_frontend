@@ -1,4 +1,14 @@
-const API = "http://localhost:8080/api";
+/*
+ * The Kong gateway, not a service — the frontend never addresses a backend
+ * service directly.
+ *
+ * VITE_ is the only prefix Vite exposes to browser code. Its value is read when
+ * the dev server starts (or at build time) and baked into what the browser
+ * receives, so changing it needs a restart of the frontend container — it is
+ * not read per request. The fallback matches KONG_HOST_PORT's own default,
+ * which is why the stack works with no configuration at all.
+ */
+const API = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080/api";
 
 const TOKEN_KEY = "omnicore_access_token";
 
