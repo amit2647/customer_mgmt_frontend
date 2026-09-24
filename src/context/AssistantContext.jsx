@@ -1,4 +1,11 @@
-import { createContext, useCallback, useContext, useRef, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 
 import {
   getAssistantCapabilities,
@@ -22,6 +29,27 @@ export function AssistantProvider({ children }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [capabilities, setCapabilities] = useState(null);
+
+  /*
+   * Presentation state for the orb. `composerActive` is set by whichever
+   * surface holds focus, and `responding` is a short flourish after a reply
+   * lands — without it the orb would snap from Thinking straight back to Idle
+   * and the arrival would go unmarked.
+   */
+  const [composerActive, setComposerActive] = useState(false);
+  const [responding, setResponding] = useState(false);
+
+  const respondingTimer = useRef(null);
+
+  useEffect(() => () => clearTimeout(respondingTimer.current), []);
+
+  const flashResponding = useCallback(() => {
+    clearTimeout(respondingTimer.current);
+
+    setResponding(true);
+
+    respondingTimer.current = setTimeout(() => setResponding(false), 1800);
+  }, []);
 
   // Guarded by a ref rather than by reading state: both views call this on
   // mount, and under StrictMode each effect runs twice.
@@ -56,6 +84,7 @@ export function AssistantProvider({ children }) {
 
       if (reply) {
         setMessages([...nextMessages, { role: "assistant", content: reply }]);
+        flashResponding();
       }
 
       if (result.pendingAction) {
@@ -66,7 +95,7 @@ export function AssistantProvider({ children }) {
     } finally {
       setBusy(false);
     }
-  }, []);
+  }, [flashResponding]);
 
   const send = useCallback(
     (text) => {
@@ -118,11 +147,27 @@ export function AssistantProvider({ children }) {
     setError("");
   }, []);
 
+  /*
+   * One derived state rather than four booleans in the view: the orb and its
+   * caption can never disagree, and the precedence is stated once here.
+   */
+  const state = busy
+    ? "processing"
+    : pending
+      ? "confirming"
+      : responding
+        ? "responding"
+        : composerActive
+          ? "listening"
+          : "idle";
+
   const value = {
     messages,
     pending,
     busy,
     error,
+    state,
+    setComposerActive,
     capabilities,
     loadCapabilities,
     send,

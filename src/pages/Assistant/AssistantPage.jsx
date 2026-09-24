@@ -1,5 +1,6 @@
 import { useLocation, useNavigate } from "react-router-dom";
 
+import AssistantOrb from "../../components/assistant/AssistantOrb";
 import AssistantThread from "../../components/assistant/AssistantThread";
 import { useAssistant } from "../../context/AssistantContext";
 
@@ -14,7 +15,12 @@ function AssistantPage() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const { messages, clear } = useAssistant();
+  const { messages, clear, state } = useAssistant();
+
+  // The orb is the hero of an empty page and a status light once the thread
+  // needs the room. Same element either way, so the move is a transition
+  // rather than a mount.
+  const started = messages.length > 0;
 
   /*
    * Going back only makes sense if this page was opened from somewhere in the
@@ -33,14 +39,18 @@ function AssistantPage() {
   return (
     <main className="page assistant-page">
       <div className="page-header">
-        <div>
-          <h1>Assistant</h1>
+        <div className="assistant-page-heading">
+          {started && <AssistantOrb state={state} size="sm" caption={false} />}
 
-          <p>
-            Ask about your leads, customers, services and figures. The assistant
-            only sees what your access allows, and shows you any change before
-            it makes it.
-          </p>
+          <div>
+            <h1>Assistant</h1>
+
+            <p>
+              Ask about your leads, customers, services and figures. The
+              assistant only sees what your access allows, and shows you any
+              change before it makes it.
+            </p>
+          </div>
         </div>
 
         <div className="page-header-actions">
@@ -62,6 +72,12 @@ function AssistantPage() {
       </div>
 
       <section className="card assistant-page-card">
+        {!started && (
+          <div className="assistant-stage">
+            <AssistantOrb state={state} size="lg" />
+          </div>
+        )}
+
         <AssistantThread
           autoFocus
           placeholder="Ask anything about your leads, customers or figures…"

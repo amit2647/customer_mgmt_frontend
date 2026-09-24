@@ -21,6 +21,7 @@ function AssistantThread({ autoFocus = false, placeholder }) {
     send,
     confirmAction,
     cancelAction,
+    setComposerActive,
   } = useAssistant();
 
   const [input, setInput] = useState("");
@@ -37,6 +38,10 @@ function AssistantThread({ autoFocus = false, placeholder }) {
       inputRef.current?.focus();
     }
   }, [autoFocus]);
+
+  // Both surfaces share one orb, so a composer that unmounts while focused
+  // would otherwise leave it stuck on "listening".
+  useEffect(() => () => setComposerActive(false), [setComposerActive]);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({
@@ -138,6 +143,8 @@ function AssistantThread({ autoFocus = false, placeholder }) {
           ref={inputRef}
           value={input}
           onChange={(event) => setInput(event.target.value)}
+          onFocus={() => setComposerActive(true)}
+          onBlur={() => setComposerActive(false)}
           placeholder={placeholder || "Ask about leads, customers, figures…"}
           disabled={busy || Boolean(pending)}
         />

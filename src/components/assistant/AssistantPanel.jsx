@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 
+import AssistantOrb from "./AssistantOrb";
 import AssistantThread from "./AssistantThread";
 import { useAssistant } from "../../context/AssistantContext";
 
@@ -13,7 +14,7 @@ import { useAssistant } from "../../context/AssistantContext";
 function AssistantPanel({ open, onClose }) {
   const navigate = useNavigate();
 
-  const { messages, clear } = useAssistant();
+  const { messages, clear, state } = useAssistant();
 
   if (!open) {
     return null;
@@ -27,7 +28,11 @@ function AssistantPanel({ open, onClose }) {
   return (
     <aside className="assistant-panel" aria-label="OmniCore assistant">
       <header className="assistant-head">
-        <div>
+        {/* Same orb as the page, so expanding does not feel like a different
+            product. */}
+        <AssistantOrb state={state} size="sm" caption={false} />
+
+        <div className="assistant-head-copy">
           <strong>Assistant</strong>
 
           <span>Answers from your data, within your access</span>
