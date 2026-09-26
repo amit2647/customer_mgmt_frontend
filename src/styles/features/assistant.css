@@ -995,6 +995,17 @@ html[data-theme="coral"] :is(.assistant-panel, .assistant-page, .assistant-page-
     --orb-scale: 1.9;
 }
 
+/* The small sizes draw at their own preset size, one CSS pixel per unit. */
+.ai-orb-sm .ai-orb-canvas {
+    width: 32px;
+    height: 32px;
+}
+
+.ai-orb-xs .ai-orb-canvas {
+    width: 20px;
+    height: 20px;
+}
+
 .ai-orb-lg .ai-orb-canvas {
     width: calc(64px * var(--orb-scale));
     height: calc(64px * var(--orb-scale));
