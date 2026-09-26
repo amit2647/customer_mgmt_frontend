@@ -16,9 +16,28 @@ import remarkGfm from "remark-gfm";
  * targets go through react-markdown's default URL filter, which drops
  * javascript: and similar schemes.
  */
-function AssistantMessage({ role, content }) {
+function AssistantMessage({ role, content, failed = false, onRetry = null }) {
   if (role !== "assistant") {
-    return <div className="assistant-message user">{content}</div>;
+    return (
+      <>
+        <div className={`assistant-message user ${failed ? "is-failed" : ""}`}>
+          {content}
+        </div>
+
+        {/* Kept in the thread rather than dropped, so nothing typed is lost;
+            a retry resends it under the same id and cannot be asked twice. */}
+        {failed && (
+          <div className="assistant-failed">
+            Not answered
+            {onRetry && (
+              <button type="button" className="link" onClick={onRetry}>
+                Retry
+              </button>
+            )}
+          </div>
+        )}
+      </>
+    );
   }
 
   return (

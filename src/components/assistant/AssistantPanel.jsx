@@ -14,7 +14,7 @@ import { useAssistant } from "../../context/AssistantContext";
 function AssistantPanel({ open, onClose }) {
   const navigate = useNavigate();
 
-  const { messages, clear, state } = useAssistant();
+  const { conversationId, startNewConversation, state } = useAssistant();
 
   if (!open) {
     return null;
@@ -39,9 +39,10 @@ function AssistantPanel({ open, onClose }) {
         </div>
 
         <div className="assistant-head-actions">
-          {messages.length > 0 && (
-            <button type="button" className="link" onClick={clear}>
-              Clear
+          {/* The previous thread is kept; the full page lists it. */}
+          {conversationId && (
+            <button type="button" className="link" onClick={startNewConversation}>
+              New chat
             </button>
           )}
 

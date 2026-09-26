@@ -8,8 +8,9 @@ import { useAssistant } from "../../context/AssistantContext";
  * The conversation itself: empty state, messages, confirmation gate, composer.
  *
  * Shared verbatim by the docked panel and the full-page view so the two cannot
- * drift apart — only the chrome around it differs. The conversation lives in
- * AssistantContext, so switching between the two continues the same thread.
+ * drift apart — only the chrome around it differs. The conversation is stored
+ * server-side and held in AssistantContext, so switching between the two, or
+ * reloading, continues the same thread.
  */
 function AssistantThread({ autoFocus = false, placeholder }) {
   const {
@@ -19,7 +20,12 @@ function AssistantThread({ autoFocus = false, placeholder }) {
     error,
     capabilities,
     loadCapabilities,
+    loadHistory,
+    hasMore,
+    loadOlder,
+    loadingThread,
     send,
+    retry,
     confirmAction,
     cancelAction,
     setComposerActive,
@@ -32,7 +38,8 @@ function AssistantThread({ autoFocus = false, placeholder }) {
 
   useEffect(() => {
     loadCapabilities();
-  }, [loadCapabilities]);
+    loadHistory();
+  }, [loadCapabilities, loadHistory]);
 
   useEffect(() => {
     if (autoFocus) {
@@ -44,12 +51,19 @@ function AssistantThread({ autoFocus = false, placeholder }) {
   // would otherwise leave it stuck on "listening".
   useEffect(() => () => setComposerActive(false), [setComposerActive]);
 
+  /*
+   * Follows the newest message. Keyed on the last message rather than the
+   * whole list, so loading an earlier page above does not yank the reader to
+   * the bottom.
+   */
+  const lastMessageId = messages[messages.length - 1]?.id;
+
   useEffect(() => {
     scrollRef.current?.scrollTo({
       top: scrollRef.current.scrollHeight,
       behavior: "smooth",
     });
-  }, [messages, pending, busy]);
+  }, [lastMessageId, pending, busy]);
 
   function handleSubmit(event) {
     event.preventDefault();
@@ -63,7 +77,21 @@ function AssistantThread({ autoFocus = false, placeholder }) {
   return (
     <>
       <div className="assistant-thread" ref={scrollRef}>
-        {messages.length === 0 && (
+        {hasMore && (
+          <button type="button" className="assistant-older" onClick={loadOlder}>
+            Load earlier messages
+          </button>
+        )}
+
+        {loadingThread && messages.length === 0 && (
+          <div className="assistant-typing" role="status" aria-label="Loading conversation">
+            <span />
+            <span />
+            <span />
+          </div>
+        )}
+
+        {!loadingThread && messages.length === 0 && (
           <div className="assistant-empty">
             {capabilities && !capabilities.configured ? (
               <p>
@@ -90,11 +118,13 @@ function AssistantThread({ autoFocus = false, placeholder }) {
           </div>
         )}
 
-        {messages.map((message, index) => (
+        {messages.map((message) => (
           <AssistantMessage
-            key={`${message.role}-${index}`}
+            key={message.clientMessageId || message.id}
             role={message.role}
             content={message.content}
+            failed={message.status === "failed"}
+            onRetry={busy ? null : () => retry(message)}
           />
         ))}
 

@@ -1,5 +1,7 @@
+import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
+import AssistantHistory from "../../components/assistant/AssistantHistory";
 import AssistantOrb from "../../components/assistant/AssistantOrb";
 import AssistantThread from "../../components/assistant/AssistantThread";
 import { useAssistant } from "../../context/AssistantContext";
@@ -9,18 +11,23 @@ import { useAssistant } from "../../context/AssistantContext";
  * too cramped — comparing several records, or reading a wide table.
  *
  * It shares the conversation with the panel through AssistantContext, so this
- * is a change of surface, not a new session.
+ * is a change of surface, not a new session. It adds what the panel has no room
+ * for: the history of past conversations.
  */
 function AssistantPage() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const { messages, clear, state } = useAssistant();
+  const { messages, loadingThread, conversationId, startNewConversation, busy, state } =
+    useAssistant();
+
+  // Only matters on narrow screens, where the rail is folded away by default.
+  const [historyOpen, setHistoryOpen] = useState(false);
 
   // The orb is the hero of an empty page and a status light once the thread
   // needs the room. Same element either way, so the move is a transition
   // rather than a mount.
-  const started = messages.length > 0;
+  const started = messages.length > 0 || loadingThread;
 
   /*
    * Going back only makes sense if this page was opened from somewhere in the
@@ -54,9 +61,23 @@ function AssistantPage() {
         </div>
 
         <div className="page-header-actions">
-          {messages.length > 0 && (
-            <button type="button" className="secondary-button" onClick={clear}>
-              Clear conversation
+          <button
+            type="button"
+            className="secondary-button assistant-history-toggle"
+            onClick={() => setHistoryOpen((open) => !open)}
+            aria-expanded={historyOpen}
+          >
+            History
+          </button>
+
+          {conversationId && (
+            <button
+              type="button"
+              className="secondary-button"
+              onClick={startNewConversation}
+              disabled={busy}
+            >
+              New chat
             </button>
           )}
 
@@ -74,16 +95,23 @@ function AssistantPage() {
       <section
         className={`card assistant-page-card ${started ? "" : "is-empty"}`}
       >
-        {!started && (
-          <div className="assistant-stage">
-            <AssistantOrb state={state} size="lg" />
-          </div>
-        )}
-
-        <AssistantThread
-          autoFocus
-          placeholder="Ask anything about your leads, customers or figures…"
+        <AssistantHistory
+          open={historyOpen}
+          onNavigate={() => setHistoryOpen(false)}
         />
+
+        <div className="assistant-main">
+          {!started && (
+            <div className="assistant-stage">
+              <AssistantOrb state={state} size="lg" />
+            </div>
+          )}
+
+          <AssistantThread
+            autoFocus
+            placeholder="Ask anything about your leads, customers or figures…"
+          />
+        </div>
       </section>
     </main>
   );

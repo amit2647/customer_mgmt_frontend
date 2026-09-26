@@ -948,6 +948,324 @@ html[data-theme="coral"] :is(.assistant-panel, .assistant-page, .assistant-page-
 }
 
 /* =========================================================
+   HISTORY
+   The page's conversation list. Sits inside the glass card
+   as its left column rather than as a card of its own, so
+   the page still reads as one surface.
+   ========================================================= */
+
+/* The card becomes two columns: history, then the conversation. */
+.assistant-page-card {
+    flex-direction: row;
+}
+
+.assistant-main {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-width: 0;
+    /* Same reason as the card: without it the thread cannot scroll itself. */
+    min-height: 0;
+}
+
+.assistant-history {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 0 0 264px;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 18px 12px;
+    border-right: 1px solid var(--glass-line);
+    scrollbar-width: thin;
+    scrollbar-color: var(--glass-line) transparent;
+}
+
+.assistant-history-new {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 14px;
+    padding: 10px 14px;
+    border: 1px solid var(--glass-line);
+    border-radius: var(--radius-pill);
+    background: var(--glass-fill-strong);
+    color: var(--color-text);
+    font-family: var(--font-body);
+    font-size: 12.5px;
+    font-weight: 700;
+    cursor: pointer;
+    transition:
+        border-color var(--transition-fast),
+        transform var(--transition-fast);
+}
+
+.assistant-history-new:hover:not(:disabled) {
+    border-color: var(--color-border-accent);
+    transform: translateY(-1px);
+}
+
+.assistant-history-new:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+
+.assistant-history-search {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+    padding: 0 12px;
+    border: 1px solid var(--glass-line);
+    border-radius: var(--radius-pill);
+    background: var(--glass-fill);
+    color: var(--color-text-muted);
+    transition:
+        border-color var(--transition-fast),
+        box-shadow var(--transition-fast);
+}
+
+.assistant-history-search:focus-within {
+    border-color: var(--color-border-accent);
+    box-shadow: 0 0 0 3px var(--focus-ring-color-alpha);
+}
+
+.assistant-history-search input {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: 8px 0;
+    border: 0;
+    background: transparent;
+    color: var(--color-text);
+    font-family: var(--font-body);
+    font-size: 12.5px;
+    outline: none;
+}
+
+/* Why a search result matched, two lines at most. */
+.assistant-history-snippet {
+    display: -webkit-box;
+    overflow: hidden;
+    color: var(--color-text-secondary);
+    font-size: 11.5px;
+    line-height: 1.45;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+}
+
+.assistant-history-label {
+    margin: 0 8px 4px;
+    color: var(--color-text-muted);
+    font-size: 10.5px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.assistant-history-empty {
+    margin: 4px 8px;
+    color: var(--color-text-muted);
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.assistant-history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.assistant-history-item {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    border-radius: var(--radius-md);
+    transition: background var(--transition-fast);
+}
+
+.assistant-history-item:hover,
+.assistant-history-item:focus-within {
+    background: var(--glass-fill);
+}
+
+/* The open conversation: the product's accent, as a rail and a tint. */
+.assistant-history-item.is-active {
+    background: var(--glass-fill-strong);
+    box-shadow: inset 3px 0 0 var(--brand-lemon);
+}
+
+.assistant-history-open {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: 9px 10px 9px 12px;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font-family: var(--font-body);
+    text-align: left;
+    cursor: pointer;
+}
+
+.assistant-history-title {
+    overflow: hidden;
+    color: var(--color-text);
+    font-size: 12.5px;
+    font-weight: 600;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.assistant-history-time {
+    color: var(--color-text-muted);
+    font-size: 11px;
+}
+
+/* Revealed on hover or keyboard focus, so the list reads as titles first. */
+.assistant-history-actions {
+    display: flex;
+    gap: 2px;
+    padding-right: 6px;
+    opacity: 0;
+    transition: opacity var(--transition-fast);
+}
+
+.assistant-history-item:hover .assistant-history-actions,
+.assistant-history-item:focus-within .assistant-history-actions,
+.assistant-history-actions.is-visible {
+    opacity: 1;
+}
+
+/* Touch screens have no hover to reveal them. */
+@media (hover: none) {
+    .assistant-history-actions {
+        opacity: 1;
+    }
+}
+
+.assistant-history-item.is-editing form {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    width: 100%;
+    padding: 5px 6px;
+}
+
+.assistant-history-item.is-editing input {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: 6px 9px;
+    border: 1px solid var(--color-border-accent);
+    border-radius: var(--radius-sm);
+    background: var(--color-surface);
+    color: var(--color-text);
+    font-family: var(--font-body);
+    font-size: 12.5px;
+    outline: none;
+    box-shadow: 0 0 0 3px var(--focus-ring-color-alpha);
+}
+
+.assistant-history-item.is-confirming {
+    justify-content: space-between;
+    padding: 6px 0 6px 12px;
+    background: var(--color-danger-bg);
+    color: var(--color-danger);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.assistant-icon-button.danger {
+    color: var(--color-danger);
+}
+
+.assistant-history-error {
+    width: 100%;
+    padding: 0 12px 8px;
+    color: var(--color-danger);
+    font-size: 11px;
+}
+
+/* Only narrow screens can fold the rail away. */
+.assistant-history-toggle {
+    display: none;
+}
+
+@media (max-width: 900px) {
+    .assistant-history-toggle {
+        display: inline-flex;
+    }
+
+    /* Slides over the conversation from the card's left edge. */
+    .assistant-history {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 2;
+        width: min(300px, 86%);
+        background: var(--glass-fill-strong);
+        -webkit-backdrop-filter: blur(24px) saturate(160%);
+        backdrop-filter: blur(24px) saturate(160%);
+        box-shadow: 18px 0 40px -24px rgb(var(--shadow-color) / 0.5);
+        transform: translateX(-105%);
+        transition: transform 260ms cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    .assistant-history.is-open {
+        transform: translateX(0);
+    }
+}
+
+/* ---------- Thread additions ---------- */
+
+.assistant-older {
+    align-self: center;
+    padding: 6px 14px;
+    border: 1px solid var(--glass-line, var(--color-border));
+    border-radius: var(--radius-pill);
+    background: transparent;
+    color: var(--color-text-secondary);
+    font-family: var(--font-body);
+    font-size: 11.5px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.assistant-older:hover {
+    color: var(--color-text);
+    border-color: var(--color-border-accent);
+}
+
+/* A question that got no answer stays visible, dimmed, with a way to retry. */
+.assistant-message.user.is-failed {
+    opacity: 0.6;
+}
+
+.assistant-failed {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    align-self: flex-end;
+    margin-top: -4px;
+    color: var(--color-danger);
+    font-size: 11px;
+    font-weight: 600;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .assistant-history {
+        transition: none;
+    }
+}
+
+/* =========================================================
    SIDEBAR ENTRY
    ========================================================= */
 
