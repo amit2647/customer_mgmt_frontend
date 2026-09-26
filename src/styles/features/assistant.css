@@ -1103,7 +1103,9 @@ html[data-theme="coral"] :is(.assistant-panel, .assistant-page, .assistant-page-
     display: flex;
     flex-direction: column;
     gap: 2px;
-    flex: 1 1 auto;
+    /* A zero basis, not auto: auto sizes to the full unwrapped title, which
+       pushed the hover actions onto a second line and doubled every row. */
+    flex: 1 1 0;
     min-width: 0;
     padding: 9px 10px 9px 12px;
     border: 0;
