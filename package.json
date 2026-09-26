@@ -3,7 +3,9 @@
         "dev": "vite --host 0.0.0.0",
         "build": "vite",
         "start": "vite --host 0.0.0.0 --port 3000",
-        "test": "vitest run"
+        "test": "vitest run",
+        "lint": "eslint .",
+        "coverage": "vitest run --coverage"
     },
     "dependencies": {
         "@phosphor-icons/core": "^2.1.1",
@@ -19,9 +21,15 @@
         "vite": "latest"
     },
     "devDependencies": {
+        "@eslint/js": "^9.39.0",
         "@testing-library/jest-dom": "^7.0.1",
         "@testing-library/react": "^16.3.3",
         "@testing-library/user-event": "^14.6.7",
+        "@vitest/coverage-v8": "^5.0.2",
+        "eslint": "^9.39.0",
+        "eslint-plugin-react": "^7.37.5",
+        "eslint-plugin-react-hooks": "^7.1.1",
+        "globals": "^17.12.0",
         "jsdom": "^30.1.1",
         "vitest": "^5.0.2"
     }
