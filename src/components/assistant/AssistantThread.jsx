@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { ArrowUp } from "@phosphor-icons/react";
 
 import AssistantMessage from "./AssistantMessage";
 import { useAssistant } from "../../context/AssistantContext";
@@ -98,7 +99,11 @@ function AssistantThread({ autoFocus = false, placeholder }) {
         ))}
 
         {busy && (
-          <div className="assistant-message assistant-typing">Thinking…</div>
+          <div className="assistant-typing" role="status" aria-label="Thinking">
+            <span />
+            <span />
+            <span />
+          </div>
         )}
 
         {pending && (
@@ -151,10 +156,12 @@ function AssistantThread({ autoFocus = false, placeholder }) {
 
         <button
           type="submit"
-          className="button button-primary"
+          className="assistant-send"
           disabled={busy || !input.trim() || Boolean(pending)}
+          title="Send"
+          aria-label="Send"
         >
-          Send
+          <ArrowUp size={16} weight="bold" />
         </button>
       </form>
     </>

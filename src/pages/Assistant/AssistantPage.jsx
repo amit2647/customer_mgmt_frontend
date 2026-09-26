@@ -37,7 +37,7 @@ function AssistantPage() {
   }
 
   return (
-    <main className="page assistant-page">
+    <main className={`page assistant-page is-${state}`}>
       <div className="page-header">
         <div className="assistant-page-heading">
           {started && <AssistantOrb state={state} size="sm" caption={false} />}
@@ -71,7 +71,9 @@ function AssistantPage() {
         </div>
       </div>
 
-      <section className="card assistant-page-card">
+      <section
+        className={`card assistant-page-card ${started ? "" : "is-empty"}`}
+      >
         {!started && (
           <div className="assistant-stage">
             <AssistantOrb state={state} size="lg" />

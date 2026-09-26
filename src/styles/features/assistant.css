@@ -168,8 +168,7 @@
 
 /* The user's own text is not parsed as Markdown, so its newlines have to be
    preserved here rather than by block elements. */
-.assistant-message.user,
-.assistant-typing {
+.assistant-message.user {
     white-space: pre-wrap;
 }
 
@@ -321,13 +320,6 @@
     color: var(--color-text);
 }
 
-.assistant-typing {
-    align-self: flex-start;
-    border: 1px dashed var(--color-border);
-    background: transparent;
-    color: var(--color-text-muted);
-}
-
 /* =========================================================
    CONFIRMATION
    No write runs until this is accepted, so it has to read as
@@ -383,21 +375,37 @@
    COMPOSER
    ========================================================= */
 
+/*
+ * One pill holding both the field and the send button, floating on the
+ * surface rather than sitting in a bar of its own. The form is the pill, so the
+ * focus ring wraps the whole thing and not just the text.
+ */
 .assistant-composer {
     display: flex;
-    gap: 8px;
-    padding: 12px 14px;
-    border-top: 1px solid var(--color-border);
-    background: var(--color-surface-subtle);
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+    margin: 4px 14px 14px;
+    padding: 5px 5px 5px 18px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-pill);
+    background: var(--color-surface);
+    transition:
+        border-color var(--transition-fast),
+        box-shadow var(--transition-fast);
+}
+
+.assistant-composer:focus-within {
+    border-color: var(--color-border-accent);
+    box-shadow: 0 0 0 3px var(--focus-ring-color-alpha);
 }
 
 .assistant-composer input {
     flex: 1 1 auto;
     min-width: 0;
-    padding: 9px 12px;
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-sm);
-    background: var(--color-surface);
+    padding: 8px 0;
+    border: 0;
+    background: transparent;
     color: var(--color-text);
     font-family: var(--font-body);
     font-size: 12.5px;
@@ -405,8 +413,33 @@
 
 .assistant-composer input:focus {
     outline: none;
-    border-color: var(--color-border-accent);
-    box-shadow: 0 0 0 3px var(--focus-ring-color-alpha);
+}
+
+.assistant-send {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: var(--brand-lemon);
+    color: var(--color-on-accent);
+    cursor: pointer;
+    transition:
+        opacity var(--transition-fast),
+        transform var(--transition-fast);
+}
+
+.assistant-send:hover:not(:disabled) {
+    transform: translateY(-1px);
+}
+
+.assistant-send:disabled {
+    opacity: 0.35;
+    cursor: default;
 }
 
 @media (max-width: 700px) {
@@ -479,13 +512,92 @@
     max-width: 78%;
 }
 
+/* Same reading column as the thread. Margins, not padding, because the pill
+   is the form itself. */
 .assistant-page .assistant-composer {
-    padding: 16px max(28px, calc((100% - 860px) / 2));
+    margin: 4px max(28px, calc((100% - 860px) / 2)) 24px;
+    padding: 6px 6px 6px 22px;
 }
 
 .assistant-page .assistant-composer input {
+    padding: 10px 0;
+    font-size: 13.5px;
+}
+
+.assistant-page .assistant-send {
+    width: 38px;
+    height: 38px;
+}
+
+/*
+ * Page chrome. Title and copy on the left, actions on the right, and real
+ * space before the card — without this the actions wrapped under the copy and
+ * the card butted straight up against them.
+ */
+.assistant-page .page-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 24px;
+}
+
+.assistant-page .page-header h1 {
+    margin: 0 0 6px;
+    color: var(--color-text);
+    font-family: var(--font-display);
+    font-size: 30px;
+    font-weight: 750;
+    line-height: 1.15;
+    letter-spacing: -0.035em;
+}
+
+.assistant-page .page-header p {
+    max-width: 68ch;
+    margin: 0;
+    color: var(--color-text-secondary);
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.assistant-page .page-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+/*
+ * Empty page: the orb, the intro and the suggestions sit together in the
+ * middle of the card, with the composer held at the bottom. The auto margins
+ * split the spare height above and below the group.
+ */
+.assistant-page-card.is-empty .assistant-stage {
+    margin-top: auto;
+}
+
+.assistant-page-card.is-empty .assistant-thread {
+    flex: 0 1 auto;
+    padding-top: 20px;
+}
+
+.assistant-page-card.is-empty .assistant-composer {
+    margin-top: auto;
+}
+
+.assistant-page .assistant-empty p {
+    margin-bottom: 16px;
+    font-size: 13.5px;
+    text-align: center;
+}
+
+.assistant-page .assistant-suggestions {
+    gap: 8px;
+}
+
+.assistant-page .assistant-suggestions li {
     padding: 11px 14px;
-    font-size: 13px;
+    font-size: 12px;
 }
 
 @media (max-width: 900px) {
@@ -494,7 +606,7 @@
     }
 
     .assistant-page .assistant-composer {
-        padding: 14px 18px;
+        margin: 4px 18px 18px;
     }
 
     .assistant-page .assistant-message {
@@ -506,28 +618,39 @@
    GLASS
    Scoped to the two assistant surfaces on purpose — this is
    the assistant's own material, not a product-wide style.
+
+   Every fill is mixed from the theme's own tokens rather than
+   from white, so the glass is the product's surface made
+   translucent: warm on Coral, green-black on Mint, paper on
+   Lemon and Cobalt. A white veil turned the dark themes grey.
    ========================================================= */
 
 .assistant-panel,
+.assistant-page,
 .assistant-page-card {
-    /* Light themes: a white frost. Overridden below for the dark themes, where
-       a white veil would wash the page out instead of deepening it. */
-    --glass-fill: rgba(255, 255, 255, 0.58);
-    --glass-fill-strong: rgba(255, 255, 255, 0.72);
-    --glass-edge: rgba(255, 255, 255, 0.85);
-    --glass-rim: rgba(17, 17, 17, 0.1);
-    --glass-drop: 0 24px 60px -20px rgba(17, 17, 17, 0.32);
+    --glass-fill: color-mix(in srgb, var(--color-surface) 66%, transparent);
+    --glass-fill-strong: color-mix(in srgb, var(--color-surface) 84%, transparent);
+    --glass-edge: rgba(255, 255, 255, 0.75);
+    --glass-line: color-mix(in srgb, var(--color-border) 70%, transparent);
+    --glass-glow: color-mix(in srgb, var(--brand-lemon) 22%, transparent);
+    --glass-glow-soft: color-mix(in srgb, var(--color-border-accent) 20%, transparent);
+    --glass-drop:
+        0 1px 2px rgb(var(--shadow-color) / 0.05),
+        0 24px 60px -24px rgb(var(--shadow-color) / 0.28);
 }
 
-html[data-theme="mint"] .assistant-panel,
-html[data-theme="mint"] .assistant-page-card,
-html[data-theme="coral"] .assistant-panel,
-html[data-theme="coral"] .assistant-page-card {
-    --glass-fill: rgba(255, 255, 255, 0.06);
-    --glass-fill-strong: rgba(255, 255, 255, 0.09);
-    --glass-edge: rgba(255, 255, 255, 0.16);
-    --glass-rim: rgba(0, 0, 0, 0.45);
-    --glass-drop: 0 26px 64px -20px rgba(0, 0, 0, 0.66);
+/* Dark themes: a white rim reads as a bright outline, so the edge drops to a
+   whisper and the glow carries the colour instead. */
+html[data-theme="mint"] :is(.assistant-panel, .assistant-page, .assistant-page-card),
+html[data-theme="coral"] :is(.assistant-panel, .assistant-page, .assistant-page-card) {
+    --glass-fill: color-mix(in srgb, var(--color-surface) 60%, transparent);
+    --glass-fill-strong: color-mix(in srgb, var(--color-surface) 82%, transparent);
+    --glass-edge: rgba(255, 255, 255, 0.09);
+    --glass-glow: color-mix(in srgb, var(--brand-lemon) 16%, transparent);
+    --glass-glow-soft: color-mix(in srgb, var(--color-border-accent) 30%, transparent);
+    --glass-drop:
+        0 1px 2px rgb(0 0 0 / 0.3),
+        0 28px 70px -24px rgb(0 0 0 / 0.7);
 }
 
 /*
@@ -539,14 +662,19 @@ html[data-theme="coral"] .assistant-page-card {
  */
 .assistant-panel,
 .assistant-page-card {
-    border: 1px solid var(--glass-edge);
-    background: var(--glass-fill);
+    border: 1px solid var(--glass-line);
+    border-radius: var(--radius-lg);
+    /* A wash of the theme accent from one corner, so the surface has the
+       product's colour in it instead of being a neutral box. */
+    background:
+        radial-gradient(120% 70% at 100% 0%, var(--glass-glow-soft), transparent 62%),
+        var(--glass-fill);
     box-shadow:
         var(--glass-drop),
         inset 0 1px 0 var(--glass-edge);
     /* saturate lifts the colour that the blur would otherwise flatten. */
-    -webkit-backdrop-filter: blur(22px) saturate(150%);
-    backdrop-filter: blur(22px) saturate(150%);
+    -webkit-backdrop-filter: blur(24px) saturate(160%);
+    backdrop-filter: blur(24px) saturate(160%);
 }
 
 /*
@@ -571,30 +699,218 @@ html[data-theme="coral"] .assistant-page-card {
     pointer-events: none;
 }
 
-/* The bars keep a touch more body so text stays readable over whatever the
-   glass is sitting on. */
-.assistant-panel .assistant-head,
-.assistant-panel .assistant-composer,
-.assistant-page-card .assistant-composer {
+/*
+ * Something for the page's glass to blur.
+ *
+ * The panel floats over real content, but the page card sat on a flat page
+ * background — frosted glass over nothing is just a tint. Two soft pools of
+ * the theme accent behind the card give the blur its depth. They brighten a
+ * little while the assistant is working, following the orb.
+ */
+.assistant-page {
+    position: relative;
+    isolation: isolate;
+}
+
+.assistant-page::before {
+    content: "";
+    position: absolute;
+    inset: 90px 0 0;
+    z-index: -1;
+    background:
+        radial-gradient(38% 46% at 30% 38%, var(--glass-glow), transparent 72%),
+        radial-gradient(34% 42% at 74% 70%, var(--glass-glow-soft), transparent 72%);
+    opacity: 0.8;
+    pointer-events: none;
+    transition: opacity 900ms ease;
+}
+
+.assistant-page.is-processing::before,
+.assistant-page.is-responding::before {
+    opacity: 1;
+}
+
+/* ---------- Panel chrome ---------- */
+
+.assistant-panel {
+    transform-origin: bottom right;
+    animation: assistant-panel-in 260ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@keyframes assistant-panel-in {
+    from {
+        opacity: 0;
+        transform: translateY(12px) scale(0.97);
+    }
+}
+
+/* The header is part of the pane, not a bar laid on top of it. */
+.assistant-panel .assistant-head {
+    padding: 14px 16px 14px 14px;
+    background: transparent;
+    border-bottom: 1px solid var(--glass-line);
+}
+
+.assistant-panel .assistant-icon-button {
+    width: 28px;
+    height: 28px;
+    border-radius: var(--radius-pill);
+}
+
+.assistant-panel .assistant-icon-button:hover {
     background: var(--glass-fill-strong);
-    border-color: var(--glass-edge);
 }
 
-.assistant-page-card .assistant-composer {
-    border-top: 1px solid var(--glass-edge);
+/* ---------- Thread ---------- */
+
+/* Content fades out under the header and above the composer rather than being
+   cut off at a hard edge. */
+.assistant-panel .assistant-thread,
+.assistant-page .assistant-thread {
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 14px, #000 calc(100% - 14px), transparent 100%);
+    mask-image: linear-gradient(to bottom, transparent 0, #000 14px, #000 calc(100% - 14px), transparent 100%);
+    scrollbar-width: thin;
+    scrollbar-color: var(--glass-line) transparent;
 }
 
-/* Bubbles sit on glass, so they need their own opacity to stay legible. */
+/* Bubbles sit on glass, so they need their own opacity to stay legible. The
+   corner nearest the speaker is squared off, as chat convention has it. */
+.assistant-panel .assistant-message,
+.assistant-page .assistant-message {
+    border-radius: 14px;
+    animation: assistant-rise 240ms ease-out;
+}
+
 .assistant-panel .assistant-message.assistant,
 .assistant-page .assistant-message.assistant {
-    border-color: var(--glass-edge);
+    border-color: var(--glass-line);
+    border-bottom-left-radius: 4px;
     background: var(--glass-fill-strong);
+    box-shadow: 0 1px 2px rgb(var(--shadow-color) / 0.05);
 }
+
+.assistant-panel .assistant-message.user,
+.assistant-page .assistant-message.user {
+    border-color: transparent;
+    border-bottom-right-radius: 4px;
+    box-shadow: 0 6px 18px -8px color-mix(in srgb, var(--brand-lemon) 70%, transparent);
+}
+
+@keyframes assistant-rise {
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+}
+
+/* ---------- Empty state ---------- */
 
 .assistant-panel .assistant-suggestions li,
 .assistant-page .assistant-suggestions li {
-    border-color: var(--glass-edge);
+    position: relative;
+    padding-left: 30px;
+    border: 1px solid var(--glass-line);
+    border-radius: var(--radius-md);
     background: var(--glass-fill);
+    color: var(--color-text-secondary);
+}
+
+/* The accent dot marks each as something the assistant can do. */
+.assistant-panel .assistant-suggestions li::before,
+.assistant-page .assistant-suggestions li::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 13px;
+    width: 6px;
+    height: 6px;
+    margin-top: -3px;
+    border-radius: 50%;
+    background: var(--brand-lemon);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand-lemon) 22%, transparent);
+}
+
+/* ---------- Thinking indicator ---------- */
+
+.assistant-typing {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    align-self: flex-start;
+    padding: 12px 14px;
+    border: 1px solid var(--glass-line, var(--color-border));
+    border-radius: 14px;
+    border-bottom-left-radius: 4px;
+    background: var(--glass-fill-strong, var(--color-surface-subtle));
+    animation: assistant-rise 240ms ease-out;
+}
+
+.assistant-typing span {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--color-text-muted);
+    animation: assistant-dot 1.2s ease-in-out infinite;
+}
+
+.assistant-typing span:nth-child(2) {
+    animation-delay: 0.15s;
+}
+
+.assistant-typing span:nth-child(3) {
+    animation-delay: 0.3s;
+}
+
+@keyframes assistant-dot {
+    0%,
+    80%,
+    100% {
+        opacity: 0.3;
+        transform: translateY(0);
+    }
+
+    40% {
+        opacity: 1;
+        transform: translateY(-3px);
+    }
+}
+
+/* ---------- Confirmation ---------- */
+
+.assistant-panel .assistant-confirm,
+.assistant-page .assistant-confirm {
+    border-color: var(--color-border-accent);
+    border-radius: 14px;
+    background:
+        linear-gradient(var(--glass-glow), var(--glass-glow)),
+        var(--glass-fill-strong);
+    box-shadow: 0 10px 30px -18px rgb(var(--shadow-color) / 0.5);
+    animation: assistant-rise 240ms ease-out;
+}
+
+.assistant-panel .assistant-confirm.destructive,
+.assistant-page .assistant-confirm.destructive {
+    border-color: var(--color-danger-border);
+    background: var(--color-danger-bg);
+}
+
+/* ---------- Composer ---------- */
+
+/* The pill floats on the glass with no bar behind it, so it carries the
+   stronger fill and a soft lift of its own. */
+.assistant-panel .assistant-composer,
+.assistant-page-card .assistant-composer {
+    background: var(--glass-fill-strong);
+    box-shadow: 0 8px 24px -14px rgb(var(--shadow-color) / 0.45);
+}
+
+.assistant-panel .assistant-composer:not(:focus-within),
+.assistant-page-card .assistant-composer:not(:focus-within) {
+    border-color: var(--glass-line);
+}
+
+.assistant-send:not(:disabled) {
+    box-shadow: 0 4px 14px -4px color-mix(in srgb, var(--brand-lemon) 80%, transparent);
 }
 
 /* Without a backdrop-filter the fill alone is too thin to read against. */
@@ -603,6 +919,22 @@ html[data-theme="coral"] .assistant-page-card {
     .assistant-panel,
     .assistant-page-card {
         background: var(--color-surface);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .assistant-panel,
+    .assistant-panel .assistant-message,
+    .assistant-page .assistant-message,
+    .assistant-typing,
+    .assistant-confirm {
+        animation: none;
+    }
+
+    .assistant-typing span {
+        animation: none;
+        opacity: 0.6;
     }
 }
 
@@ -653,25 +985,19 @@ html[data-theme="coral"] .assistant-page-card {
 }
 
 /*
- * The hero orb, scaled up.
+ * The hero orb's on-screen size.
  *
- * 64 is the largest size the library has — resolvePreset() throws above it,
- * because the presets are a three-key lookup rather than a formula — so a
- * bigger orb can only come from scaling the raster, which costs some
- * sharpness. Soft-edged dots take that far better than text or hairlines
- * would, and one knob keeps it easy to dial back.
- *
- * The margin reserves the height the transform does not: a scale leaves layout
- * untouched, so without it the orb would grow straight through its caption.
+ * The component draws at whatever size this resolves to, at native pixel
+ * density (see CrispOrb in AssistantOrb.jsx), so this is a real size and not a
+ * stretch of a 64px raster — raise it freely.
  */
 .ai-orb-lg {
     --orb-scale: 1.9;
 }
 
-.ai-orb-lg canvas {
-    transform: scale(var(--orb-scale));
-    transform-origin: center;
-    margin: calc(64px * (var(--orb-scale) - 1) / 2) 0;
+.ai-orb-lg .ai-orb-canvas {
+    width: calc(64px * var(--orb-scale));
+    height: calc(64px * var(--orb-scale));
 }
 
 /* Small screens get less of the increase — the panel is only so wide. */
@@ -729,5 +1055,13 @@ html[data-theme="coral"] .assistant-page-card {
 @media (max-width: 900px) {
     .assistant-stage {
         padding: 24px 16px 8px;
+    }
+}
+
+@media (max-width: 700px) {
+    .assistant-page .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 14px;
     }
 }
