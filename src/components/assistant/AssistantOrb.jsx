@@ -85,7 +85,7 @@ function byAngle(dots, c) {
  * of the morph, so dots split off or merge in rather than doubling up in
  * brightness.
  */
-function blend(from, to, p, c) {
+export function blend(from, to, p, c) {
   const e = easeInOut(p);
   const hump = Math.sin(Math.PI * p);
 

@@ -53,7 +53,7 @@ function recallConversation() {
  * is matched by its clientMessageId and replaced; everything else is keyed by
  * id, so a replayed response never shows a message twice.
  */
-function mergeMessages(current, incoming) {
+export function mergeMessages(current, incoming) {
   const byClientId = new Map(
     incoming
       .filter((message) => message.clientMessageId)
