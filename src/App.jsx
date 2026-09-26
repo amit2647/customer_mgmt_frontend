@@ -29,6 +29,7 @@ import ServicesPage from "./pages/Services/ServicesPage";
 import SettingsPage from "./pages/Settings/SettingsPage";
 import EmailAccountsPage from "./pages/Settings/EmailAccountsPage";
 import AppearancePage from "./pages/Settings/AppearancePage";
+import ProfilePage from "./pages/Settings/ProfilePage";
 import EmailTemplatesPage from "./pages/Settings/EmailTemplatesPage";
 import EmailAutomationsPage from "./pages/Settings/EmailAutomationsPage";
 import EmailTemplateFormPage from "./pages/Settings/EmailTemplateFormPage";
@@ -183,6 +184,9 @@ function App() {
           <Route path="/settings" element={<SettingsPage />} />
 
           <Route path="/settings/appearance" element={<AppearancePage />} />
+
+          {/* Everyone's own record, so no permission beyond being signed in. */}
+          <Route path="/settings/profile" element={<ProfilePage />} />
 
           <Route
             element={<RequirePermission permission="system.integrations" />}

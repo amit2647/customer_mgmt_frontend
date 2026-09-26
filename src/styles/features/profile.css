@@ -1,0 +1,90 @@
+/* =========================================================
+   OMNICORE — MY PROFILE
+   Builds on the settings sub-page chrome (email-settings.css):
+   breadcrumb, header, .settings-form-card and .settings-readonly
+   come from there. Only what is new to this page is here.
+   ========================================================= */
+
+.profile-summary {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 18px 24px;
+    padding: 20px 22px;
+}
+
+.profile-avatar {
+    display: grid;
+    place-items: center;
+    width: 56px;
+    height: 56px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: var(--brand-lemon);
+    color: var(--color-on-accent);
+    font-family: var(--font-display);
+    font-size: 18px;
+    font-weight: 800;
+}
+
+.profile-summary-copy {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+    flex: 1 1 200px;
+}
+
+.profile-summary-copy strong {
+    color: var(--color-text);
+    font-family: var(--font-display);
+    font-size: 18px;
+    font-weight: 750;
+    letter-spacing: -0.01em;
+}
+
+.profile-summary-copy span {
+    overflow: hidden;
+    color: var(--color-text-secondary);
+    font-size: 13px;
+    text-overflow: ellipsis;
+}
+
+.profile-summary-facts {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(130px, 1fr));
+    gap: 10px;
+    flex: 2 1 420px;
+}
+
+.profile-form-title h2 {
+    margin: 0 0 4px;
+    color: var(--color-text);
+    font-family: var(--font-display);
+    font-size: 16px;
+    font-weight: 750;
+}
+
+.profile-form-title p {
+    margin: 0;
+    color: var(--color-text-muted);
+    font-size: 12.5px;
+    line-height: 1.5;
+}
+
+.profile-field-hint {
+    color: var(--color-text-muted);
+    font-size: 11px;
+    font-weight: 500;
+}
+
+/* A form's own message sits inside its grid, so it needs no page margin. */
+.profile-page .settings-form-card .alert {
+    margin: 0;
+}
+
+@media (max-width: 700px) {
+    .profile-summary-facts {
+        grid-template-columns: 1fr;
+    }
+}

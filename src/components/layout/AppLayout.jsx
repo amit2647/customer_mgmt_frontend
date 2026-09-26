@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 
 import Sidebar from "./Sidebar";
+import UserMenu from "./UserMenu";
 import AssistantPanel from "../assistant/AssistantPanel";
 import { AssistantProvider } from "../../context/AssistantContext";
 import { useAuth } from "../../context/AuthContext";
@@ -138,24 +139,13 @@ function AppLayoutInner() {
 
             <div className="header-divider" />
 
-            <div className="user-menu" title="Account">
-              <div className="user-avatar">{initials}</div>
-
-              <div className="user-info">
-                <strong>{displayName}</strong>
-
-                <span>{role}</span>
-              </div>
-
-              <button
-                type="button"
-                className="user-logout-button"
-                onClick={handleLogout}
-                title="Sign out"
-              >
-                Sign out
-              </button>
-            </div>
+            <UserMenu
+              displayName={displayName}
+              email={user?.email}
+              role={role}
+              initials={initials}
+              onLogout={handleLogout}
+            />
           </div>
         </header>
 

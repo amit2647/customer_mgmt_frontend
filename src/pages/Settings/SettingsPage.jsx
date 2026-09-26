@@ -14,6 +14,13 @@ function SettingsPage() {
 
   const settingsItems = [
     {
+      id: "profile",
+      title: "My Profile",
+      description: "Your name, the email you sign in with, and your password.",
+      icon: "☺",
+      path: "/settings/profile",
+    },
+    {
       id: "email-accounts",
       title: "Email Accounts",
       description:
