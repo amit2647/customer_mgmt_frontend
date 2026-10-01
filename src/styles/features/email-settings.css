@@ -939,3 +939,17 @@
        pushes the panel wider than the page. */
     word-break: break-all;
 }
+
+/* A one-line explanation under a field, e.g. which account an automation
+   will send from. */
+.settings-field-hint {
+    color: var(--color-text-muted);
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 1.4;
+}
+
+.settings-cell-warning {
+    color: var(--color-danger);
+    font-weight: 650;
+}

@@ -15,6 +15,8 @@ const EMPTY = {
   description: "",
   trigger_event: "lead.created",
   template_id: "",
+  // "" is the organization's default account.
+  email_account_id: "",
   is_active: false,
 };
 
@@ -32,6 +34,7 @@ function EmailAutomationFormPage() {
 
   const [form, setForm] = useState(EMPTY);
   const [templates, setTemplates] = useState([]);
+  const [accounts, setAccounts] = useState([]);
   const [events, setEvents] = useState(Object.keys(EVENT_LABELS));
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -49,6 +52,7 @@ function EmailAutomationFormPage() {
       ]);
 
       setTemplates(templateData?.templates ?? []);
+      setAccounts(listData?.accounts ?? []);
 
       if (Array.isArray(listData?.events) && listData.events.length > 0) {
         setEvents(listData.events);
@@ -63,6 +67,7 @@ function EmailAutomationFormPage() {
           description: automation.description || "",
           trigger_event: automation.trigger_event,
           template_id: automation.template_id,
+          email_account_id: automation.email_account_id ?? "",
           is_active: automation.is_active,
         });
       }
@@ -88,7 +93,11 @@ function EmailAutomationFormPage() {
       setSaving(true);
       setError("");
 
-      const payload = { ...form, template_id: Number(form.template_id) };
+      const payload = {
+        ...form,
+        template_id: Number(form.template_id),
+        email_account_id: form.email_account_id ? Number(form.email_account_id) : null,
+      };
 
       if (isEditing) {
         await updateEmailAutomation(id, payload);
@@ -102,6 +111,27 @@ function EmailAutomationFormPage() {
     } finally {
       setSaving(false);
     }
+  }
+
+  /*
+   * The default account only exists while exactly one account is connected.
+   * With several, an automation left on the default cannot send, so it is
+   * offered only when it would work — or kept, flagged, when already set.
+   */
+  const chosen = form.email_account_id === "" ? "" : Number(form.email_account_id);
+  const defaultUsable = accounts.length <= 1;
+  const chosenMissing = chosen !== "" && !accounts.some((account) => account.id === chosen);
+
+  let accountHint = null;
+
+  if (accounts.length === 0) {
+    accountHint = "No email account is connected yet. Connect one in Email Accounts before switching this on.";
+  } else if (chosen === "" && !defaultUsable) {
+    accountHint = "Several accounts are connected — choose which one this automation sends from.";
+  } else if (chosenMissing) {
+    accountHint = "That account is no longer active. Choose another before switching this on.";
+  } else if (chosen === "") {
+    accountHint = `Sends from ${accounts[0].name} <${accounts[0].email_address}>, the only connected account.`;
   }
 
   if (loading) {
@@ -190,6 +220,31 @@ function EmailAutomationFormPage() {
               </option>
             ))}
           </select>
+        </label>
+
+        <label>
+          Send from
+          <select
+            value={form.email_account_id}
+            onChange={(e) => update("email_account_id", e.target.value)}
+            disabled={saving}
+          >
+            {(defaultUsable || chosen === "") && (
+              <option value="">
+                {defaultUsable ? "Organization default" : "Organization default (cannot send — choose one)"}
+              </option>
+            )}
+
+            {accounts.map((account) => (
+              <option key={account.id} value={account.id}>
+                {account.name} — {account.email_address}
+              </option>
+            ))}
+
+            {chosenMissing && <option value={chosen}>Inactive account</option>}
+          </select>
+
+          {accountHint && <span className="settings-field-hint">{accountHint}</span>}
         </label>
 
         <label className="settings-field-full">

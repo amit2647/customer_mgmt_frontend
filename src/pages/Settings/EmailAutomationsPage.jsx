@@ -25,6 +25,7 @@ function EmailAutomationsPage() {
   const canDelete = permissions.includes("email.automations.delete");
 
   const [automations, setAutomations] = useState([]);
+  const [accountCount, setAccountCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -37,6 +38,7 @@ function EmailAutomationsPage() {
       const data = await getEmailAutomations();
 
       setAutomations(data?.automations ?? []);
+      setAccountCount((data?.accounts ?? []).length);
     } catch (requestError) {
       setError(requestError.message || "Failed to load automations.");
     } finally {
@@ -131,6 +133,7 @@ function EmailAutomationsPage() {
                 <th>Automation</th>
                 <th>Trigger</th>
                 <th>Template</th>
+                <th>Sends from</th>
                 <th>Status</th>
                 <th />
               </tr>
@@ -154,6 +157,16 @@ function EmailAutomationsPage() {
                   </td>
 
                   <td className="settings-cell-muted">{automation.template_name || "—"}</td>
+
+                  {/* The default only resolves while exactly one account is
+                      connected; flag the rows that would fail to send. */}
+                  <td className="settings-cell-muted">
+                    {automation.email_account_id
+                      ? automation.email_account_address || "Inactive account"
+                      : accountCount === 1
+                        ? "Default account"
+                        : <span className="settings-cell-warning">Choose an account</span>}
+                  </td>
 
                   <td>
                     <span className={`settings-pill${automation.is_active ? " on" : ""}`}>
