@@ -5,6 +5,7 @@ import { BrowserRouter } from "react-router-dom";
 import App from "./App";
 import { AuthProvider } from "./context/AuthContext";
 import { ThemeProvider } from "./context/ThemeContext";
+import { BundleProvider } from "./context/BundleContext";
 
 import "./styles/index.css";
 
@@ -13,7 +14,9 @@ ReactDOM.createRoot(document.getElementById("root")).render(
     <BrowserRouter>
       <ThemeProvider>
         <AuthProvider>
-          <App />
+          <BundleProvider>
+            <App />
+          </BundleProvider>
         </AuthProvider>
       </ThemeProvider>
     </BrowserRouter>

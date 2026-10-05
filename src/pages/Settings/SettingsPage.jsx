@@ -1,11 +1,13 @@
 import { useNavigate } from "react-router-dom";
 
 import { useAuth } from "../../context/AuthContext";
+import { useBundle } from "../../context/BundleContext";
 
 function SettingsPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
 
+  const { bundle } = useBundle();
   const permissions = Array.isArray(user?.permissions) ? user.permissions : [];
 
   function hasPermission(permission) {
@@ -83,6 +85,15 @@ function SettingsPage() {
       permission: "organization.read",
     },
     {
+      id: "firm",
+      title: "Firm",
+      description: "Your firm's details and signing partners, used in every generated document.",
+      icon: "⌂",
+      path: "/settings/firm",
+      permission: "organization.read",
+      needsBundle: true,
+    },
+    {
       id: "bundle",
       title: "Profession Bundle",
       description:
@@ -94,6 +105,10 @@ function SettingsPage() {
   ];
 
   const visibleItems = settingsItems.filter((item) => {
+    if (item.needsBundle && !bundle) {
+      return false;
+    }
+
     if (!item.permission) {
       return true;
     }

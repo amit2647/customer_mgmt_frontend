@@ -10,7 +10,11 @@
     "dependencies": {
         "@phosphor-icons/core": "^2.1.1",
         "@phosphor-icons/react": "^2.1.10",
+        "@rjsf/core": "^6.11.0",
+        "@rjsf/utils": "^6.11.0",
+        "@rjsf/validator-ajv8": "^6.11.0",
         "@vitejs/plugin-react": "latest",
+        "bundle-sdk": "https://codeload.github.com/amit2647/bundle-sdk/tar.gz/572a3c251063c08b6578b54e414a737c261ce575",
         "jwt-decode": "^4.0.0",
         "react": "latest",
         "react-dom": "latest",

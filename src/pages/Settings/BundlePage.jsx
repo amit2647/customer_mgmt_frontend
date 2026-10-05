@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { getBundles, installBundle } from "../../api/bundles";
+import { useBundle } from "../../context/BundleContext";
 
 const STEP_LABELS = {
   permissions: "Permissions",
@@ -34,6 +35,7 @@ function formatDate(value) {
  */
 function BundlePage() {
   const navigate = useNavigate();
+  const { refresh } = useBundle();
 
   const [offered, setOffered] = useState([]);
   const [installed, setInstalled] = useState(null);
@@ -77,6 +79,9 @@ function BundlePage() {
       setSuccess("");
 
       await installBundle(bundle.key);
+
+      // The navigation and screens follow the installed bundle at once.
+      await refresh();
 
       setSuccess(`${bundle.name} is installed. Its reminder emails are switched off until you turn them on in Email Automations.`);
     } catch (requestError) {

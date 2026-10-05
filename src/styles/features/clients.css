@@ -1,0 +1,492 @@
+/* =========================================================
+   Profession-bundle screens: clients, prospects, firm.
+   ========================================================= */
+
+/* ---------- Bundle forms (react-jsonschema-form markup) ---------- */
+
+.schema-form {
+    margin-top: 24px;
+}
+
+.schema-form fieldset {
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+/* The root object's fields sit on the same two-column grid as the page's. */
+.schema-form > form > fieldset,
+.schema-form > div > fieldset,
+.schema-form fieldset#client,
+.schema-form fieldset[id$="__root"] {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px 20px;
+}
+
+.schema-form legend {
+    display: none;
+}
+
+.schema-form .form-group {
+    min-width: 0;
+    margin: 0;
+}
+
+.schema-form .control-label,
+.schema-form label {
+    display: block;
+    color: var(--color-text-secondary);
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1.3;
+}
+
+.schema-form input,
+.schema-form select,
+.schema-form textarea {
+    display: block;
+    width: 100%;
+    height: 46px;
+    margin-top: 8px;
+    padding: 0 13px;
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-md);
+    outline: none;
+    background: var(--color-surface);
+    color: var(--color-text);
+    font-family: var(--font-body);
+    font-size: 12px;
+}
+
+.schema-form input:focus,
+.schema-form select:focus {
+    border-color: var(--color-border-accent);
+}
+
+.schema-form input[type="radio"],
+.schema-form input[type="checkbox"] {
+    display: inline-block;
+    width: auto;
+    height: auto;
+    margin: 0 6px 0 0;
+}
+
+.schema-form .field-radio-group {
+    display: flex;
+    gap: 18px;
+    margin-top: 12px;
+}
+
+.schema-form .field-radio-group label,
+.schema-form .radio label {
+    display: inline-flex;
+    align-items: center;
+    color: var(--color-text);
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.schema-form .error-detail,
+.schema-form .help-block {
+    margin: 6px 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.schema-form .text-danger,
+.field-error {
+    display: block;
+    margin-top: 6px;
+    color: var(--color-danger);
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.schema-form .field-description {
+    margin-top: 4px;
+    color: var(--color-text-muted);
+    font-size: 11px;
+}
+
+.required-mark {
+    color: var(--color-danger);
+}
+
+/* ---------- Client wizard ---------- */
+
+.client-wizard .client-identifiers {
+    margin-top: 24px;
+}
+
+.client-person-row {
+    position: relative;
+    margin-bottom: 18px;
+    padding: 18px 20px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface-subtle);
+}
+
+.client-person-row .link {
+    margin-top: 12px;
+}
+
+.client-person-row .settings-pill {
+    margin: 12px 12px 0 0;
+}
+
+.client-checkbox {
+    display: flex !important;
+    align-items: center;
+    gap: 8px;
+    color: var(--color-text) !important;
+    font-size: 12px !important;
+    font-weight: 500 !important;
+}
+
+.client-checkbox input {
+    width: auto !important;
+    height: auto !important;
+    margin: 0 !important;
+}
+
+.client-service-group + .client-service-group {
+    margin-top: 22px;
+}
+
+.client-service-group h4 {
+    margin: 0 0 10px;
+    color: var(--color-text-secondary);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+/* ---------- Client list ---------- */
+
+.clients-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 22px 0 14px;
+}
+
+.clients-search {
+    flex: 1;
+    max-width: 420px;
+    height: 42px;
+    padding: 0 14px;
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    color: var(--color-text);
+}
+
+.clients-chips {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+    overflow-x: auto;
+}
+
+.chip {
+    flex: 0 0 auto;
+    padding: 6px 12px;
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    background: var(--color-surface);
+    color: var(--color-text-secondary);
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.chip.active {
+    border-color: var(--color-primary);
+    background: var(--color-primary);
+    color: var(--color-on-primary);
+}
+
+.clients-table .client-name {
+    padding: 0;
+    font-weight: 700;
+}
+
+.client-badge {
+    display: inline-block;
+    margin-left: 8px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: var(--color-surface-muted);
+    color: var(--color-text-secondary);
+    font-size: 10px;
+    font-weight: 700;
+    vertical-align: middle;
+}
+
+.client-badge.locked {
+    background: var(--color-warning-bg);
+    color: var(--color-warning);
+}
+
+.client-badge.archived {
+    background: var(--color-danger-bg);
+    color: var(--color-danger);
+}
+
+.client-constitution {
+    display: inline-block;
+    padding: 3px 9px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.client-constitution.c-pvt_ltd,
+.client-constitution.c-public_ltd {
+    border-color: var(--color-info-border);
+    background: var(--color-info-bg);
+    color: var(--color-info);
+}
+
+.client-constitution.c-llp,
+.client-constitution.c-partnership {
+    border-color: var(--color-success-border);
+    background: var(--color-success-bg);
+    color: var(--color-success);
+}
+
+.client-constitution.c-trust,
+.client-constitution.c-huf {
+    border-color: var(--color-warning-border);
+    background: var(--color-warning-bg);
+    color: var(--color-warning);
+}
+
+/* ---------- Client detail ---------- */
+
+.client-detail h1 .client-badge {
+    font-size: 11px;
+}
+
+.client-detail .service-badges {
+    margin-top: 10px;
+}
+
+.client-tabs {
+    display: flex;
+    gap: 4px;
+    margin: 8px 0 18px;
+    border-bottom: 1px solid var(--color-border);
+    overflow-x: auto;
+}
+
+.client-tabs button {
+    flex: 0 0 auto;
+    padding: 10px 14px;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    background: none;
+    color: var(--color-text-secondary);
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.client-tabs button.active {
+    border-bottom-color: var(--color-primary);
+    color: var(--color-text);
+}
+
+.client-accounts {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 14px;
+    padding: 20px 24px;
+}
+
+.client-account {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 16px 18px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+}
+
+.client-account-number {
+    display: block;
+    margin-top: 8px;
+    font-family: var(--font-mono, monospace);
+    letter-spacing: 0.06em;
+}
+
+.client-account-form {
+    padding: 20px 24px;
+    border-top: 1px solid var(--color-border);
+}
+
+.secondary-button.danger {
+    border-color: var(--color-danger-border);
+    color: var(--color-danger);
+}
+
+/* ---------- Prospect board ---------- */
+
+.prospect-form {
+    margin-bottom: 18px;
+    padding: 22px 24px;
+}
+
+.prospect-board {
+    margin-top: 22px;
+    display: grid;
+    grid-auto-columns: minmax(260px, 1fr);
+    grid-auto-flow: column;
+    gap: 16px;
+    overflow-x: auto;
+    padding-bottom: 8px;
+}
+
+.prospect-column {
+    min-width: 0;
+    padding: 14px;
+    border-radius: var(--radius-md);
+    background: var(--color-surface-muted);
+}
+
+.prospect-column header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.prospect-column h2 {
+    margin: 0;
+    font-size: 13px;
+}
+
+.prospect-count {
+    min-width: 24px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: var(--color-surface);
+    font-size: 11px;
+    font-weight: 700;
+    text-align: center;
+}
+
+.prospect-card {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: 10px;
+    padding: 14px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+}
+
+.prospect-card p {
+    margin: 4px 0 0;
+    color: var(--color-text-secondary);
+    font-size: 12px;
+}
+
+.prospect-quote {
+    font-weight: 700;
+}
+
+.prospect-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 8px;
+}
+
+/* ---------- Firm ---------- */
+
+.firm-partners {
+    margin-top: 24px;
+}
+
+.firm-partners .bundle-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px;
+}
+
+.firm-partners h2 {
+    margin: 0;
+    font-size: 1.05rem;
+}
+
+/* ---------- Phone width ---------- */
+
+@media (max-width: 768px) {
+    .schema-form fieldset#client,
+    .schema-form fieldset[id$="__root"],
+    .schema-form > div > fieldset {
+        grid-template-columns: 1fr;
+    }
+
+    .clients-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .clients-search {
+        max-width: none;
+    }
+
+    .prospect-board {
+        grid-auto-flow: row;
+        grid-auto-columns: auto;
+    }
+}
+
+/* ---------- Notices on the bundle screens ---------- */
+
+.client-detail .alert,
+.clients-page .alert,
+.prospects-page .alert {
+    margin: 0 0 16px;
+    padding: 12px 14px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    font-size: 13px;
+}
+
+.client-detail .alert-success {
+    border-color: var(--color-success-border);
+    background: var(--color-success-bg);
+    color: var(--color-success);
+}
+
+.client-detail .alert-error,
+.clients-page .alert-error,
+.prospects-page .alert-error {
+    border-color: var(--color-danger-border);
+    background: var(--color-danger-bg);
+    color: var(--color-danger);
+}
+
+/* The firm form stacks: page fields, then the bundle's, then the button. */
+.firm-page .settings-form-card {
+    display: block;
+}
+
+.firm-page .settings-form-card .bundle-actions {
+    justify-content: flex-start;
+}
+
+.firm-partners td .settings-pill {
+    margin-left: 10px;
+}
+
+.firm-page .settings-form-card .bundle-actions {
+    margin-top: 22px;
+}

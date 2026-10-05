@@ -106,3 +106,14 @@ export function updateLeadServices(id, serviceIds) {
     }),
   });
 }
+
+/*
+ * The prospect board (organizations with a profession bundle): move a lead
+ * between the bundle's columns and keep its quote, next meeting and notes.
+ */
+export function updateProspect(id, data) {
+  return request(`/leads/${id}/prospect`, {
+    method: "PATCH",
+    body: JSON.stringify(data),
+  });
+}

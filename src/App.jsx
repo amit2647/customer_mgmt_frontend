@@ -38,6 +38,11 @@ import UsersRolesPage from "./pages/Settings/UsersRolesPage";
 import UserFormPage from "./pages/Settings/UserFormPage";
 import OrganizationPage from "./pages/Settings/OrganizationPage";
 import BundlePage from "./pages/Settings/BundlePage";
+import FirmPage from "./pages/Settings/FirmPage";
+import ClientsPage from "./pages/Clients/ClientsPage";
+import ClientDetailPage from "./pages/Clients/ClientDetailPage";
+import ClientWizardPage from "./pages/Clients/ClientWizardPage";
+import ProspectsPage from "./pages/Prospects/ProspectsPage";
 import RoleFormPage from "./pages/Settings/RoleFormPage";
 import AccessGrantsPage from "./pages/Settings/AccessGrantsPage";
 
@@ -163,6 +168,26 @@ function App() {
             <Route path="/leads/:id/edit" element={<LeadWorkflowPage />} />
           </Route>
 
+          {/* Profession-bundle screens: Clients replace Customers in the
+              navigation once a bundle is installed (the Customers screens stay
+              for an organization without one). */}
+          <Route element={<RequirePermission permission="customers.read" />}>
+            <Route path="/clients" element={<ClientsPage />} />
+            <Route path="/clients/:id" element={<ClientDetailPage />} />
+          </Route>
+
+          <Route element={<RequirePermission permission="customers.create" />}>
+            <Route path="/clients/new" element={<ClientWizardPage />} />
+          </Route>
+
+          <Route element={<RequirePermission permission="customers.update" />}>
+            <Route path="/clients/:id/edit" element={<ClientWizardPage />} />
+          </Route>
+
+          <Route element={<RequirePermission permission="leads.read" />}>
+            <Route path="/prospects" element={<ProspectsPage />} />
+          </Route>
+
           <Route element={<RequirePermission permission="customers.read" />}>
             <Route path="/customers" element={<CustomersPage />} />
 
@@ -252,6 +277,10 @@ function App() {
 
           <Route element={<RequirePermission permission="bundles.manage" />}>
             <Route path="/settings/bundle" element={<BundlePage />} />
+          </Route>
+
+          <Route element={<RequirePermission permission="organization.read" />}>
+            <Route path="/settings/firm" element={<FirmPage />} />
           </Route>
 
           <Route element={<RequirePermission permission="organization.read" />}>

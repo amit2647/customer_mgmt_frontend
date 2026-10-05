@@ -76,6 +76,12 @@ async function request(url, options = {}) {
 
     error.status = response.status;
 
+    // Field-by-field reasons (e.g. { "identifiers.cin": "CIN is required" }),
+    // so a form can mark the fields themselves.
+    if (data?.details) {
+      error.details = data.details;
+    }
+
     throw error;
   }
 

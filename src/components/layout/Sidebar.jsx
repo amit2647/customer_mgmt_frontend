@@ -4,6 +4,7 @@ import {
   CaretLeft,
   CaretRight,
   GearSix,
+  Kanban,
   Sparkle,
   Package,
   SquaresFour,
@@ -12,9 +13,11 @@ import {
 } from "@phosphor-icons/react";
 
 import { useAuth } from "../../context/AuthContext";
+import { useBundle } from "../../context/BundleContext";
 
 function Sidebar({ collapsed, onToggle }) {
   const { user } = useAuth();
+  const { bundle, term } = useBundle();
 
   const permissions = Array.isArray(user?.permissions) ? user.permissions : [];
 
@@ -94,17 +97,28 @@ function Sidebar({ collapsed, onToggle }) {
           </NavLink>
         )}
 
+        {/* With a profession bundle, its board and its word for a customer. */}
+        {bundle && hasPermission("leads.read") && (
+          <NavLink to="/prospects" className={navigationClass} data-tooltip="Prospects">
+            <span className="sidebar-icon" aria-hidden="true">
+              <Kanban size={20} weight="regular" />
+            </span>
+
+            <span className="sidebar-link-label">Prospects</span>
+          </NavLink>
+        )}
+
         {hasPermission("customers.read") && (
           <NavLink
-            to="/customers"
+            to={bundle ? "/clients" : "/customers"}
             className={navigationClass}
-            data-tooltip="Customers"
+            data-tooltip={bundle ? term("client", true) : "Customers"}
           >
             <span className="sidebar-icon" aria-hidden="true">
               <Users size={20} weight="regular" />
             </span>
 
-            <span className="sidebar-link-label">Customers</span>
+            <span className="sidebar-link-label">{bundle ? term("client", true) : "Customers"}</span>
           </NavLink>
         )}
 
