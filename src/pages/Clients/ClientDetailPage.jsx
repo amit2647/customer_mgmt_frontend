@@ -12,10 +12,12 @@ import {
   setPrimaryBankAccount,
   unlockClient,
 } from "../../api/clients";
+import { getServices } from "../../api/services";
 import Field, { formatDate } from "../../components/common/Field";
 import { enumLabel, formatDay, identifiersFor, roleLabel } from "../../components/bundle/bundleLabels";
 import { useAuth } from "../../context/AuthContext";
 import { useBundle } from "../../context/BundleContext";
+import ClientEngagements from "./ClientEngagements";
 
 /*
  * One client (CD-01–05, CD-11): header with lock and type flags, then tabs.
@@ -25,6 +27,8 @@ import { useBundle } from "../../context/BundleContext";
 
 const TABS = [
   { id: "overview", label: "Overview" },
+  { id: "engagement", label: "Engagement", permission: "engagements.read", needs: "engagementTypes" },
+  { id: "fees", label: "Fees", permission: "fees.read", needs: "engagementTypes" },
   { id: "people", label: "People" },
   { id: "bank", label: "Bank accounts", permission: "profiles.read" },
 ];
@@ -47,6 +51,7 @@ function ClientDetailPage() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState(location.state?.saved ? "Saved." : "");
+  const [services, setServices] = useState([]);
   const [account, setAccount] = useState(null);
 
   const load = useCallback(async () => {
@@ -62,6 +67,13 @@ function ClientDetailPage() {
   useEffect(() => {
     load();
   }, [load]);
+
+  // Service names for the engagement and fee tabs.
+  useEffect(() => {
+    getServices()
+      .then((list) => setServices(Array.isArray(list) ? list : list?.services || []))
+      .catch(() => setServices([]));
+  }, []);
 
   async function act(action, done, confirmText) {
     if (confirmText && !window.confirm(confirmText)) return;
@@ -161,10 +173,11 @@ function ClientDetailPage() {
       </div>
 
       {notice && <div className="alert alert-success">{notice}</div>}
+      {location.state?.warning && <div className="alert alert-error" role="alert">{location.state.warning}</div>}
       {error && <div className="alert alert-error" role="alert">{error}</div>}
 
       <div className="client-tabs" role="tablist">
-        {TABS.filter((item) => !item.permission || can(item.permission)).map((item) => (
+        {TABS.filter((item) => (!item.permission || can(item.permission)) && (!item.needs || (bundle?.[item.needs] || []).length > 0)).map((item) => (
           <button key={item.id} type="button" role="tab" aria-selected={tab === item.id} className={tab === item.id ? "active" : ""} onClick={() => setTab(item.id)}>
             {item.label}
           </button>
@@ -185,6 +198,10 @@ function ClientDetailPage() {
           <Field label="Address" value={client.address} />
           <Field label="Added" value={formatDate(client.created_at)} />
         </section>
+      )}
+
+      {(tab === "engagement" || tab === "fees") && (
+        <ClientEngagements view={tab} client={client} bundle={bundle} services={services} can={can} readOnly={archived || (locked && !can("profiles.lock"))} />
       )}
 
       {tab === "people" && (

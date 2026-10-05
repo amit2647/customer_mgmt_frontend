@@ -490,3 +490,179 @@
 .firm-page .settings-form-card .bundle-actions {
     margin-top: 22px;
 }
+
+/* ---------- Engagements and fees (M3) ---------- */
+
+.wizard-engagement {
+    margin-top: 28px;
+    padding-top: 22px;
+    border-top: 1px solid var(--color-border);
+}
+
+.wizard-engagement h4 {
+    margin: 0 0 14px;
+    font-size: 13px;
+}
+
+.engagement-lines {
+    display: grid;
+    gap: 10px;
+    margin: 22px 0 6px;
+}
+
+.engagement-line {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 16px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+}
+
+.engagement-line.selected {
+    border-color: var(--color-border-accent);
+    background: var(--color-surface-subtle);
+}
+
+.engagement-amounts {
+    display: flex;
+    gap: 12px;
+}
+
+.engagement-amounts label {
+    color: var(--color-text-secondary);
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.engagement-amounts input {
+    display: block;
+    width: 140px;
+    height: 38px;
+    margin-top: 4px;
+    padding: 0 10px;
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    color: var(--color-text);
+    text-align: right;
+}
+
+.client-engagements .card + .card,
+.engagement-editor + .card {
+    margin-top: 16px;
+}
+
+.engagement-add {
+    justify-content: flex-start !important;
+    margin: 0 0 14px !important;
+}
+
+.engagement-editor h3 {
+    margin: 0 0 16px;
+    font-size: 1rem;
+}
+
+.engagement-card,
+.fee-card {
+    padding: 20px 24px;
+}
+
+.engagement-card > header,
+.fee-card > header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.engagement-card h3,
+.fee-card h3 {
+    margin: 0;
+    font-size: 1.05rem;
+}
+
+.engagement-facts,
+.fee-totals {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 14px 20px;
+    margin: 0;
+}
+
+.engagement-facts dt,
+.fee-totals dt {
+    color: var(--color-text-muted);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.engagement-facts dd,
+.fee-totals dd {
+    margin: 4px 0 0;
+    font-weight: 600;
+}
+
+.engagement-services,
+.engagement-auditor {
+    grid-column: 1 / -1;
+}
+
+.engagement-services dd {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.fee-card table {
+    margin-bottom: 16px;
+}
+
+.fee-card .numeric {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+.fee-totals {
+    padding-top: 14px;
+    border-top: 1px solid var(--color-border);
+}
+
+.fee-payments {
+    margin: 16px 0 0;
+    padding-left: 18px;
+    color: var(--color-text-secondary);
+    font-size: 13px;
+    line-height: 1.8;
+}
+
+@media (max-width: 768px) {
+    .engagement-amounts {
+        width: 100%;
+    }
+
+    .engagement-amounts input {
+        width: 100%;
+    }
+}
+
+/* Action rows on the bundle screens (the bundle page has its own). */
+.client-detail .bundle-actions,
+.prospects-page .bundle-actions,
+.client-wizard .bundle-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 16px;
+}
+
+.engagement-card .bundle-actions {
+    justify-content: flex-start;
+    padding-top: 14px;
+    border-top: 1px solid var(--color-border);
+}

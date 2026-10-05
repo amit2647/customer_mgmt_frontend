@@ -8,6 +8,7 @@ const STEP_LABELS = {
   permissions: "Permissions",
   roles: "Role templates",
   catalog: "Services and packages",
+  engagementTypes: "Engagement types",
   email: "Reminder emails",
 };
 

@@ -36,8 +36,20 @@ const api = vi.hoisted(() => ({
   updateClientServices: vi.fn(),
 }));
 
+const engagements = vi.hoisted(() => ({
+  createEngagement: vi.fn(),
+  getEngagementTypes: vi.fn(),
+  getPeriods: vi.fn(),
+}));
+
+let permissions = ["engagements.update", "fees.read", "fees.update"];
+
 vi.mock("../../api/clients", () => api);
-vi.mock("../../api/services", () => ({ getServices: vi.fn().mockResolvedValue([]) }));
+vi.mock("../../api/engagements", () => engagements);
+vi.mock("../../api/services", () => ({
+  getServices: vi.fn().mockResolvedValue([{ id: 2, name: "Statutory Audit", category: "Audit" }]),
+}));
+vi.mock("../../context/AuthContext", () => ({ useAuth: () => ({ user: { permissions } }) }));
 vi.mock("../../context/BundleContext", () => ({
   useBundle: () => ({ bundle: BUNDLE, term: (key, many) => (many ? "Clients" : "Client") }),
 }));
@@ -64,7 +76,11 @@ function setConstitution(value) {
 
 beforeEach(() => {
   Object.values(api).forEach((mock) => mock.mockReset());
+  Object.values(engagements).forEach((mock) => mock.mockReset());
   api.checkIdentifier.mockResolvedValue({ available: true });
+  engagements.getEngagementTypes.mockResolvedValue([]);
+  permissions = ["engagements.update", "fees.read", "fees.update"];
+  delete BUNDLE.engagementTypes;
 });
 
 /*
@@ -145,5 +161,41 @@ describe("ClientWizardPage", () => {
 
     expect(await screen.findByText("Already in use")).toBeInTheDocument();
     expect(screen.getByText("STEP 01")).toBeInTheDocument();
+  });
+
+  test("a new client's first engagement is saved with its year and fees (WIZ-08)", async () => {
+    BUNDLE.engagementTypes = [{ key: "annual" }];
+    engagements.getEngagementTypes.mockResolvedValue([{ key: "annual", name: "Annual engagement", period_kind: "financial_year", stages: [{ key: "appointed", label: "Appointed" }] }]);
+    engagements.getPeriods.mockResolvedValue({ current: "2025-26", periods: [{ label: "2024-25" }, { label: "2025-26" }, { label: "2026-27" }] });
+    engagements.createEngagement.mockResolvedValue({ id: 5 });
+    api.createClient.mockResolvedValue({ id: 42 });
+    renderWizard();
+
+    fireEvent.change(screen.getByLabelText("Entity name"), { target: { value: "R. Sharma" } });
+    setConstitution("proprietorship");
+    fireEvent.click(screen.getByRole("button", { name: /Continue/ }));
+    await screen.findByText("STEP 02");
+    fireEvent.click(screen.getByRole("button", { name: /Continue/ }));
+    await screen.findByText("STEP 03");
+
+    fireEvent.click(await screen.findByRole("button", { name: /Statutory Audit/ }));
+    expect(await screen.findByLabelText("Financial year")).toHaveValue("2025-26");
+    fireEvent.change(screen.getByLabelText("Fee for Statutory Audit"), { target: { value: "50000" } });
+
+    for (let step = 3; step < 5; step += 1) {
+      fireEvent.click(screen.getByRole("button", { name: /Continue/ }));
+      await screen.findByText(`STEP 0${step + 1}`);
+    }
+
+    fireEvent.click(screen.getByRole("button", { name: "Save Client" }));
+
+    await waitFor(() => expect(engagements.createEngagement).toHaveBeenCalled());
+    expect(engagements.createEngagement.mock.calls[0][0]).toMatchObject({
+      customerId: 42,
+      typeKey: "annual",
+      period: "2025-26",
+      stage: "appointed",
+      lines: [{ serviceId: 2, feeAmount: 50000, expensesAmount: 0 }],
+    });
   });
 });

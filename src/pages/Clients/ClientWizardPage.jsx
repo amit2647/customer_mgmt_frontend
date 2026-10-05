@@ -2,9 +2,12 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 
 import { checkIdentifier, createClient, getClient, updateClient, updateClientServices } from "../../api/clients";
+import { createEngagement, getEngagementTypes, getPeriods } from "../../api/engagements";
 import { getServices } from "../../api/services";
+import EngagementForm, { engagementPayload } from "../../components/bundle/EngagementForm";
 import SchemaForm from "../../components/bundle/SchemaForm";
 import { identifiersFor, roleLabel } from "../../components/bundle/bundleLabels";
+import { useAuth } from "../../context/AuthContext";
 import { useBundle } from "../../context/BundleContext";
 
 /*
@@ -17,7 +20,7 @@ import { useBundle } from "../../context/BundleContext";
 const STEPS = [
   { id: 1, title: "Entity", description: "Who the client is" },
   { id: 2, title: "Management", description: "People and signatory" },
-  { id: 3, title: "Services", description: "What you do for them" },
+  { id: 3, title: "Services", description: "What you do, and for which year" },
   { id: 4, title: "Bank accounts", description: "Where they bank" },
   { id: 5, title: "Review", description: "Check and save" },
 ];
@@ -49,7 +52,19 @@ function ClientWizardPage() {
   const [params] = useSearchParams();
   const navigate = useNavigate();
   const { bundle, term } = useBundle();
+  const { user } = useAuth();
   const editing = Boolean(id);
+
+  const permissions = Array.isArray(user?.permissions) ? user.permissions : [];
+  const canReadFees = permissions.includes("fees.read");
+  const canChangeFees = permissions.includes("fees.update");
+
+  // A new client's first engagement (WIZ-08/09), when the bundle has
+  // engagements and the person may create them. Existing clients' engagements
+  // are edited on their Engagement tab.
+  const [engagementType, setEngagementType] = useState(null);
+  const [periods, setPeriods] = useState([]);
+  const [engagement, setEngagement] = useState({ period: "", appointmentOn: "", stage: "", attributes: {}, lines: {} });
 
   const [step, setStep] = useState(1);
   const [form, setForm] = useState(EMPTY);
@@ -71,6 +86,25 @@ function ClientWizardPage() {
       .then((list) => setServices((Array.isArray(list) ? list : list?.services || []).filter((service) => service.status !== "Inactive")))
       .catch(() => setServices([]));
   }, []);
+
+  useEffect(() => {
+    if (editing || !(bundle?.engagementTypes || []).length || !permissions.includes("engagements.update")) return;
+
+    getEngagementTypes()
+      .then(async (types) => {
+        const type = types[0];
+        if (!type) return;
+
+        const offered = await getPeriods(type.key);
+
+        setEngagementType(type);
+        setPeriods(offered.periods);
+        setEngagement((current) => ({ ...current, period: offered.current || offered.periods.at(-1)?.label || "", stage: type.stages?.[0]?.key || "" }));
+      })
+      .catch(() => setEngagementType(null));
+    // permissions is derived from user; re-run only when the bundle or mode changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [bundle, editing]);
 
   // Edit mode reloads every field, person and service (WIZ-14).
   useEffect(() => {
@@ -120,6 +154,14 @@ function ClientWizardPage() {
   const update = (field, value) => {
     clearError(field);
     setForm((current) => ({ ...current, [field]: value }));
+
+    // The engagement's lines follow the services ticked on the same step.
+    if (field === "serviceIds") {
+      setEngagement((current) => ({
+        ...current,
+        lines: Object.fromEntries(value.map((serviceId) => [serviceId, current.lines[serviceId] || { feeAmount: "", expensesAmount: "" }])),
+      }));
+    }
   };
 
   const updateIdentifier = (type, value) => {
@@ -216,7 +258,20 @@ function ClientWizardPage() {
           serviceIds: form.serviceIds,
           profile: { ...profile, bankAccounts: form.bankAccounts.filter((account) => account.bankName.trim() || account.accountNumber.trim()) },
         });
-        navigate(`/clients/${created.id}`, { state: { saved: true } });
+
+        // The first engagement is a second request to another service. If it
+        // fails the client still exists, and its Engagement tab says why.
+        let warning = "";
+
+        if (engagementType && engagement.period) {
+          try {
+            await createEngagement({ customerId: created.id, typeKey: engagementType.key, ...engagementPayload(engagement, { canChangeFees }) });
+          } catch (engagementError) {
+            warning = `The client was saved, but its engagement was not: ${engagementError.message}`;
+          }
+        }
+
+        navigate(`/clients/${created.id}`, { state: { saved: true, warning } });
       }
     } catch (error) {
       setMessage(error.message || "The client could not be saved.");
@@ -458,6 +513,27 @@ function ClientWizardPage() {
                 <strong>{form.serviceIds.length}</strong>
                 <span>{form.serviceIds.length === 1 ? "service selected" : "services selected"}</span>
               </div>
+
+              {engagementType && (
+                <div className="wizard-engagement">
+                  <h4>{engagementType.name}</h4>
+                  <EngagementForm
+                    type={engagementType}
+                    periods={periods}
+                    services={services.filter((service) => form.serviceIds.includes(Number(service.id)))}
+                    value={engagement}
+                    onChange={(next) => {
+                      // Unticking a service here unticks it above too.
+                      const kept = Object.keys(next.lines).map(Number);
+                      if (kept.length !== form.serviceIds.length) update("serviceIds", form.serviceIds.filter((serviceId) => kept.includes(serviceId)));
+                      setEngagement(next);
+                    }}
+                    profile={bundle.profiles?.engagement?.[engagementType.key]}
+                    canReadFees={canReadFees}
+                    canChangeFees={canChangeFees}
+                  />
+                </div>
+              )}
             </section>
           )}
 
