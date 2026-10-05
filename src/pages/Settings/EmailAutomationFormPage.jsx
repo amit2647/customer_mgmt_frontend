@@ -24,6 +24,10 @@ const EVENT_LABELS = {
   "lead.created": "Lead created",
   "lead.converted": "Lead converted to customer",
   "customer.created": "Customer created",
+  // Raised once a profession bundle is installed.
+  "engagement.created": "Engagement created",
+  "obligation.due_soon": "Deadline due soon",
+  "obligation.overdue": "Deadline overdue",
 };
 
 function EmailAutomationFormPage() {
@@ -195,7 +199,9 @@ function EmailAutomationFormPage() {
             onChange={(e) => update("trigger_event", e.target.value)}
           disabled={saving}
           >
-            {events.map((event) => (
+            {/* An installed bundle's reminder keeps its own event even though
+                the server only offers the core events for new automations. */}
+            {(events.includes(form.trigger_event) ? events : [...events, form.trigger_event]).map((event) => (
               <option key={event} value={event}>
                 {EVENT_LABELS[event] || event}
               </option>

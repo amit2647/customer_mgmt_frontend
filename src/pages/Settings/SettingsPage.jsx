@@ -82,6 +82,15 @@ function SettingsPage() {
       path: "/settings/organization",
       permission: "organization.read",
     },
+    {
+      id: "bundle",
+      title: "Profession Bundle",
+      description:
+        "Set the workspace up for a profession: services, role templates and reminders.",
+      icon: "◆",
+      path: "/settings/bundle",
+      permission: "bundles.manage",
+    },
   ];
 
   const visibleItems = settingsItems.filter((item) => {

@@ -1,0 +1,229 @@
+import { useCallback, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+
+import { getBundles, installBundle } from "../../api/bundles";
+
+const STEP_LABELS = {
+  permissions: "Permissions",
+  roles: "Role templates",
+  catalog: "Services and packages",
+  email: "Reminder emails",
+};
+
+const STATUS_LABELS = {
+  installed: "Installed",
+  installing: "Installing",
+  upgrading: "Upgrading",
+  failed: "Stopped",
+  done: "Done",
+  pending: "Waiting",
+};
+
+function formatDate(value) {
+  return value
+    ? new Date(value).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" })
+    : "";
+}
+
+/*
+ * Settings → Bundle: set the workspace up for a profession.
+ *
+ * One bundle per organization. Installing runs one step per part of the
+ * product (roles, services, emails…); a step that fails stops the install,
+ * and installing again resumes where it stopped.
+ */
+function BundlePage() {
+  const navigate = useNavigate();
+
+  const [offered, setOffered] = useState([]);
+  const [installed, setInstalled] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [busyKey, setBusyKey] = useState("");
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+
+  const load = useCallback(async () => {
+    try {
+      setLoading(true);
+
+      const data = await getBundles();
+
+      setOffered(data?.bundles ?? []);
+      setInstalled(data?.installed ?? null);
+    } catch (requestError) {
+      setError(requestError.message || "Failed to load bundles.");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  async function handleInstall(bundle, resuming = false) {
+    if (
+      !resuming &&
+      !window.confirm(
+        `Install ${bundle.name} ${bundle.version}?\n\nIt adds its services, role templates and reminder emails to this workspace. An organization has one bundle, and it cannot be removed in this version.`,
+      )
+    ) {
+      return;
+    }
+
+    try {
+      setBusyKey(bundle.key);
+      setError("");
+      setSuccess("");
+
+      await installBundle(bundle.key);
+
+      setSuccess(`${bundle.name} is installed. Its reminder emails are switched off until you turn them on in Email Automations.`);
+    } catch (requestError) {
+      setError(requestError.message || "The install did not finish.");
+    } finally {
+      setBusyKey("");
+      await load();
+    }
+  }
+
+  const unfinished = installed && installed.status !== "installed";
+
+  return (
+    <main className="page settings-sub-page bundle-page">
+      <div className="workflow-breadcrumb">
+        <button type="button" onClick={() => navigate("/settings")}>
+          ← Back to Settings
+        </button>
+
+        <div className="workflow-context">
+          <span>SETTINGS</span>
+          <strong>Profession Bundle</strong>
+        </div>
+      </div>
+
+      <div className="page-header">
+        <div>
+          <h1>Profession Bundle</h1>
+
+          <p>
+            Set this workspace up for a profession: its services, role templates,
+            client fields and reminder emails. Anything a bundle installs can be
+            edited, and your edits are kept when a newer version arrives.
+          </p>
+        </div>
+      </div>
+
+      {success && <div className="alert alert-success">{success}</div>}
+      {error && <div className="alert alert-error" role="alert">{error}</div>}
+
+      {loading ? (
+        <section className="card">
+          <div className="settings-empty">Loading bundles...</div>
+        </section>
+      ) : installed ? (
+        <section className="card bundle-installed" aria-label="Installed bundle">
+          <div className="bundle-summary">
+            <div>
+              <h2>
+                {installed.name} <span className="settings-cell-muted">{installed.version}</span>
+              </h2>
+
+              <span className="settings-row-hint">
+                {installed.status === "installed"
+                  ? `Installed ${formatDate(installed.installedAt)}`
+                  : "The install did not finish. Installing again resumes where it stopped."}
+              </span>
+            </div>
+
+            <span className={`settings-pill${installed.status === "installed" ? " on" : ""}`}>
+              {STATUS_LABELS[installed.status] || installed.status}
+            </span>
+          </div>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Step</th>
+                <th>Status</th>
+                <th>Attempts</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {installed.steps.map((step) => (
+                <tr key={step.step}>
+                  <td>
+                    <strong>{STEP_LABELS[step.step] || step.step}</strong>
+
+                    {step.error && <span className="settings-row-hint settings-cell-warning">{step.error}</span>}
+                  </td>
+
+                  <td>
+                    <span className={`settings-pill${step.status === "done" ? " on" : ""}`}>
+                      {STATUS_LABELS[step.status] || step.status}
+                    </span>
+                  </td>
+
+                  <td className="settings-cell-muted">{step.attempts}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          {unfinished && (
+            <div className="bundle-actions">
+              <button
+                type="button"
+                className="button button-primary"
+                disabled={Boolean(busyKey)}
+                onClick={() => handleInstall({ key: installed.key, name: installed.name, version: installed.version }, true)}
+              >
+                {busyKey ? "Installing..." : "Resume install"}
+              </button>
+            </div>
+          )}
+        </section>
+      ) : offered.length === 0 ? (
+        <section className="card">
+          <div className="settings-empty">This deployment offers no bundles.</div>
+        </section>
+      ) : (
+        <section className="bundle-offers">
+          {offered.map((bundle) => (
+            <article key={bundle.key} className="card bundle-offer">
+              <div className="bundle-summary">
+                <div>
+                  <h2>
+                    {bundle.name} <span className="settings-cell-muted">{bundle.version}</span>
+                  </h2>
+
+                  {bundle.description && <p>{bundle.description}</p>}
+                </div>
+              </div>
+
+              <ul className="bundle-contents">
+                <li>{bundle.contents.services} services and {bundle.contents.packages} packages</li>
+                {bundle.contents.roles.length > 0 && <li>Role templates: {bundle.contents.roles.join(", ")}</li>}
+                {bundle.contents.emails > 0 && <li>{bundle.contents.emails} reminder emails, switched off</li>}
+              </ul>
+
+              <div className="bundle-actions">
+                <button
+                  type="button"
+                  className="button button-primary"
+                  disabled={Boolean(busyKey)}
+                  onClick={() => handleInstall(bundle)}
+                >
+                  {busyKey === bundle.key ? "Installing..." : `Install ${bundle.name}`}
+                </button>
+              </div>
+            </article>
+          ))}
+        </section>
+      )}
+    </main>
+  );
+}
+
+export default BundlePage;

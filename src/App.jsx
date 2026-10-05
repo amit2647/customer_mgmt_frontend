@@ -37,6 +37,7 @@ import EmailAutomationFormPage from "./pages/Settings/EmailAutomationFormPage";
 import UsersRolesPage from "./pages/Settings/UsersRolesPage";
 import UserFormPage from "./pages/Settings/UserFormPage";
 import OrganizationPage from "./pages/Settings/OrganizationPage";
+import BundlePage from "./pages/Settings/BundlePage";
 import RoleFormPage from "./pages/Settings/RoleFormPage";
 import AccessGrantsPage from "./pages/Settings/AccessGrantsPage";
 
@@ -247,6 +248,10 @@ function App() {
             <Route path="/settings/roles/:id/edit" element={<RoleFormPage />} />
 
             <Route path="/settings/access" element={<AccessGrantsPage />} />
+          </Route>
+
+          <Route element={<RequirePermission permission="bundles.manage" />}>
+            <Route path="/settings/bundle" element={<BundlePage />} />
           </Route>
 
           <Route element={<RequirePermission permission="organization.read" />}>
