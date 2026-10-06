@@ -1,4 +1,4 @@
-import request from "./client";
+import request, { requestRaw } from "./client";
 
 /*
  * Clients: customers of an organization with a profession bundle, with their
@@ -73,4 +73,28 @@ export function restoreClient(id) {
 
 export function purgeClient(id) {
   return request(`/customers/${id}/purge`, { method: "DELETE" });
+}
+
+// Saves a CSV through the browser (DATA-03, DATA-05).
+async function saveCsv(url, fallbackName) {
+  const response = await requestRaw(url);
+  const name = /filename="([^"]+)"/.exec(response.headers.get("content-disposition") || "")?.[1] || fallbackName;
+  const link = document.createElement("a");
+
+  link.href = URL.createObjectURL(await response.blob());
+  link.download = name;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+}
+
+export const downloadImportTemplate = () => saveCsv("/customers/import-template.csv", "client-import-template.csv");
+
+export const exportClients = () => saveCsv("/customers/export.csv", "clients.csv");
+
+// { added, skipped: [{ line, name, reason }], errors: [{ line, name, error }] } (DATA-04)
+export async function importClients(text) {
+  const response = await requestRaw("/customers/import", { method: "POST", headers: { "Content-Type": "text/csv" }, body: text });
+  return response.json();
 }

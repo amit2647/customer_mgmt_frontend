@@ -6,7 +6,8 @@
     display: flex;
     align-items: center;
     gap: 15px;
-    margin: 28px 0 14px;
+    /* As .clients-toolbar: 24px below the header, 16px above the list. */
+    margin: 24px 0 16px;
 }
 
 .toolbar input {

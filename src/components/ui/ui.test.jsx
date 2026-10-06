@@ -6,7 +6,7 @@ import Breadcrumb from "./Breadcrumb";
 import PageState from "./PageState";
 import ServicePicker from "./ServicePicker";
 import StatCard from "./StatCard";
-import WizardSteps from "./WizardSteps";
+import WizardSteps, { goToStep } from "./WizardSteps";
 
 /*
  * The shared building blocks render the classes the pages always had, so
@@ -37,6 +37,39 @@ describe("WizardSteps", () => {
     expect(steps[0]).toHaveTextContent("✓");
     expect(steps[1]).toHaveClass("active");
     expect(steps[2]).toHaveTextContent("3");
+  });
+
+  test("lays every step out in one row, one column each", () => {
+    const five = [1, 2, 3, 4, 5].map((id) => ({ id, title: `Step ${id}` }));
+    const { container } = render(<WizardSteps steps={five} current={1} className="customer-workflow-steps" />);
+
+    expect(container.firstChild.style.getPropertyValue("--step-count")).toBe("5");
+  });
+
+  test("with onSelect, each step is a button that asks to go there", () => {
+    const onSelect = vi.fn();
+    render(<WizardSteps steps={[{ id: 1, title: "Contact" }, { id: 2, title: "Review" }]} current={1} onSelect={onSelect} />);
+
+    fireEvent.click(screen.getByRole("button", { name: /Contact/ }));
+    fireEvent.click(screen.getByRole("button", { name: /Review/ }));
+
+    expect(onSelect).toHaveBeenCalledTimes(1);
+    expect(onSelect).toHaveBeenCalledWith(2);
+  });
+
+  test("goToStep goes back at once, and forward only through steps that validate", () => {
+    const setStep = vi.fn();
+    const onBack = vi.fn();
+
+    goToStep(1, { step: 3, validateStep: () => false, setStep, onBack });
+    expect(setStep).toHaveBeenLastCalledWith(1);
+    expect(onBack).toHaveBeenCalled();
+
+    goToStep(4, { step: 1, validateStep: (at) => at !== 2, setStep });
+    expect(setStep).toHaveBeenLastCalledWith(2);
+
+    goToStep(4, { step: 1, validateStep: () => true, setStep });
+    expect(setStep).toHaveBeenLastCalledWith(4);
   });
 });
 

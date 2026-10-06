@@ -9,13 +9,16 @@ header:not(.global-header) {
     gap: 20px;
 }
 
+/* The page title, the same on every screen (30px display, as the Dashboard,
+   detail and Settings screens already set it); screens may still restate it. */
 h1 {
-    margin: 0 0 5px;
+    margin: 0 0 6px;
     color: var(--color-text);
-    font-size: 28px;
-    font-weight: 700;
+    font-family: var(--font-display);
+    font-size: 30px;
+    font-weight: 750;
     line-height: 1.15;
-    letter-spacing: -0.025em;
+    letter-spacing: -0.035em;
 }
 
 header:not(.global-header) p {

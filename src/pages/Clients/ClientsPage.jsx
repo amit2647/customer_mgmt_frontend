@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { getClients } from "../../api/clients";
+import { getClients, exportClients } from "../../api/clients";
 import { enumLabel } from "../../components/bundle/bundleLabels";
 import { useAuth } from "../../context/AuthContext";
 import { useBundle } from "../../context/BundleContext";
@@ -62,11 +62,21 @@ function ClientsPage() {
           <p>Every {term("client").toLowerCase()} with its constitution, identifiers and services.</p>
         </div>
 
-        {permissions.includes("customers.create") && !archived && (
-          <button type="button" className="primary" onClick={() => navigate("/clients/new")}>
-            + Add {term("client")}
+        <div className="document-actions">
+          <button type="button" className="secondary-button" onClick={() => exportClients().catch((exportError) => setError(exportError.message || "The export did not finish."))}>
+            Export CSV
           </button>
-        )}
+          {permissions.includes("customers.create") && permissions.includes("profiles.update") && (
+            <button type="button" className="secondary-button" onClick={() => navigate("/clients/import")}>
+              Import CSV
+            </button>
+          )}
+          {permissions.includes("customers.create") && !archived && (
+            <button type="button" className="primary" onClick={() => navigate("/clients/new")}>
+              + Add {term("client")}
+            </button>
+          )}
+        </div>
       </header>
 
       <div className="clients-toolbar">

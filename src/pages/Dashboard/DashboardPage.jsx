@@ -4,11 +4,13 @@ import { Link } from "react-router-dom";
 import {
   ArrowClockwise,
   ArrowRight,
+  CalendarCheck,
   Check,
   Circle,
   CircleDashed,
   GearSix,
   Info,
+  Kanban,
   Package,
   Plus,
   TrendUp,
@@ -21,6 +23,13 @@ import { getDashboard } from "../../api/dashboard";
 
 import DashboardSkeleton from "../../components/dashboard/DashboardSkeleton";
 import StatCard from "../../components/ui/StatCard";
+
+// Where a bundle card leads, by the kind of figure it shows.
+const BUNDLE_CARD_LINKS = {
+  clients: { to: "/clients", icon: <Users size={20} weight="regular" />, hint: "Clients taking it", label: "View clients" },
+  prospects: { to: "/prospects", icon: <Kanban size={20} weight="regular" />, hint: "Not yet clients", label: "View prospects" },
+  deadlines: { to: "/deadlines", icon: <CalendarCheck size={20} weight="regular" />, hint: "This financial year", label: "View deadlines" },
+};
 
 function DashboardPage() {
   const [dashboard, setDashboard] = useState(null);
@@ -74,6 +83,9 @@ function DashboardPage() {
     convertedLeads: 0,
     conversionRate: 0,
   };
+
+  // Present only for an organization whose bundle ships cards.
+  const bundleCards = Array.isArray(dashboard?.bundleCards) && dashboard.bundleCards.length > 0 ? dashboard.bundleCards : null;
 
   const pipeline = Array.isArray(dashboard?.pipeline) ? dashboard.pipeline : [];
 
@@ -289,46 +301,69 @@ function DashboardPage() {
           KPI CARDS
           ============================================================ */}
 
-      <section className="dashboard-stats">
-        <StatCard
-          to="/leads"
-          className="dashboard-stat-leads"
-          label="Total Leads"
-          icon={<UserCircle size={20} weight="regular" />}
-          value={metrics.totalLeads}
-          hint="All lead records"
-          linkLabel="View leads"
-        />
+      {bundleCards ? (
+        // A profession bundle's own cards (DASH-01) replace the lead and
+        // customer cards, in the bundle's order; each opens its own screen.
+        <section className="dashboard-stats" aria-label="Key figures">
+          {bundleCards.map((card) => {
+            const kind = card.query === "obligations_by_state" ? "deadlines" : card.query === "prospects_open" ? "prospects" : "clients";
+            const link = BUNDLE_CARD_LINKS[kind];
 
-        <StatCard
-          to="/customers"
-          className="dashboard-stat-customers"
-          label="Customers"
-          icon={<Users size={20} weight="regular" />}
-          value={metrics.totalCustomers}
-          hint="Customer records"
-          linkLabel="View customers"
-        />
+            return (
+              <StatCard
+                key={card.key}
+                to={link.to}
+                label={card.label}
+                icon={link.icon}
+                value={card.value ?? "—"}
+                hint={card.hint || link.hint}
+                linkLabel={link.label}
+              />
+            );
+          })}
+        </section>
+      ) : (
+        <section className="dashboard-stats">
+          <StatCard
+            to="/leads"
+            className="dashboard-stat-leads"
+            label="Total Leads"
+            icon={<UserCircle size={20} weight="regular" />}
+            value={metrics.totalLeads}
+            hint="All lead records"
+            linkLabel="View leads"
+          />
 
-        <StatCard
-          to="/leads"
-          className="dashboard-stat-qualified"
-          label="Qualified Leads"
-          icon={<Check size={20} weight="bold" />}
-          value={metrics.qualifiedLeads}
-          hint="Ready for conversion"
-          linkLabel="Review"
-        />
+          <StatCard
+            to="/customers"
+            className="dashboard-stat-customers"
+            label="Customers"
+            icon={<Users size={20} weight="regular" />}
+            value={metrics.totalCustomers}
+            hint="Customer records"
+            linkLabel="View customers"
+          />
 
-        <StatCard
-          className="dashboard-stat-conversion"
-          label="Conversion Rate"
-          icon={<TrendUp size={20} weight="regular" />}
-          value={`${metrics.conversionRate}%`}
-          hint={`${metrics.convertedLeads} converted lead${metrics.convertedLeads === 1 ? "" : "s"}`}
-          linkLabel="Conversion"
-        />
-      </section>
+          <StatCard
+            to="/leads"
+            className="dashboard-stat-qualified"
+            label="Qualified Leads"
+            icon={<Check size={20} weight="bold" />}
+            value={metrics.qualifiedLeads}
+            hint="Ready for conversion"
+            linkLabel="Review"
+          />
+
+          <StatCard
+            className="dashboard-stat-conversion"
+            label="Conversion Rate"
+            icon={<TrendUp size={20} weight="regular" />}
+            value={`${metrics.conversionRate}%`}
+            hint={`${metrics.convertedLeads} converted lead${metrics.convertedLeads === 1 ? "" : "s"}`}
+            linkLabel="Conversion"
+          />
+        </section>
+      )}
 
       {/* ============================================================
           PIPELINE + SOURCES

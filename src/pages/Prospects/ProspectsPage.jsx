@@ -261,6 +261,7 @@ function ProspectsPage() {
                   <th>#</th>
                   <th>Name</th>
                   <th>Stage</th>
+                  <th>Source</th>
                   <th>Constitution</th>
                   <th className="numeric">Quoted fee</th>
                   <th>Next meeting</th>
@@ -280,6 +281,7 @@ function ProspectsPage() {
                         {(lead.email || lead.phone) && <span className="settings-row-hint">{[lead.email, lead.phone].filter(Boolean).join(" · ")}</span>}
                       </td>
                       <td><span className="service-badge">{converted ? "Converted" : columns[columnIndex]?.label}</span></td>
+                      <td className="settings-cell-muted">{lead.channel || "—"}</td>
                       <td>{constitutionPill(lead)}</td>
                       <td className="numeric">{lead.quoted_fee !== null && lead.quoted_fee !== undefined ? formatMoney(lead.quoted_fee) : "—"}</td>
                       <td>{lead.next_meeting_on ? formatDay(lead.next_meeting_on) : "—"}</td>
@@ -317,6 +319,7 @@ function ProspectsPage() {
                     </div>
                     {lead.quoted_fee !== null && lead.quoted_fee !== undefined && <span className="prospect-quote">{formatMoney(lead.quoted_fee)}</span>}
                     {lead.next_meeting_on && <span className="settings-row-hint">Meeting {formatDay(lead.next_meeting_on)}</span>}
+                    {lead.channel && <span className="settings-row-hint">Source: {lead.channel}</span>}
                     {lead.notes && <p>{lead.notes}</p>}
 
                     <div className="table-actions prospect-actions">{actionsFor(lead, columnIndex)}</div>

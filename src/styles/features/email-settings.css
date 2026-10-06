@@ -966,7 +966,7 @@
 /* .card carries no padding (it frames tables edge to edge), so the bundle
    cards pad their own text blocks. */
 .bundle-page .bundle-offer {
-  padding: 22px 24px;
+  padding: 20px 24px;
 }
 
 .bundle-page .bundle-installed .bundle-summary,

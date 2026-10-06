@@ -43,6 +43,7 @@ import FirmPage from "./pages/Settings/FirmPage";
 import ClientsPage from "./pages/Clients/ClientsPage";
 import ClientDetailPage from "./pages/Clients/ClientDetailPage";
 import ClientWizardPage from "./pages/Clients/ClientWizardPage";
+import ClientsImportPage from "./pages/Clients/ClientsImportPage";
 import ProspectsPage from "./pages/Prospects/ProspectsPage";
 import ProspectFormPage from "./pages/Prospects/ProspectFormPage";
 import DeadlinesPage from "./pages/Deadlines/DeadlinesPage";
@@ -190,6 +191,7 @@ function App() {
 
           <Route element={<RequirePermission permission="customers.create" />}>
             <Route path="/clients/new" element={<ClientWizardPage />} />
+            <Route path="/clients/import" element={<ClientsImportPage />} />
           </Route>
 
           <Route element={<RequirePermission permission="customers.update" />}>

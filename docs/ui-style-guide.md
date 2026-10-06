@@ -43,7 +43,7 @@ disagree, the screen wins and this guide gets fixed.
 |---|---|---|
 | "← Back to …" bar and where you are | `<Breadcrumb onBack backLabel section title />` | `components/ui/Breadcrumb.jsx` |
 | A figure card: link, filter or plain | `<StatCard label icon value hint linkLabel to \| onClick active />`, inside `<section className="dashboard-stats">` | `components/ui/StatCard.jsx` |
-| A wizard's step bar | `<WizardSteps steps current className="customer-workflow-steps" />` | `components/ui/WizardSteps.jsx` |
+| A wizard's step bar: one row, a column per step; numbers clickable | `<WizardSteps steps current className="customer-workflow-steps" onSelect={(target) => goToStep(target, { step, validateStep, setStep })} />` — back is free, forward validates each step on the way | `components/ui/WizardSteps.jsx` |
 | Choosing services | `<ServicePicker services selected onChange />` (grouped; `grouped={false}` for a flat grid) | `components/ui/ServicePicker.jsx` |
 | A whole page loading, failed or with nothing to edit | `<PageState icon tone title action>sentence</PageState>` | `components/ui/PageState.jsx` |
 | A label and value on a record | `<Field label value href />` | `components/common/Field.jsx` |
@@ -103,7 +103,16 @@ Don't use them on new screens; use the classes below.
 - **Icons.** Use `@phosphor-icons/react`: `size={20} weight="regular"` for nav and cards,
   `aria-hidden` when text says the same. Text buttons use plain arrows: `← Back`, `Next →`,
   `Continue →`.
-- **Spacing.** 24px under the page header, 14–16px grid gaps.
+- **Spacing (measured on every screen, keep it so).**
+  - Page title: the base `h1`, 30px display, weight 750. Don't restyle it per page.
+  - Breadcrumb row, then **18px**, then the page header; every form page (wizards included)
+    starts with the breadcrumb, so all screens open at the same height.
+  - **24px** from the header to the first block, and **24px** between page sections
+    (cards, figure rows, dashboard rows).
+  - A toolbar (search, filters) sits **24px** under what is above it and **16px** above the
+    list or board it filters. Tab bars: 18px to their content.
+  - Content cards pad **20px 24px**; table cards have no padding (rows pad themselves).
+    Grid gaps inside a section: 14–16px.
 - **Breakpoints.** 1100px and 640px for stat cards; 768px for toolbars, forms and the
   board. No horizontal page scroll: wide tables scroll inside their card.
 

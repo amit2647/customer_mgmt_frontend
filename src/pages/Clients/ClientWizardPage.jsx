@@ -10,9 +10,10 @@ import SchemaForm from "../../components/bundle/SchemaForm";
 import { formatMoney, identifiersFor, roleLabel } from "../../components/bundle/bundleLabels";
 import { useAuth } from "../../context/AuthContext";
 import { useBundle } from "../../context/BundleContext";
-import WizardSteps from "../../components/ui/WizardSteps";
+import WizardSteps, { goToStep } from "../../components/ui/WizardSteps";
 import ServicePicker from "../../components/ui/ServicePicker";
 import PageState from "../../components/ui/PageState";
+import Breadcrumb from "../../components/ui/Breadcrumb";
 
 /*
  * The client wizard (WIZ-01–15): entity, management, services, bank
@@ -322,6 +323,12 @@ function ClientWizardPage() {
 
   return (
     <div className="customer-workflow-page client-wizard">
+      <Breadcrumb
+        onBack={() => navigate(editing ? `/clients/${id}` : "/clients")}
+        backLabel={editing ? form.name || term("client") : term("client", true)}
+        section={term("client", true)}
+        title={editing ? `Edit ${term("client")}` : `Add ${term("client")}`}
+      />
       <div className="customer-workflow">
         <div className="customer-workflow-header">
           <div>
@@ -337,7 +344,7 @@ function ClientWizardPage() {
           </div>
         </div>
 
-        <WizardSteps steps={STEPS} current={step} className="customer-workflow-steps" />
+        <WizardSteps steps={STEPS} current={step} className="customer-workflow-steps" onSelect={(target) => goToStep(target, { step, validateStep, setStep })} />
 
         {message && <div className="workflow-error" role="alert">{message}</div>}
 

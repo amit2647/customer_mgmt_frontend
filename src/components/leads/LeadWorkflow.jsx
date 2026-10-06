@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { getServices } from "../../api/services";
-import WizardSteps from "../ui/WizardSteps";
+import WizardSteps, { goToStep } from "../ui/WizardSteps";
 import ServicePicker from "../ui/ServicePicker";
 
 const STEPS = [
@@ -208,7 +208,7 @@ function LeadWorkflow({ lead = null, onSubmit, onClose }) {
         </div>
       </div>
 
-      <WizardSteps steps={STEPS} current={step} />
+      <WizardSteps steps={STEPS} current={step} onSelect={(target) => goToStep(target, { step, validateStep, setStep, onBack: () => setError("") })} />
 
       {error && <div className="workflow-error">{error}</div>}
 

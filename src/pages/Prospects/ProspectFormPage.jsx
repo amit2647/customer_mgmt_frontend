@@ -5,7 +5,8 @@ import { createLead, getLead, updateLead, updateLeadServices, updateProspect } f
 import { getServices } from "../../api/services";
 import { enumLabel, formatDay, formatMoney } from "../../components/bundle/bundleLabels";
 import { useBundle } from "../../context/BundleContext";
-import WizardSteps from "../../components/ui/WizardSteps";
+import WizardSteps, { goToStep } from "../../components/ui/WizardSteps";
+import Breadcrumb from "../../components/ui/Breadcrumb";
 import ServicePicker from "../../components/ui/ServicePicker";
 import PageState from "../../components/ui/PageState";
 
@@ -25,7 +26,11 @@ const STEPS = [
   { id: 4, title: "Review", description: "Check and save" },
 ];
 
-const EMPTY = { name: "", email: "", phone: "", constitution: "", serviceIds: [], quotedFee: "", nextMeetingOn: "", notes: "", status: "" };
+// Where a prospect came from: the lead's channel, shown on the Dashboard's
+// Lead Sources. Referral first, since most of a practice's work comes that way.
+const SOURCES = ["Referral", "Website", "Phone", "Email", "WhatsApp", "Social"];
+
+const EMPTY = { name: "", email: "", phone: "", channel: "Referral", constitution: "", serviceIds: [], quotedFee: "", nextMeetingOn: "", notes: "", status: "" };
 
 // Which step a server-side field error belongs to.
 const stepOf = (field) => (["status", "quotedFee", "nextMeetingOn", "notes"].includes(field) ? 3 : 1);
@@ -69,6 +74,7 @@ function ProspectFormPage() {
           name: lead.name || "",
           email: lead.email || "",
           phone: lead.phone || "",
+          channel: lead.channel || "Referral",
           constitution: lead.attributes?.constitution || "",
           serviceIds: (lead.services || []).map((service) => Number(service.id)),
           quotedFee: lead.quoted_fee ?? "",
@@ -128,7 +134,7 @@ function ProspectFormPage() {
       notes: form.notes,
       ...(leadProfile && form.constitution ? { attributes: { constitution: form.constitution } } : {}),
     };
-    const contact = { name: form.name, email: form.email, phone: form.phone };
+    const contact = { name: form.name, email: form.email, phone: form.phone, channel: form.channel };
 
     try {
       setSaving(true);
@@ -141,7 +147,7 @@ function ProspectFormPage() {
         await updateLead(savedId, contact);
         await updateLeadServices(savedId, form.serviceIds);
       } else {
-        const created = await createLead({ ...contact, channel: "Referral", serviceIds: form.serviceIds });
+        const created = await createLead({ ...contact, serviceIds: form.serviceIds });
         savedId = created.id ?? created.lead?.id;
         setLeadId(savedId);
       }
@@ -195,6 +201,7 @@ function ProspectFormPage() {
 
   return (
     <div className="customer-workflow-page client-wizard">
+      <Breadcrumb onBack={() => navigate("/prospects")} backLabel="Prospects" section="Prospects" title={id ? "Edit prospect" : "Add prospect"} />
       <form
         className="customer-workflow"
         aria-label="Prospect"
@@ -212,7 +219,7 @@ function ProspectFormPage() {
           </div>
         </div>
 
-        <WizardSteps steps={STEPS} current={step} className="customer-workflow-steps" />
+        <WizardSteps steps={STEPS} current={step} className="customer-workflow-steps" onSelect={(target) => goToStep(target, { step, validateStep, setStep })} />
 
         {message && <div className="workflow-error" role="alert">{message}</div>}
 
@@ -240,6 +247,14 @@ function ProspectFormPage() {
                   Phone
                   <input value={form.phone} onChange={(e) => update("phone", e.target.value)} />
                   {fieldError("phone")}
+                </label>
+                <label>
+                  Source
+                  <select value={form.channel} onChange={(e) => update("channel", e.target.value)}>
+                    {/* An older lead's own value stays selectable. */}
+                    {[...SOURCES, ...(SOURCES.includes(form.channel) ? [] : [form.channel])].map((source) => <option key={source} value={source}>{source}</option>)}
+                  </select>
+                  {fieldError("channel")}
                 </label>
                 {constitutions.length > 0 && (
                   <label>
@@ -317,6 +332,7 @@ function ProspectFormPage() {
                   <strong>{form.name || "Unnamed"}</strong>
                   {form.email && <p>{form.email}</p>}
                   {form.phone && <p>{form.phone}</p>}
+                  <p>Source: {form.channel}</p>
                   {form.constitution && <p>{constitutionLabel(form.constitution)}</p>}
                 </div>
 

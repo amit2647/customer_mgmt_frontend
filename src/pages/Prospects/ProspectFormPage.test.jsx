@@ -108,7 +108,7 @@ describe("ProspectFormPage", () => {
 
     await screen.findByText("Board: Prospect added.");
     expect(api.createLead).toHaveBeenCalledTimes(1);
-    expect(api.updateLead).toHaveBeenCalledWith(9, { name: "Rao & Co", email: "", phone: "" });
+    expect(api.updateLead).toHaveBeenCalledWith(9, { name: "Rao & Co", email: "", phone: "", channel: "Referral" });
     expect(api.updateLeadServices).toHaveBeenCalledWith(9, []);
   });
 
@@ -138,5 +138,40 @@ describe("ProspectFormPage", () => {
     expect(await screen.findByText("Iyer & Sons is already a client")).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Save prospect" })).not.toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Open client" })).toHaveAttribute("href", "/clients/12");
+  });
+
+  test("records where the prospect came from, and shows it on review", async () => {
+    api.createLead.mockResolvedValue({ id: 9 });
+    api.updateProspect.mockResolvedValue({});
+    at("/prospects/new");
+
+    fireEvent.change(await screen.findByLabelText("Name"), { target: { value: "Rao & Co" } });
+    fireEvent.change(screen.getByLabelText("Source"), { target: { value: "WhatsApp" } });
+    next();
+    next();
+    next();
+    expect(screen.getByText("Source: WhatsApp")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Add prospect" }));
+    await screen.findByText(/Board:/);
+    expect(api.createLead).toHaveBeenCalledWith(expect.objectContaining({ channel: "WhatsApp" }));
+  });
+
+  test("a step number moves the wizard: back freely, forward only past steps that are complete", async () => {
+    at("/prospects/new");
+    await screen.findByLabelText("Name");
+
+    // Ahead to Review with no name: stops on Contact and says why.
+    fireEvent.click(screen.getByRole("button", { name: /Review/ }));
+    expect(screen.getByText("Name is required")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Contact/ })).toHaveAttribute("aria-current", "step");
+
+    // The error now sits inside the label, so match its start.
+    fireEvent.change(screen.getByLabelText(/^Name/), { target: { value: "Rao & Co" } });
+    fireEvent.click(screen.getByRole("button", { name: /Review/ }));
+    expect(screen.getByRole("button", { name: /Review/ })).toHaveAttribute("aria-current", "step");
+
+    fireEvent.click(screen.getByRole("button", { name: /Services/ }));
+    expect(screen.getByRole("button", { name: /Services/ })).toHaveAttribute("aria-current", "step");
   });
 });

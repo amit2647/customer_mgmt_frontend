@@ -5,7 +5,7 @@ import {
   getEmailAccount,
   updateEmailAccount,
 } from "../../api/emailAccounts";
-import WizardSteps from "../ui/WizardSteps";
+import WizardSteps, { goToStep } from "../ui/WizardSteps";
 
 const STEPS = [
   {
@@ -298,7 +298,7 @@ function EmailAccountWorkflow({ accountId = null, onComplete, onCancel }) {
         </div>
       </div>
 
-      <WizardSteps steps={STEPS} current={step} className="email-account-workflow-steps" />
+      <WizardSteps steps={STEPS} current={step} className="email-account-workflow-steps" onSelect={(target) => goToStep(target, { step, validateStep, setStep, onBack: () => setError("") })} />
 
       {error && <div className="workflow-error">{error}</div>}
 

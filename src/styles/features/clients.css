@@ -165,11 +165,12 @@
 
 /* ---------- Client list ---------- */
 
+/* 24px below the header (or the figures), 16px above what it filters. */
 .clients-toolbar {
     display: flex;
     align-items: center;
     gap: 16px;
-    margin: 22px 0 14px;
+    margin: 24px 0 16px;
 }
 
 .clients-search {
@@ -386,7 +387,7 @@
 
 
 .prospect-board {
-    margin-top: 22px;
+    margin-top: 0;
     display: grid;
     grid-auto-columns: minmax(260px, 1fr);
     grid-auto-flow: column;
@@ -633,7 +634,7 @@
 
 .credential-log {
     margin-top: 18px;
-    padding: 18px 20px;
+    padding: 20px 24px;
 }
 
 .credential-log h3 {
@@ -642,8 +643,8 @@
 }
 
 .file-drop {
-    margin-bottom: 18px;
-    padding: 18px 20px;
+    margin-bottom: 24px;
+    padding: 20px 24px;
     border-style: dashed;
 }
 
@@ -669,6 +670,42 @@
     inset: 0;
     opacity: 0;
     cursor: pointer;
+}
+
+/* ---------- Client import ---------- */
+
+.import-step {
+    margin-bottom: 24px;
+    padding: 20px 24px;
+}
+
+.import-step h3 {
+    margin: 0 0 8px;
+    font-size: 13px;
+}
+
+.import-step .settings-row-hint {
+    margin: 0 0 12px;
+}
+
+.clients-import-page .alert {
+    margin: 0 0 14px;
+    padding: 12px 14px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    font-size: 13px;
+}
+
+.clients-import-page .alert-success {
+    border-color: var(--color-success-border);
+    background: var(--color-success-bg);
+    color: var(--color-success);
+}
+
+.clients-import-page .alert-error {
+    border-color: var(--color-danger-border);
+    background: var(--color-danger-bg);
+    color: var(--color-danger);
 }
 
 /* ---------- Bundle upgrade ---------- */
@@ -699,7 +736,7 @@
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
     gap: 14px;
-    margin-bottom: 18px;
+    margin-bottom: 24px;
 }
 
 /* A letter tile wears the board card's look. */
@@ -774,7 +811,7 @@
 
 .document-firm,
 .document-fields {
-    padding: 18px 20px;
+    padding: 20px 24px;
 }
 
 .document-firm h3,
