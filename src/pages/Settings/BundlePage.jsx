@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { getBundles, installBundle, upgradeBundle } from "../../api/bundles";
+import BundleCustomized from "./BundleCustomized";
 import { useBundle } from "../../context/BundleContext";
 import Breadcrumb from "../../components/ui/Breadcrumb";
 
@@ -255,7 +256,12 @@ function BundlePage() {
             </div>
           )}
         </section>
-      ) : offered.length === 0 ? (
+      ) : null}
+
+      {/* Only once a version is fully in place: it compares against that version. */}
+      {!loading && installed?.status === "installed" && !installed.upgrade && <BundleCustomized version={installed.version} />}
+
+      {loading || installed ? null : offered.length === 0 ? (
         <section className="card">
           <div className="settings-empty">This deployment offers no bundles.</div>
         </section>

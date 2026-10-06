@@ -970,9 +970,29 @@
 }
 
 .bundle-page .bundle-installed .bundle-summary,
-.bundle-page .bundle-installed .bundle-actions {
+.bundle-page .bundle-installed .bundle-actions,
+.bundle-page .bundle-customized .bundle-summary {
   padding: 20px 24px;
   margin: 0;
+}
+
+/* Customized items: a section of its own, 24px under the installed bundle. */
+.bundle-page .bundle-customized {
+  margin-top: 24px;
+}
+
+.bundle-page .bundle-customized .alert {
+  margin: 0 24px 16px;
+}
+
+.bundle-page .bundle-diff {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 12px;
+  overflow-wrap: anywhere;
 }
 
 .bundle-page .bundle-summary {
