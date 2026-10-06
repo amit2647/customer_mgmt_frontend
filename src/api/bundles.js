@@ -20,3 +20,9 @@ export function getBundles() {
 export function installBundle(key) {
   return request(`/bundles/${encodeURIComponent(key)}/install`, { method: "POST" });
 }
+
+// Runs every step again at the offered version; anything the firm edited is
+// kept. Resumes an upgrade that stopped part-way.
+export function upgradeBundle(key) {
+  return request(`/bundles/${encodeURIComponent(key)}/upgrade`, { method: "POST" });
+}

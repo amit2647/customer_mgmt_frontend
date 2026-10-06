@@ -104,6 +104,16 @@ function SettingsPage() {
       needsCapability: "obligations",
     },
     {
+      id: "documents",
+      title: "Document templates",
+      description: "The letters your firm issues, and your own wording for them.",
+      icon: "✉",
+      path: "/settings/documents",
+      permission: "system.settings",
+      needsBundle: true,
+      needsCapability: "documents",
+    },
+    {
       id: "bundle",
       title: "Profession Bundle",
       description:

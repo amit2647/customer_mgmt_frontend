@@ -19,6 +19,7 @@ import { useAuth } from "../../context/AuthContext";
 import { useBundle } from "../../context/BundleContext";
 import ClientCompliance from "./ClientCompliance";
 import ClientEngagements from "./ClientEngagements";
+import ClientDocuments from "./ClientDocuments";
 import ClientOrigin from "./ClientOrigin";
 import Breadcrumb from "../../components/ui/Breadcrumb";
 
@@ -33,6 +34,7 @@ const TABS = [
   { id: "engagement", label: "Engagement", permission: "engagements.read", needs: "engagements" },
   { id: "compliance", label: "Compliance", permission: "obligations.read", needs: "obligations" },
   { id: "fees", label: "Fees", permission: "fees.read", needs: "engagements" },
+  { id: "documents", label: "Documents", permission: "documents.read", needs: "documents" },
   { id: "people", label: "People" },
   { id: "bank", label: "Bank accounts", permission: "profiles.read" },
 ];
@@ -208,6 +210,8 @@ function ClientDetailPage() {
       {tab === "compliance" && (
         <ClientCompliance client={client} can={can} readOnly={archived || (locked && !can("profiles.lock"))} onEditEngagement={() => setTab("engagement")} />
       )}
+
+      {tab === "documents" && <ClientDocuments client={client} can={can} readOnly={archived} />}
 
       {tab === "people" && (
         <section className="card" role="tabpanel" aria-label="People">

@@ -47,6 +47,9 @@ import ProspectsPage from "./pages/Prospects/ProspectsPage";
 import ProspectFormPage from "./pages/Prospects/ProspectFormPage";
 import DeadlinesPage from "./pages/Deadlines/DeadlinesPage";
 import DeadlineRulesPage from "./pages/Settings/DeadlineRulesPage";
+import DocumentEditorPage from "./pages/Documents/DocumentEditorPage";
+import DocumentTemplatesPage from "./pages/Settings/DocumentTemplatesPage";
+import DocumentTemplatePage from "./pages/Settings/DocumentTemplatePage";
 import RoleFormPage from "./pages/Settings/RoleFormPage";
 import AccessGrantsPage from "./pages/Settings/AccessGrantsPage";
 
@@ -208,6 +211,19 @@ function App() {
           <Route element={<RequirePermission permission="obligations.read" />}>
             <Route path="/deadlines" element={<DeadlinesPage />} />
             <Route path="/settings/deadlines" element={<DeadlineRulesPage />} />
+          </Route>
+
+          <Route element={<RequirePermission permission="documents.generate" />}>
+            <Route path="/clients/:clientId/documents/new" element={<DocumentEditorPage />} />
+          </Route>
+
+          <Route element={<RequirePermission permission="documents.read" />}>
+            <Route path="/documents/:id" element={<DocumentEditorPage />} />
+          </Route>
+
+          <Route element={<RequirePermission permission="system.settings" />}>
+            <Route path="/settings/documents" element={<DocumentTemplatesPage />} />
+            <Route path="/settings/documents/:key" element={<DocumentTemplatePage />} />
           </Route>
 
           <Route element={<RequirePermission permission="customers.read" />}>

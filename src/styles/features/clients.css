@@ -566,6 +566,230 @@
     font-size: 13px;
 }
 
+/* ---------- Bundle upgrade ---------- */
+
+.bundle-upgrade {
+    margin: 0;
+    padding: 16px 20px;
+    border-top: 1px solid var(--color-border);
+    background: var(--color-surface-subtle);
+}
+
+.bundle-upgrade p {
+    margin: 0 0 10px;
+    font-size: 13px;
+}
+
+.bundle-upgrade-steps {
+    display: grid;
+    gap: 4px;
+    margin: 0 0 12px;
+    padding-left: 18px;
+    font-size: 12px;
+}
+
+/* ---------- Documents ---------- */
+
+/* Something still needs attention (the warning state colour). */
+.document-editor-page .alert-warning {
+    border-color: var(--color-warning-border);
+    background: var(--color-warning-bg);
+    color: var(--color-warning);
+}
+
+.document-tiles {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 14px;
+    margin-bottom: 18px;
+}
+
+/* A letter tile wears the board card's look. */
+.document-tile {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    min-width: 0;
+    padding: 16px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-card);
+    color: var(--color-text);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.document-tile:hover:not(:disabled) {
+    border-color: var(--color-border-strong);
+    box-shadow: var(--shadow-card-hover);
+}
+
+.document-tile strong {
+    font-size: 13px;
+}
+
+/* A letter that does not apply this year fades, and says why (DOC-09). */
+.document-tile.disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+.document-tile-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.document-tile-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 9px;
+    background: var(--color-surface-muted);
+    color: var(--color-text-secondary);
+}
+
+.document-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.document-editor {
+    display: grid;
+    grid-template-columns: minmax(300px, 400px) minmax(0, 1fr);
+    gap: 18px;
+    align-items: start;
+}
+
+.document-side {
+    display: grid;
+    gap: 14px;
+}
+
+.document-firm,
+.document-fields {
+    padding: 18px 20px;
+}
+
+.document-firm h3,
+.document-fields h3 {
+    margin: 0 0 12px;
+    font-size: 13px;
+}
+
+/* The firm's details are fixed here; they change in Settings → Firm (DOC-10). */
+.document-firm {
+    border-color: var(--color-success-border);
+    background: var(--color-success-bg);
+}
+
+.document-firm dl {
+    display: grid;
+    gap: 6px;
+    margin: 0;
+    font-size: 12px;
+}
+
+.document-firm dl div {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.document-firm dt {
+    color: var(--color-text-secondary);
+}
+
+.document-firm dd {
+    margin: 0;
+    font-weight: 600;
+    text-align: right;
+}
+
+.document-finalize {
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid var(--color-border);
+}
+
+.document-finalize label {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 6px;
+    color: var(--color-text-secondary);
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.document-finalize input {
+    height: 38px;
+    padding: 0 10px;
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    color: var(--color-text);
+}
+
+.document-preview {
+    min-width: 0;
+}
+
+.document-print-note {
+    margin: 0 0 8px;
+}
+
+/* The letter is paper: white in every theme. */
+.letter-frame {
+    display: block;
+    width: 100%;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: #fff;
+    box-shadow: var(--shadow-card);
+}
+
+.template-body {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    color: var(--color-text);
+    font: 12px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace;
+    resize: vertical;
+}
+
+.template-field-list {
+    display: grid;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: 12px;
+}
+
+.template-field-list code {
+    font-size: 11px;
+}
+
+@media (max-width: 1024px) {
+    .document-editor {
+        grid-template-columns: 1fr;
+    }
+}
+
 /* ---------- Firm ---------- */
 
 .firm-partners {
@@ -617,7 +841,10 @@
 .client-detail .alert,
 .clients-page .alert,
 .prospects-page .alert,
-.deadlines-page .alert {
+.deadlines-page .alert,
+.document-editor-page .alert,
+.document-template-page .alert,
+.document-templates-page .alert {
     margin: 0 0 16px;
     padding: 12px 14px;
     border: 1px solid var(--color-border);
@@ -626,7 +853,9 @@
 }
 
 .client-detail .alert-success,
-.prospects-page .alert-success {
+.prospects-page .alert-success,
+.document-editor-page .alert-success,
+.document-template-page .alert-success {
     border-color: var(--color-success-border);
     background: var(--color-success-bg);
     color: var(--color-success);
@@ -635,7 +864,10 @@
 .client-detail .alert-error,
 .clients-page .alert-error,
 .prospects-page .alert-error,
-.deadlines-page .alert-error {
+.deadlines-page .alert-error,
+.document-editor-page .alert-error,
+.document-template-page .alert-error,
+.document-templates-page .alert-error {
     border-color: var(--color-danger-border);
     background: var(--color-danger-bg);
     color: var(--color-danger);

@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, test, vi } from "vitest";
 
 import BundlePage from "./BundlePage";
 
-const api = vi.hoisted(() => ({ getBundles: vi.fn(), installBundle: vi.fn() }));
+const api = vi.hoisted(() => ({ getBundles: vi.fn(), installBundle: vi.fn(), upgradeBundle: vi.fn() }));
 
 vi.mock("../../api/bundles", () => api);
 
@@ -27,6 +27,7 @@ const renderPage = () =>
 beforeEach(() => {
   api.getBundles.mockReset();
   api.installBundle.mockReset();
+  api.upgradeBundle.mockReset();
   vi.spyOn(window, "confirm").mockReturnValue(true);
 });
 
@@ -90,5 +91,43 @@ describe("BundlePage", () => {
 
     expect(await screen.findByText("the email service could not be reached")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Resume install" })).toBeInTheDocument();
+  });
+
+  const installedAt = (version, extra = {}) => ({
+    key: "ca-practice", name: "CA Practice", version, status: "installed", installedAt: "2026-10-05T10:00:00Z",
+    steps: [{ step: "roles", status: "done", attempts: 1, error: null }], upgrade: null, ...extra,
+  });
+
+  test("a newer version is offered as an upgrade, after confirmation", async () => {
+    api.getBundles.mockResolvedValueOnce({ bundles: [{ ...CA, version: "0.5.0" }], installed: installedAt("0.4.0") });
+    api.getBundles.mockResolvedValue({ bundles: [{ ...CA, version: "0.5.0" }], installed: installedAt("0.5.0") });
+    api.upgradeBundle.mockResolvedValue({});
+    renderPage();
+
+    fireEvent.click(await screen.findByRole("button", { name: "Upgrade to 0.5.0" }));
+
+    await waitFor(() => expect(api.upgradeBundle).toHaveBeenCalledWith("ca-practice"));
+    expect(await screen.findByText("CA Practice is upgraded to 0.5.0.")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Upgrade to/ })).not.toBeInTheDocument();
+  });
+
+  test("an upgrade that stopped says the old version is still in use, and resumes", async () => {
+    api.getBundles.mockResolvedValue({
+      bundles: [{ ...CA, version: "0.5.0" }],
+      installed: installedAt("0.4.0", { upgrade: { version: "0.5.0", steps: [{ step: "documents", status: "failed", attempts: 1, error: "the documents service could not be reached" }] } }),
+    });
+    renderPage();
+
+    expect(await screen.findByText(/0.4.0 is still in use/)).toBeInTheDocument();
+    expect(screen.getByText("the documents service could not be reached")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Resume upgrade to 0.5.0" })).toBeInTheDocument();
+  });
+
+  test("nothing to upgrade when the installed version is the newest", async () => {
+    api.getBundles.mockResolvedValue({ bundles: [{ ...CA, version: "0.5.0" }], installed: installedAt("0.5.0") });
+    renderPage();
+
+    await screen.findByRole("region", { name: "Installed bundle" });
+    expect(screen.queryByRole("button", { name: /Upgrade/ })).not.toBeInTheDocument();
   });
 });

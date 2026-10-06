@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { getBundles, installBundle } from "../../api/bundles";
+import { getBundles, installBundle, upgradeBundle } from "../../api/bundles";
 import { useBundle } from "../../context/BundleContext";
 import Breadcrumb from "../../components/ui/Breadcrumb";
 
@@ -11,6 +11,7 @@ const STEP_LABELS = {
   catalog: "Services and packages",
   engagementTypes: "Engagement types",
   obligations: "Deadline rules",
+  documents: "Document templates",
   email: "Reminder emails",
 };
 
@@ -22,6 +23,18 @@ const STATUS_LABELS = {
   done: "Done",
   pending: "Waiting",
 };
+
+// Whether x.y.z version `a` is later than `b`.
+function isNewer(a, b) {
+  const pa = String(a).split(".").map(Number);
+  const pb = String(b).split(".").map(Number);
+
+  for (let index = 0; index < 3; index += 1) {
+    if ((pa[index] || 0) !== (pb[index] || 0)) return (pa[index] || 0) > (pb[index] || 0);
+  }
+
+  return false;
+}
 
 function formatDate(value) {
   return value
@@ -95,7 +108,38 @@ function BundlePage() {
     }
   }
 
+  async function handleUpgrade(version) {
+    if (
+      !installed.upgrade &&
+      !window.confirm(
+        `Upgrade ${installed.name} from ${installed.version} to ${version}?\n\nNew items are added and items you have not edited move to the new version. Anything you edited is kept, with the newer version offered beside it.`,
+      )
+    ) {
+      return;
+    }
+
+    try {
+      setBusyKey(installed.key);
+      setError("");
+      setSuccess("");
+
+      await upgradeBundle(installed.key);
+      await refresh();
+
+      setSuccess(`${installed.name} is upgraded to ${version}.`);
+    } catch (requestError) {
+      setError(requestError.message || "The upgrade did not finish.");
+    } finally {
+      setBusyKey("");
+      await load();
+    }
+  }
+
   const unfinished = installed && installed.status !== "installed";
+
+  // A newer version of the installed bundle, or an upgrade that stopped part-way.
+  const newer = installed && offered.find((bundle) => bundle.key === installed.key && isNewer(bundle.version, installed.version));
+  const upgradeTo = installed?.upgrade?.version || newer?.version;
 
   return (
     <main className="page settings-sub-page bundle-page">
@@ -169,6 +213,34 @@ function BundlePage() {
               ))}
             </tbody>
           </table>
+
+          {!unfinished && upgradeTo && (
+            <div className="bundle-upgrade" aria-label="Upgrade">
+              <p>
+                <strong>{installed.upgrade ? `The upgrade to ${upgradeTo} did not finish.` : `Version ${upgradeTo} is available.`}</strong>{" "}
+                {installed.upgrade
+                  ? `${installed.version} is still in use. Upgrading again resumes where it stopped.`
+                  : "Upgrading adds what is new; anything you have edited is kept."}
+              </p>
+
+              {installed.upgrade && (
+                <ul className="bundle-upgrade-steps">
+                  {installed.upgrade.steps.map((step) => (
+                    <li key={step.step}>
+                      {STEP_LABELS[step.step] || step.step}: {STATUS_LABELS[step.status] || step.status}
+                      {step.error && <span className="settings-row-hint settings-cell-warning">{step.error}</span>}
+                    </li>
+                  ))}
+                </ul>
+              )}
+
+              <div className="bundle-actions">
+                <button type="button" className="button button-primary" disabled={Boolean(busyKey)} onClick={() => handleUpgrade(upgradeTo)}>
+                  {busyKey ? "Upgrading..." : installed.upgrade ? `Resume upgrade to ${upgradeTo}` : `Upgrade to ${upgradeTo}`}
+                </button>
+              </div>
+            </div>
+          )}
 
           {unfinished && (
             <div className="bundle-actions">

@@ -14,6 +14,7 @@ disagree, the screen wins and this guide gets fixed.
 | One record, in tabs | Client detail | `src/pages/Clients/ClientDetailPage.jsx` |
 | Add / edit (a wizard) | Add client, Add prospect | `src/pages/Clients/ClientWizardPage.jsx`, `src/pages/Prospects/ProspectFormPage.jsx` |
 | Settings sub-page | Deadline rules, Firm | `src/pages/Settings/DeadlineRulesPage.jsx`, `src/pages/Settings/FirmPage.jsx` |
+| Fields beside a live preview | Letter editor, Document template | `src/pages/Documents/DocumentEditorPage.jsx`, `src/pages/Settings/DocumentTemplatePage.jsx` |
 
 ## 1. Rules
 
@@ -46,6 +47,7 @@ disagree, the screen wins and this guide gets fixed.
 | Choosing services | `<ServicePicker services selected onChange />` (grouped; `grouped={false}` for a flat grid) | `components/ui/ServicePicker.jsx` |
 | A whole page loading, failed or with nothing to edit | `<PageState icon tone title action>sentence</PageState>` | `components/ui/PageState.jsx` |
 | A label and value on a record | `<Field label value href />` | `components/common/Field.jsx` |
+| A letter or other rendered HTML, as it will print | `<LetterFrame html ref />` (sandboxed iframe; `ref.current.print()`) — never `dangerouslySetInnerHTML` | `components/documents/LetterFrame.jsx` |
 | Bundle-defined fields | `<SchemaForm />` | `components/bundle/SchemaForm.jsx` |
 | An engagement's year, services and fees | `<EngagementForm />` | `components/bundle/EngagementForm.jsx` |
 | Route guards | `RequirePermission`, `WithoutBundle` | `components/auth/` |
