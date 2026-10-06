@@ -15,7 +15,7 @@ vi.mock("../../context/BundleContext", () => ({
 
 /*
  * An organization without a bundle keeps its navigation exactly as it was;
- * with one, Customers becomes the bundle's word and leads to its screens.
+ * with one, Customers becomes the bundle's word and Prospects replaces Leads.
  */
 describe("Sidebar", () => {
   test("is unchanged without a bundle", () => {
@@ -23,6 +23,7 @@ describe("Sidebar", () => {
     render(<MemoryRouter><Sidebar collapsed={false} onToggle={() => {}} /></MemoryRouter>);
 
     expect(screen.getByRole("link", { name: /Customers/ })).toHaveAttribute("href", "/customers");
+    expect(screen.getByRole("link", { name: /Leads/ })).toHaveAttribute("href", "/leads");
     expect(screen.queryByRole("link", { name: /Prospects/ })).not.toBeInTheDocument();
   });
 
@@ -32,5 +33,7 @@ describe("Sidebar", () => {
 
     expect(screen.getByRole("link", { name: /Clients/ })).toHaveAttribute("href", "/clients");
     expect(screen.getByRole("link", { name: /Prospects/ })).toHaveAttribute("href", "/prospects");
+    // One screen for leads: the board replaces the Leads list.
+    expect(screen.queryByRole("link", { name: /^Leads$/ })).not.toBeInTheDocument();
   });
 });

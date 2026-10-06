@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 import { changePassword, getProfile, updateProfile } from "../../api/profile";
 import { useAuth } from "../../context/AuthContext";
+import Breadcrumb from "../../components/ui/Breadcrumb";
 
 const MIN_PASSWORD_LENGTH = 8;
 
@@ -163,16 +164,7 @@ function ProfilePage() {
 
   return (
     <main className="page settings-sub-page settings-form-page profile-page">
-      <div className="workflow-breadcrumb">
-        <button type="button" onClick={() => navigate("/settings")}>
-          ← Back to Settings
-        </button>
-
-        <div className="workflow-context">
-          <span>SETTINGS</span>
-          <strong>My Profile</strong>
-        </div>
-      </div>
+      <Breadcrumb onBack={() => navigate("/settings")} backLabel="Settings" section="SETTINGS" title="My Profile" />
 
       <div className="page-header">
         <div>

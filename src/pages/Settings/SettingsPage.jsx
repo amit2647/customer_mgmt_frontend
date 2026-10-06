@@ -94,6 +94,16 @@ function SettingsPage() {
       needsBundle: true,
     },
     {
+      id: "deadlines",
+      title: "Deadline rules",
+      description: "The rules every client's compliance deadlines come from, and extended due dates.",
+      icon: "◷",
+      path: "/settings/deadlines",
+      permission: "obligations.read",
+      needsBundle: true,
+      needsCapability: "obligations",
+    },
+    {
       id: "bundle",
       title: "Profession Bundle",
       description:
@@ -106,6 +116,10 @@ function SettingsPage() {
 
   const visibleItems = settingsItems.filter((item) => {
     if (item.needsBundle && !bundle) {
+      return false;
+    }
+
+    if (item.needsCapability && !(bundle?.capabilities || []).includes(item.needsCapability)) {
       return false;
     }
 

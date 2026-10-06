@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 import { useAuth } from "../../context/AuthContext";
 import { deleteEmailTemplate, getEmailTemplates } from "../../api/emailTemplates";
+import Breadcrumb from "../../components/ui/Breadcrumb";
 
 function EmailTemplatesPage() {
   const navigate = useNavigate();
@@ -59,16 +60,7 @@ function EmailTemplatesPage() {
 
   return (
     <main className="page settings-sub-page">
-      <div className="workflow-breadcrumb">
-        <button type="button" onClick={() => navigate("/settings")}>
-          ← Back to Settings
-        </button>
-
-        <div className="workflow-context">
-          <span>SETTINGS</span>
-          <strong>Email Templates</strong>
-        </div>
-      </div>
+      <Breadcrumb onBack={() => navigate("/settings")} backLabel="Settings" section="SETTINGS" title="Email Templates" />
 
       <div className="page-header">
         <div>

@@ -4,6 +4,7 @@ import {
   CaretLeft,
   CaretRight,
   GearSix,
+  CalendarCheck,
   Kanban,
   Sparkle,
   Package,
@@ -87,7 +88,8 @@ function Sidebar({ collapsed, onToggle }) {
           </NavLink>
         )}
 
-        {hasPermission("leads.read") && (
+        {/* With a bundle, Prospects is the one screen for leads. */}
+        {!bundle && hasPermission("leads.read") && (
           <NavLink to="/leads" className={navigationClass} data-tooltip="Leads">
             <span className="sidebar-icon" aria-hidden="true">
               <UserCircle size={20} weight="regular" />
@@ -105,6 +107,16 @@ function Sidebar({ collapsed, onToggle }) {
             </span>
 
             <span className="sidebar-link-label">Prospects</span>
+          </NavLink>
+        )}
+
+        {bundle?.capabilities?.includes("obligations") && hasPermission("obligations.read") && (
+          <NavLink to="/deadlines" className={navigationClass} data-tooltip="Deadlines">
+            <span className="sidebar-icon" aria-hidden="true">
+              <CalendarCheck size={20} weight="regular" />
+            </span>
+
+            <span className="sidebar-link-label">Deadlines</span>
           </NavLink>
         )}
 

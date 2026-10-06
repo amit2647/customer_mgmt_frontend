@@ -3,12 +3,16 @@ import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 
 import { checkIdentifier, createClient, getClient, updateClient, updateClientServices } from "../../api/clients";
 import { createEngagement, getEngagementTypes, getPeriods } from "../../api/engagements";
+import { getLead } from "../../api/leads";
 import { getServices } from "../../api/services";
 import EngagementForm, { engagementPayload } from "../../components/bundle/EngagementForm";
 import SchemaForm from "../../components/bundle/SchemaForm";
-import { identifiersFor, roleLabel } from "../../components/bundle/bundleLabels";
+import { formatMoney, identifiersFor, roleLabel } from "../../components/bundle/bundleLabels";
 import { useAuth } from "../../context/AuthContext";
 import { useBundle } from "../../context/BundleContext";
+import WizardSteps from "../../components/ui/WizardSteps";
+import ServicePicker from "../../components/ui/ServicePicker";
+import PageState from "../../components/ui/PageState";
 
 /*
  * The client wizard (WIZ-01–15): entity, management, services, bank
@@ -74,6 +78,9 @@ function ClientWizardPage() {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(editing);
   const [saving, setSaving] = useState(false);
+  // The prospect a converted client was won from: what it learned (the
+  // constitution, the quote) carries into onboarding.
+  const [origin, setOrigin] = useState(null);
 
   const attributesForm = useRef(null);
 
@@ -130,9 +137,24 @@ function ClientWizardPage() {
           })),
           serviceIds: (client.services || []).map((service) => Number(service.id)),
         });
+
+        if (params.get("onboarding") && client.source_lead_id && permissions.includes("leads.read")) {
+          getLead(client.source_lead_id)
+            .then((lead) => {
+              setOrigin(lead);
+
+              const constitution = lead.attributes?.constitution;
+              if (constitution && !client.attributes?.constitution) {
+                setForm((current) => ({ ...current, attributes: { ...current.attributes, constitution } }));
+              }
+            })
+            .catch(() => setOrigin(null));
+        }
       })
       .catch((error) => setMessage(error.message || "Could not load the client."))
       .finally(() => setLoading(false));
+    // params and permissions only matter on the first load of this client.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editing, id]);
 
   if (!bundle) {
@@ -291,18 +313,10 @@ function ClientWizardPage() {
     Object.entries(errors).filter(([key]) => !key.includes(".") && !key.includes("[") && key !== "name" && key !== "attributes"),
   );
 
-  const servicesByGroup = services.reduce((groups, service) => {
-    const group = service.category || "Other";
-    (groups[group] ||= []).push(service);
-    return groups;
-  }, {});
 
   if (loading) {
     return (
-      <div className="workflow-page-state">
-        <div className="workflow-page-state-icon">○</div>
-        <h2>Loading {term("client").toLowerCase()}</h2>
-      </div>
+      <PageState title={`Loading ${term("client").toLowerCase()}`} />
     );
   }
 
@@ -323,17 +337,7 @@ function ClientWizardPage() {
           </div>
         </div>
 
-        <div className="workflow-steps customer-workflow-steps">
-          {STEPS.map((item) => (
-            <div key={item.id} className={`workflow-step ${step === item.id ? "active" : ""} ${step > item.id ? "completed" : ""}`}>
-              <div className="workflow-step-number">{step > item.id ? "✓" : item.id}</div>
-              <div className="workflow-step-content">
-                <strong>{item.title}</strong>
-                <span>{item.description}</span>
-              </div>
-            </div>
-          ))}
-        </div>
+        <WizardSteps steps={STEPS} current={step} className="customer-workflow-steps" />
 
         {message && <div className="workflow-error" role="alert">{message}</div>}
 
@@ -478,41 +482,12 @@ function ClientWizardPage() {
                 <span>STEP 03</span>
                 <h3>Services</h3>
                 <p>The services you provide this client.</p>
+                {origin?.quoted_fee !== null && origin?.quoted_fee !== undefined && (
+                  <p className="client-origin-quote">Quoted {formatMoney(origin.quoted_fee)} as a prospect — record the fees per service on the Engagement tab.</p>
+                )}
               </div>
 
-              {Object.entries(servicesByGroup).map(([group, items]) => (
-                <div key={group} className="client-service-group">
-                  <h4>{group}</h4>
-                  <div className="workflow-service-grid">
-                    {items.map((service) => {
-                      const selected = form.serviceIds.includes(Number(service.id));
-
-                      return (
-                        <button
-                          type="button"
-                          key={service.id}
-                          className={`workflow-service-card ${selected ? "selected" : ""}`}
-                          aria-pressed={selected}
-                          onClick={() =>
-                            update("serviceIds", selected ? form.serviceIds.filter((item) => item !== Number(service.id)) : [...form.serviceIds, Number(service.id)])
-                          }
-                        >
-                          <div className="workflow-service-check">{selected ? "✓" : ""}</div>
-                          <div>
-                            <strong>{service.name}</strong>
-                            {service.description && <p>{service.description}</p>}
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              ))}
-
-              <div className="workflow-selection-summary">
-                <strong>{form.serviceIds.length}</strong>
-                <span>{form.serviceIds.length === 1 ? "service selected" : "services selected"}</span>
-              </div>
+              <ServicePicker services={services} selected={form.serviceIds} onChange={(ids) => update("serviceIds", ids)} />
 
               {engagementType && (
                 <div className="wizard-engagement">

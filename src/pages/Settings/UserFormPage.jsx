@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 
 import { useAuth } from "../../context/AuthContext";
 import { createUser, getRoles, getUser, updateUser } from "../../api/identity";
+import Breadcrumb from "../../components/ui/Breadcrumb";
 
 const EMPTY = {
   name: "",
@@ -119,16 +120,7 @@ function UserFormPage() {
 
   return (
     <main className="page settings-sub-page settings-form-page">
-      <div className="workflow-breadcrumb">
-        <button type="button" onClick={() => navigate("/settings/users")}>
-          ← Back to Users &amp; Roles
-        </button>
-
-        <div className="workflow-context">
-          <span>SETTINGS</span>
-          <strong>{isEditing ? "Edit User" : "New User"}</strong>
-        </div>
-      </div>
+      <Breadcrumb onBack={() => navigate("/settings/users")} backLabel="Users & Roles" section="SETTINGS" title={isEditing ? "Edit User" : "New User"} />
 
       <div className="page-header">
         <div>

@@ -17,7 +17,10 @@ import Field, { formatDate } from "../../components/common/Field";
 import { enumLabel, formatDay, identifiersFor, roleLabel } from "../../components/bundle/bundleLabels";
 import { useAuth } from "../../context/AuthContext";
 import { useBundle } from "../../context/BundleContext";
+import ClientCompliance from "./ClientCompliance";
 import ClientEngagements from "./ClientEngagements";
+import ClientOrigin from "./ClientOrigin";
+import Breadcrumb from "../../components/ui/Breadcrumb";
 
 /*
  * One client (CD-01–05, CD-11): header with lock and type flags, then tabs.
@@ -27,8 +30,9 @@ import ClientEngagements from "./ClientEngagements";
 
 const TABS = [
   { id: "overview", label: "Overview" },
-  { id: "engagement", label: "Engagement", permission: "engagements.read", needs: "engagementTypes" },
-  { id: "fees", label: "Fees", permission: "fees.read", needs: "engagementTypes" },
+  { id: "engagement", label: "Engagement", permission: "engagements.read", needs: "engagements" },
+  { id: "compliance", label: "Compliance", permission: "obligations.read", needs: "obligations" },
+  { id: "fees", label: "Fees", permission: "fees.read", needs: "engagements" },
   { id: "people", label: "People" },
   { id: "bank", label: "Bank accounts", permission: "profiles.read" },
 ];
@@ -46,7 +50,8 @@ function ClientDetailPage() {
   const can = (permission) => permissions.includes(permission);
 
   const [client, setClient] = useState(null);
-  const [tab, setTab] = useState("overview");
+  // The Deadlines page opens a client straight on its Compliance tab.
+  const [tab, setTab] = useState(location.state?.tab || "overview");
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -107,13 +112,7 @@ function ClientDetailPage() {
 
   return (
     <main className="page record-detail-page client-detail">
-      <div className="workflow-breadcrumb">
-        <button type="button" onClick={() => navigate("/clients")}>← Back to {term("client", true)}</button>
-        <div className="workflow-context">
-          <span>{term("client", true).toUpperCase()}</span>
-          <strong>{client.name}</strong>
-        </div>
-      </div>
+      <Breadcrumb onBack={() => navigate("/clients")} backLabel={term("client", true)} section={term("client", true).toUpperCase()} title={client.name} />
 
       <div className="page-header">
         <div>
@@ -177,7 +176,7 @@ function ClientDetailPage() {
       {error && <div className="alert alert-error" role="alert">{error}</div>}
 
       <div className="client-tabs" role="tablist">
-        {TABS.filter((item) => (!item.permission || can(item.permission)) && (!item.needs || (bundle?.[item.needs] || []).length > 0)).map((item) => (
+        {TABS.filter((item) => (!item.permission || can(item.permission)) && (!item.needs || (bundle?.capabilities || []).includes(item.needs))).map((item) => (
           <button key={item.id} type="button" role="tab" aria-selected={tab === item.id} className={tab === item.id ? "active" : ""} onClick={() => setTab(item.id)}>
             {item.label}
           </button>
@@ -200,8 +199,14 @@ function ClientDetailPage() {
         </section>
       )}
 
+      {tab === "overview" && <ClientOrigin client={client} can={can} readOnly={archived} onLinked={load} />}
+
       {(tab === "engagement" || tab === "fees") && (
         <ClientEngagements view={tab} client={client} bundle={bundle} services={services} can={can} readOnly={archived || (locked && !can("profiles.lock"))} />
+      )}
+
+      {tab === "compliance" && (
+        <ClientCompliance client={client} can={can} readOnly={archived || (locked && !can("profiles.lock"))} onEditEngagement={() => setTab("engagement")} />
       )}
 
       {tab === "people" && (

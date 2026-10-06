@@ -10,6 +10,7 @@ import {
 
 import EmailAccountTable from "../../components/emailAccounts/EmailAccountTable";
 import EmailAccountWorkflow from "../../components/emailAccounts/EmailAccountWorkflow";
+import Breadcrumb from "../../components/ui/Breadcrumb";
 
 function EmailAccountsPage() {
   const navigate = useNavigate();
@@ -148,21 +149,7 @@ function EmailAccountsPage() {
   if (workflow) {
     return (
       <main className="page email-accounts-page">
-        <div className="workflow-breadcrumb">
-          <button type="button" onClick={handleCancelWorkflow}>
-            ← Back to Email Accounts
-          </button>
-
-          <div className="workflow-context">
-            <span>SETTINGS</span>
-
-            <strong>
-              {workflow.mode === "edit"
-                ? "Edit Email Account"
-                : "Add Email Account"}
-            </strong>
-          </div>
-        </div>
+        <Breadcrumb onBack={handleCancelWorkflow} backLabel="Email Accounts" section="SETTINGS" title={workflow.mode === "edit" ? "Edit Email Account" : "Add Email Account"} />
 
         <EmailAccountWorkflow
           accountId={workflow.accountId}
@@ -175,16 +162,7 @@ function EmailAccountsPage() {
 
   return (
     <main className="page email-accounts-page">
-      <div className="workflow-breadcrumb">
-        <button type="button" onClick={handleBackToSettings}>
-          ← Back to Settings
-        </button>
-
-        <div className="workflow-context">
-          <span>SETTINGS</span>
-          <strong>Email Accounts</strong>
-        </div>
-      </div>
+      <Breadcrumb onBack={handleBackToSettings} backLabel="Settings" section="SETTINGS" title="Email Accounts" />
       <div className="page-header">
         <div>
           <h1>Email Accounts</h1>

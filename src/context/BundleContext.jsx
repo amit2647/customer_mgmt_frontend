@@ -11,16 +11,20 @@ import { useAuth } from "./AuthContext";
  * and label keys off that: such an organization sees the product unchanged.
  */
 
-const BundleContext = createContext({ bundle: null, loading: false, refresh: () => {}, term: (key, many) => key });
+const BundleContext = createContext({ bundle: null, loading: false, ready: true, refresh: () => {}, term: (key, many) => key });
 
 export function BundleProvider({ children }) {
   const { user } = useAuth();
   const [bundle, setBundle] = useState(null);
   const [loading, setLoading] = useState(false);
+  // Whether the first answer for this sign-in has arrived. Until then "no
+  // bundle" is unknown, not false, so a screen that redirects on it waits.
+  const [settledFor, setSettledFor] = useState(undefined);
 
   const refresh = useCallback(async () => {
     if (!user) {
       setBundle(null);
+      setSettledFor(null);
       return;
     }
 
@@ -34,6 +38,7 @@ export function BundleProvider({ children }) {
       setBundle(null);
     } finally {
       setLoading(false);
+      setSettledFor(user);
     }
   }, [user]);
 
@@ -53,8 +58,8 @@ export function BundleProvider({ children }) {
       return many ? entry.many : entry.one;
     };
 
-    return { bundle, loading, refresh, term };
-  }, [bundle, loading, refresh]);
+    return { bundle, loading, ready: settledFor === (user || null), refresh, term };
+  }, [bundle, loading, refresh, settledFor, user]);
 
   return <BundleContext.Provider value={value}>{children}</BundleContext.Provider>;
 }

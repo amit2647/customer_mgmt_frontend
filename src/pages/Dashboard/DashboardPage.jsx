@@ -20,6 +20,7 @@ import {
 import { getDashboard } from "../../api/dashboard";
 
 import DashboardSkeleton from "../../components/dashboard/DashboardSkeleton";
+import StatCard from "../../components/ui/StatCard";
 
 function DashboardPage() {
   const [dashboard, setDashboard] = useState(null);
@@ -289,114 +290,44 @@ function DashboardPage() {
           ============================================================ */}
 
       <section className="dashboard-stats">
-        {/* ==========================================================
-            TOTAL LEADS
-            ========================================================== */}
-
-        <Link to="/leads" className="dashboard-stat-card dashboard-stat-leads">
-          <div className="dashboard-stat-top">
-            <span className="dashboard-stat-label">Total Leads</span>
-
-            <span className="dashboard-stat-icon" aria-hidden="true">
-              <UserCircle size={20} weight="regular" />
-            </span>
-          </div>
-
-          <div className="dashboard-stat-value">{metrics.totalLeads}</div>
-
-          <div className="dashboard-stat-footer">
-            <span>All lead records</span>
-
-            <span className="dashboard-stat-link">
-              View leads
-              <ArrowRight size={13} weight="bold" />
-            </span>
-          </div>
-        </Link>
-
-        {/* ==========================================================
-            CUSTOMERS
-            ========================================================== */}
-
-        <Link
-          to="/customers"
-          className="dashboard-stat-card dashboard-stat-customers"
-        >
-          <div className="dashboard-stat-top">
-            <span className="dashboard-stat-label">Customers</span>
-
-            <span className="dashboard-stat-icon" aria-hidden="true">
-              <Users size={20} weight="regular" />
-            </span>
-          </div>
-
-          <div className="dashboard-stat-value">{metrics.totalCustomers}</div>
-
-          <div className="dashboard-stat-footer">
-            <span>Customer records</span>
-
-            <span className="dashboard-stat-link">
-              View customers
-              <ArrowRight size={13} weight="bold" />
-            </span>
-          </div>
-        </Link>
-
-        {/* ==========================================================
-            QUALIFIED LEADS
-            ========================================================== */}
-
-        <Link
+        <StatCard
           to="/leads"
-          className="dashboard-stat-card dashboard-stat-qualified"
-        >
-          <div className="dashboard-stat-top">
-            <span className="dashboard-stat-label">Qualified Leads</span>
+          className="dashboard-stat-leads"
+          label="Total Leads"
+          icon={<UserCircle size={20} weight="regular" />}
+          value={metrics.totalLeads}
+          hint="All lead records"
+          linkLabel="View leads"
+        />
 
-            <span className="dashboard-stat-icon" aria-hidden="true">
-              <Check size={20} weight="bold" />
-            </span>
-          </div>
+        <StatCard
+          to="/customers"
+          className="dashboard-stat-customers"
+          label="Customers"
+          icon={<Users size={20} weight="regular" />}
+          value={metrics.totalCustomers}
+          hint="Customer records"
+          linkLabel="View customers"
+        />
 
-          <div className="dashboard-stat-value">{metrics.qualifiedLeads}</div>
+        <StatCard
+          to="/leads"
+          className="dashboard-stat-qualified"
+          label="Qualified Leads"
+          icon={<Check size={20} weight="bold" />}
+          value={metrics.qualifiedLeads}
+          hint="Ready for conversion"
+          linkLabel="Review"
+        />
 
-          <div className="dashboard-stat-footer">
-            <span>Ready for conversion</span>
-
-            <span className="dashboard-stat-link">
-              Review
-              <ArrowRight size={13} weight="bold" />
-            </span>
-          </div>
-        </Link>
-
-        {/* ==========================================================
-            CONVERSION RATE
-            ========================================================== */}
-
-        <div className="dashboard-stat-card dashboard-stat-conversion">
-          <div className="dashboard-stat-top">
-            <span className="dashboard-stat-label">Conversion Rate</span>
-
-            <span className="dashboard-stat-icon" aria-hidden="true">
-              <TrendUp size={20} weight="regular" />
-            </span>
-          </div>
-
-          <div className="dashboard-stat-value">{metrics.conversionRate}%</div>
-
-          <div className="dashboard-stat-footer">
-            <span>
-              {metrics.convertedLeads} converted lead
-              {metrics.convertedLeads === 1 ? "" : "s"}
-            </span>
-
-            <span className="dashboard-stat-link">
-              Conversion
-              <ArrowRight size={13} weight="bold" />
-            </span>
-          </div>
-        </div>
+        <StatCard
+          className="dashboard-stat-conversion"
+          label="Conversion Rate"
+          icon={<TrendUp size={20} weight="regular" />}
+          value={`${metrics.conversionRate}%`}
+          hint={`${metrics.convertedLeads} converted lead${metrics.convertedLeads === 1 ? "" : "s"}`}
+          linkLabel="Conversion"
+        />
       </section>
 
       {/* ============================================================

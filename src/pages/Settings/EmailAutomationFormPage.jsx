@@ -9,6 +9,7 @@ import {
 } from "../../api/emailAutomations";
 import { getEmailTemplates } from "../../api/emailTemplates";
 import ToggleField from "../../components/common/ToggleField";
+import Breadcrumb from "../../components/ui/Breadcrumb";
 
 const EMPTY = {
   name: "",
@@ -148,16 +149,7 @@ function EmailAutomationFormPage() {
 
   return (
     <main className="page settings-sub-page settings-form-page">
-      <div className="workflow-breadcrumb">
-        <button type="button" onClick={() => navigate("/settings/email-automations")}>
-          ← Back to Email Automations
-        </button>
-
-        <div className="workflow-context">
-          <span>SETTINGS</span>
-          <strong>{isEditing ? "Edit Automation" : "New Automation"}</strong>
-        </div>
-      </div>
+      <Breadcrumb onBack={() => navigate("/settings/email-automations")} backLabel="Email Automations" section="SETTINGS" title={isEditing ? "Edit Automation" : "New Automation"} />
 
       <div className="page-header">
         <div>

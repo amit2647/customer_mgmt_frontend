@@ -87,6 +87,17 @@ export function convertLead(id) {
 }
 
 /*
+ * Link a lead to the customer it became — for a customer won before
+ * conversions were recorded. Needs leads.update and customers.update.
+ */
+export function linkLead(id, customerId) {
+  return request(`/leads/${id}/link`, {
+    method: "POST",
+    body: JSON.stringify({ customerId: Number(customerId) }),
+  });
+}
+
+/*
  * Get services assigned to a lead.
  */
 export function getLeadServices(id) {

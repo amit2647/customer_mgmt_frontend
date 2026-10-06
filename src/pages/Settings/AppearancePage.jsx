@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "../../context/ThemeContext";
+import Breadcrumb from "../../components/ui/Breadcrumb";
 
 const themeOptions = [
   {
@@ -64,16 +65,7 @@ function AppearancePage() {
 
   return (
     <main className="page appearance-page">
-      <div className="workflow-breadcrumb">
-        <button type="button" onClick={handleBackToSettings}>
-          ← Back to Settings
-        </button>
-
-        <div className="workflow-context">
-          <span>SETTINGS</span>
-          <strong>Appearance</strong>
-        </div>
-      </div>
+      <Breadcrumb onBack={handleBackToSettings} backLabel="Settings" section="SETTINGS" title="Appearance" />
 
       <header className="page-header">
         <div>

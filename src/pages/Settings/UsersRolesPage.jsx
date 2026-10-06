@@ -8,6 +8,7 @@ import {
   getOrganizationUsers,
   getRoles,
 } from "../../api/identity";
+import Breadcrumb from "../../components/ui/Breadcrumb";
 
 const TABS = [
   { id: "users", label: "Users" },
@@ -109,16 +110,7 @@ function UsersRolesPage() {
 
   return (
     <main className="page settings-sub-page">
-      <div className="workflow-breadcrumb">
-        <button type="button" onClick={() => navigate("/settings")}>
-          ← Back to Settings
-        </button>
-
-        <div className="workflow-context">
-          <span>SETTINGS</span>
-          <strong>Users &amp; Roles</strong>
-        </div>
-      </div>
+      <Breadcrumb onBack={() => navigate("/settings")} backLabel="Settings" section="SETTINGS" title="Users & Roles" />
 
       <div className="page-header">
         <div>

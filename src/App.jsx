@@ -5,6 +5,7 @@ import SplashScreen from "./components/common/SplashScreen";
 import OnboardingScreen from "./components/common/OnboardingScreen";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import RequirePermission from "./components/auth/RequirePermission";
+import WithoutBundle from "./components/auth/WithoutBundle";
 
 import { useAuth } from "./context/AuthContext";
 
@@ -43,6 +44,9 @@ import ClientsPage from "./pages/Clients/ClientsPage";
 import ClientDetailPage from "./pages/Clients/ClientDetailPage";
 import ClientWizardPage from "./pages/Clients/ClientWizardPage";
 import ProspectsPage from "./pages/Prospects/ProspectsPage";
+import ProspectFormPage from "./pages/Prospects/ProspectFormPage";
+import DeadlinesPage from "./pages/Deadlines/DeadlinesPage";
+import DeadlineRulesPage from "./pages/Settings/DeadlineRulesPage";
 import RoleFormPage from "./pages/Settings/RoleFormPage";
 import AccessGrantsPage from "./pages/Settings/AccessGrantsPage";
 
@@ -158,19 +162,24 @@ function App() {
               What it can actually do is filtered per-tool server-side. */}
           <Route path="/assistant" element={<AssistantPage />} />
 
+          {/* With a bundle, the prospect board is the one screen for leads:
+              both show the same `leads` rows, and Convert must open the client
+              wizard. Every /leads link (dashboard, landing fallback) follows. */}
           <Route element={<RequirePermission permission="leads.read" />}>
-            <Route path="/leads" element={<LeadsPage />} />
+            <Route element={<WithoutBundle redirectTo="/prospects" />}>
+              <Route path="/leads" element={<LeadsPage />} />
 
-            <Route path="/leads/new" element={<LeadWorkflowPage />} />
+              <Route path="/leads/new" element={<LeadWorkflowPage />} />
 
-            <Route path="/leads/:id" element={<LeadDetailPage />} />
+              <Route path="/leads/:id" element={<LeadDetailPage />} />
 
-            <Route path="/leads/:id/edit" element={<LeadWorkflowPage />} />
+              <Route path="/leads/:id/edit" element={<LeadWorkflowPage />} />
+            </Route>
           </Route>
 
-          {/* Profession-bundle screens: Clients replace Customers in the
-              navigation once a bundle is installed (the Customers screens stay
-              for an organization without one). */}
+          {/* Profession-bundle screens: Clients replace Customers once a bundle
+              is installed (the Customers screens stay for an organization
+              without one, and redirect here for one with). */}
           <Route element={<RequirePermission permission="customers.read" />}>
             <Route path="/clients" element={<ClientsPage />} />
             <Route path="/clients/:id" element={<ClientDetailPage />} />
@@ -188,17 +197,34 @@ function App() {
             <Route path="/prospects" element={<ProspectsPage />} />
           </Route>
 
+          <Route element={<RequirePermission permission="leads.create" />}>
+            <Route path="/prospects/new" element={<ProspectFormPage />} />
+          </Route>
+
+          <Route element={<RequirePermission permission="leads.update" />}>
+            <Route path="/prospects/:id/edit" element={<ProspectFormPage />} />
+          </Route>
+
+          <Route element={<RequirePermission permission="obligations.read" />}>
+            <Route path="/deadlines" element={<DeadlinesPage />} />
+            <Route path="/settings/deadlines" element={<DeadlineRulesPage />} />
+          </Route>
+
           <Route element={<RequirePermission permission="customers.read" />}>
-            <Route path="/customers" element={<CustomersPage />} />
+            {/* With a bundle, Clients are the screens for customers (the same
+                rows): each /customers path lands on its /clients twin. */}
+            <Route element={<WithoutBundle redirectTo={(path) => path.replace(/^\/customers/, "/clients")} />}>
+              <Route path="/customers" element={<CustomersPage />} />
 
-            <Route path="/customers/new" element={<CustomerWorkflowPage />} />
+              <Route path="/customers/new" element={<CustomerWorkflowPage />} />
 
-            <Route path="/customers/:id" element={<CustomerDetailPage />} />
+              <Route path="/customers/:id" element={<CustomerDetailPage />} />
 
-            <Route
-              path="/customers/:id/edit"
-              element={<CustomerWorkflowPage />}
-            />
+              <Route
+                path="/customers/:id/edit"
+                element={<CustomerWorkflowPage />}
+              />
+            </Route>
           </Route>
 
           <Route element={<RequirePermission permission="services.read" />}>

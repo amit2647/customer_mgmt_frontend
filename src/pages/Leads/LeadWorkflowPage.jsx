@@ -9,6 +9,7 @@ import {
 } from "../../api/leads";
 
 import LeadWorkflow from "../../components/leads/LeadWorkflow";
+import PageState from "../../components/ui/PageState";
 
 function LeadWorkflowPage() {
   const navigate = useNavigate();
@@ -95,13 +96,7 @@ function LeadWorkflowPage() {
 
   if (loading) {
     return (
-      <div className="workflow-page-state">
-        <div className="workflow-page-state-icon">○</div>
-
-        <h2>Loading lead</h2>
-
-        <p>Preparing the lead workflow...</p>
-      </div>
+      <PageState title="Loading lead">Preparing the lead workflow...</PageState>
     );
   }
 
@@ -113,21 +108,18 @@ function LeadWorkflowPage() {
 
   if (error) {
     return (
-      <div className="workflow-page-state">
-        <div className="workflow-page-state-icon error">!</div>
-
-        <h2>Unable to load lead</h2>
-
-        <p>{error}</p>
-
-        <button
-          type="button"
-          className="primary"
-          onClick={() => navigate("/leads")}
-        >
-          Back to Leads
-        </button>
-      </div>
+      <PageState
+        icon="!"
+        tone="error"
+        title="Unable to load lead"
+        action={
+          <button type="button" className="primary" onClick={() => navigate("/leads")}>
+            Back to Leads
+          </button>
+        }
+      >
+        {error}
+      </PageState>
     );
   }
 

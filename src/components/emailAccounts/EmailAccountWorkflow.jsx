@@ -5,6 +5,7 @@ import {
   getEmailAccount,
   updateEmailAccount,
 } from "../../api/emailAccounts";
+import WizardSteps from "../ui/WizardSteps";
 
 const STEPS = [
   {
@@ -297,30 +298,7 @@ function EmailAccountWorkflow({ accountId = null, onComplete, onCancel }) {
         </div>
       </div>
 
-      <div className="workflow-steps email-account-workflow-steps">
-        {STEPS.map((item) => {
-          const active = step === item.id;
-          const completed = step > item.id;
-
-          return (
-            <div
-              key={item.id}
-              className={`workflow-step ${
-                active ? "active" : ""
-              } ${completed ? "completed" : ""}`}
-            >
-              <div className="workflow-step-number">
-                {completed ? "✓" : item.id}
-              </div>
-
-              <div className="workflow-step-content">
-                <strong>{item.title}</strong>
-                <span>{item.description}</span>
-              </div>
-            </div>
-          );
-        })}
-      </div>
+      <WizardSteps steps={STEPS} current={step} className="email-account-workflow-steps" />
 
       {error && <div className="workflow-error">{error}</div>}
 

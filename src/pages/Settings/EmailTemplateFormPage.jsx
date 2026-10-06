@@ -7,6 +7,7 @@ import {
   updateEmailTemplate,
 } from "../../api/emailTemplates";
 import ToggleField from "../../components/common/ToggleField";
+import Breadcrumb from "../../components/ui/Breadcrumb";
 
 const EMPTY = { name: "", subject: "", body: "", description: "", is_active: true };
 
@@ -85,16 +86,7 @@ function EmailTemplateFormPage() {
 
   return (
     <main className="page settings-sub-page settings-form-page">
-      <div className="workflow-breadcrumb">
-        <button type="button" onClick={() => navigate("/settings/email-templates")}>
-          ← Back to Email Templates
-        </button>
-
-        <div className="workflow-context">
-          <span>SETTINGS</span>
-          <strong>{isEditing ? "Edit Template" : "New Template"}</strong>
-        </div>
-      </div>
+      <Breadcrumb onBack={() => navigate("/settings/email-templates")} backLabel="Email Templates" section="SETTINGS" title={isEditing ? "Edit Template" : "New Template"} />
 
       <div className="page-header">
         <div>

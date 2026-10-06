@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 import { useAuth } from "../../context/AuthContext";
 import { getOrganization, updateOrganization } from "../../api/identity";
+import Breadcrumb from "../../components/ui/Breadcrumb";
 
 function OrganizationPage() {
   const navigate = useNavigate();
@@ -86,16 +87,7 @@ function OrganizationPage() {
 
   return (
     <main className="page settings-sub-page settings-form-page">
-      <div className="workflow-breadcrumb">
-        <button type="button" onClick={() => navigate("/settings")}>
-          ← Back to Settings
-        </button>
-
-        <div className="workflow-context">
-          <span>SETTINGS</span>
-          <strong>Organization</strong>
-        </div>
-      </div>
+      <Breadcrumb onBack={() => navigate("/settings")} backLabel="Settings" section="SETTINGS" title="Organization" />
 
       <div className="page-header">
         <div>

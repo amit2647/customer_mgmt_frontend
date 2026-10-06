@@ -5,6 +5,7 @@ import { getCustomer } from "../../api/customers";
 
 import CommunicationPanel from "../../components/communications/CommunicationPanel";
 import Field, { formatDate } from "../../components/common/Field";
+import Breadcrumb from "../../components/ui/Breadcrumb";
 
 function CustomerDetailPage() {
   const { id } = useParams();
@@ -55,16 +56,7 @@ function CustomerDetailPage() {
 
   return (
     <main className="page record-detail-page">
-      <div className="workflow-breadcrumb">
-        <button type="button" onClick={() => navigate("/customers")}>
-          ← Back to Customers
-        </button>
-
-        <div className="workflow-context">
-          <span>CUSTOMERS</span>
-          <strong>{customer.name}</strong>
-        </div>
-      </div>
+      <Breadcrumb onBack={() => navigate("/customers")} backLabel="Customers" section="CUSTOMERS" title={customer.name} />
 
       <div className="page-header">
         <div>

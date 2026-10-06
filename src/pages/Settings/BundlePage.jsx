@@ -3,12 +3,14 @@ import { useNavigate } from "react-router-dom";
 
 import { getBundles, installBundle } from "../../api/bundles";
 import { useBundle } from "../../context/BundleContext";
+import Breadcrumb from "../../components/ui/Breadcrumb";
 
 const STEP_LABELS = {
   permissions: "Permissions",
   roles: "Role templates",
   catalog: "Services and packages",
   engagementTypes: "Engagement types",
+  obligations: "Deadline rules",
   email: "Reminder emails",
 };
 
@@ -97,16 +99,7 @@ function BundlePage() {
 
   return (
     <main className="page settings-sub-page bundle-page">
-      <div className="workflow-breadcrumb">
-        <button type="button" onClick={() => navigate("/settings")}>
-          ← Back to Settings
-        </button>
-
-        <div className="workflow-context">
-          <span>SETTINGS</span>
-          <strong>Profession Bundle</strong>
-        </div>
-      </div>
+      <Breadcrumb onBack={() => navigate("/settings")} backLabel="Settings" section="SETTINGS" title="Profession Bundle" />
 
       <div className="page-header">
         <div>

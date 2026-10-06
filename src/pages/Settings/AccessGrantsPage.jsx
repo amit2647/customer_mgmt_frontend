@@ -9,6 +9,7 @@ import {
   getPermissions,
   revokeAccessGrant,
 } from "../../api/identity";
+import Breadcrumb from "../../components/ui/Breadcrumb";
 
 /*
  * Screens people actually ask for, mapped to the permission that unlocks them.
@@ -322,16 +323,7 @@ function AccessGrantsPage() {
 
   return (
     <main className="page settings-sub-page">
-      <div className="workflow-breadcrumb">
-        <button type="button" onClick={() => navigate("/settings")}>
-          ← Back to Settings
-        </button>
-
-        <div className="workflow-context">
-          <span>SETTINGS</span>
-          <strong>Just-in-time Access</strong>
-        </div>
-      </div>
+      <Breadcrumb onBack={() => navigate("/settings")} backLabel="Settings" section="SETTINGS" title="Just-in-time Access" />
 
       <div className="page-header">
         <div>

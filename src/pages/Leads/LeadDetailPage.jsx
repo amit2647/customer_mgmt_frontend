@@ -7,6 +7,7 @@ import ChannelBadge from "../../components/common/ChannelBadge";
 import StatusBadge from "../../components/common/StatusBadge";
 import CommunicationPanel from "../../components/communications/CommunicationPanel";
 import Field, { formatDate } from "../../components/common/Field";
+import Breadcrumb from "../../components/ui/Breadcrumb";
 
 function LeadDetailPage() {
   const { id } = useParams();
@@ -57,16 +58,7 @@ function LeadDetailPage() {
 
   return (
     <main className="page record-detail-page">
-      <div className="workflow-breadcrumb">
-        <button type="button" onClick={() => navigate("/leads")}>
-          ← Back to Leads
-        </button>
-
-        <div className="workflow-context">
-          <span>LEADS</span>
-          <strong>{lead.name}</strong>
-        </div>
-      </div>
+      <Breadcrumb onBack={() => navigate("/leads")} backLabel="Leads" section="LEADS" title={lead.name} />
 
       <div className="page-header">
         <div>

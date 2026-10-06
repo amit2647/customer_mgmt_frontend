@@ -9,6 +9,7 @@ import {
 } from "../../api/customers";
 
 import CustomerWorkflow from "../../components/customers/CustomerWorkflow";
+import PageState from "../../components/ui/PageState";
 
 function CustomerWorkflowPage() {
   const navigate = useNavigate();
@@ -98,13 +99,7 @@ function CustomerWorkflowPage() {
 
   if (loading) {
     return (
-      <div className="workflow-page-state">
-        <div className="workflow-page-state-icon">○</div>
-
-        <h2>Loading customer</h2>
-
-        <p>Preparing the customer workflow...</p>
-      </div>
+      <PageState title="Loading customer">Preparing the customer workflow...</PageState>
     );
   }
 
@@ -116,21 +111,18 @@ function CustomerWorkflowPage() {
 
   if (error) {
     return (
-      <div className="workflow-page-state">
-        <div className="workflow-page-state-icon error">!</div>
-
-        <h2>Unable to load customer</h2>
-
-        <p>{error}</p>
-
-        <button
-          type="button"
-          className="primary"
-          onClick={() => navigate("/customers")}
-        >
-          Back to Customers
-        </button>
-      </div>
+      <PageState
+        icon="!"
+        tone="error"
+        title="Unable to load customer"
+        action={
+          <button type="button" className="primary" onClick={() => navigate("/customers")}>
+            Back to Customers
+          </button>
+        }
+      >
+        {error}
+      </PageState>
     );
   }
 

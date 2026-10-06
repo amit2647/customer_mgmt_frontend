@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { getServices } from "../../api/services";
+import WizardSteps from "../ui/WizardSteps";
+import ServicePicker from "../ui/ServicePicker";
 
 const STEPS = [
   {
@@ -107,20 +109,6 @@ function LeadWorkflow({ lead = null, onSubmit, onClose }) {
     setError("");
   }
 
-  function toggleService(serviceId) {
-    const id = Number(serviceId);
-
-    setForm((current) => {
-      const exists = current.serviceIds.includes(id);
-
-      return {
-        ...current,
-        serviceIds: exists
-          ? current.serviceIds.filter((item) => item !== id)
-          : [...current.serviceIds, id],
-      };
-    });
-  }
 
   function validateStep(currentStep) {
     setError("");
@@ -220,30 +208,7 @@ function LeadWorkflow({ lead = null, onSubmit, onClose }) {
         </div>
       </div>
 
-      <div className="workflow-steps">
-        {STEPS.map((item) => {
-          const active = step === item.id;
-          const completed = step > item.id;
-
-          return (
-            <div
-              key={item.id}
-              className={`workflow-step ${
-                active ? "active" : ""
-              } ${completed ? "completed" : ""}`}
-            >
-              <div className="workflow-step-number">
-                {completed ? "✓" : item.id}
-              </div>
-
-              <div className="workflow-step-content">
-                <strong>{item.title}</strong>
-                <span>{item.description}</span>
-              </div>
-            </div>
-          );
-        })}
-      </div>
+      <WizardSteps steps={STEPS} current={step} />
 
       {error && <div className="workflow-error">{error}</div>}
 
@@ -398,44 +363,13 @@ function LeadWorkflow({ lead = null, onSubmit, onClose }) {
                 </span>
               </div>
             ) : (
-              <div className="workflow-service-grid">
-                {activeServices.map((service) => {
-                  const selected = form.serviceIds.includes(Number(service.id));
-
-                  return (
-                    <button
-                      type="button"
-                      key={service.id}
-                      className={`workflow-service-card ${
-                        selected ? "selected" : ""
-                      }`}
-                      onClick={() => toggleService(service.id)}
-                    >
-                      <div className="workflow-service-check">
-                        {selected ? "✓" : ""}
-                      </div>
-
-                      <div>
-                        <strong>{service.name}</strong>
-
-                        {service.category && <span>{service.category}</span>}
-
-                        {service.description && <p>{service.description}</p>}
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
+              <ServicePicker
+                grouped={false}
+                services={activeServices}
+                selected={form.serviceIds}
+                onChange={(serviceIds) => setForm((current) => ({ ...current, serviceIds }))}
+              />
             )}
-
-            <div className="workflow-selection-summary">
-              <strong>{selectedServices.length}</strong>
-              <span>
-                {selectedServices.length === 1
-                  ? "service selected"
-                  : "services selected"}
-              </span>
-            </div>
           </section>
         )}
 

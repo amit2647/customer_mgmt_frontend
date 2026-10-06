@@ -5,6 +5,7 @@ import { createProfessional, getFirm, getProfessionals, removeProfessional, upda
 import SchemaForm from "../../components/bundle/SchemaForm";
 import { useAuth } from "../../context/AuthContext";
 import { useBundle } from "../../context/BundleContext";
+import Breadcrumb from "../../components/ui/Breadcrumb";
 
 /*
  * Settings → Firm (SET-01–03): the firm's details and the bundle's firm
@@ -96,13 +97,7 @@ function FirmPage() {
 
   return (
     <main className="page settings-sub-page settings-form-page firm-page">
-      <div className="workflow-breadcrumb">
-        <button type="button" onClick={() => navigate("/settings")}>← Back to Settings</button>
-        <div className="workflow-context">
-          <span>SETTINGS</span>
-          <strong>Firm</strong>
-        </div>
-      </div>
+      <Breadcrumb onBack={() => navigate("/settings")} backLabel="Settings" section="SETTINGS" title="Firm" />
 
       <div className="page-header">
         <div>

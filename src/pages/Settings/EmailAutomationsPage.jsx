@@ -8,6 +8,7 @@ import {
   deleteEmailAutomation,
   getEmailAutomations,
 } from "../../api/emailAutomations";
+import Breadcrumb from "../../components/ui/Breadcrumb";
 
 const EVENT_LABELS = {
   "lead.created": "Lead created",
@@ -92,16 +93,7 @@ function EmailAutomationsPage() {
 
   return (
     <main className="page settings-sub-page">
-      <div className="workflow-breadcrumb">
-        <button type="button" onClick={() => navigate("/settings")}>
-          ← Back to Settings
-        </button>
-
-        <div className="workflow-context">
-          <span>SETTINGS</span>
-          <strong>Email Automations</strong>
-        </div>
-      </div>
+      <Breadcrumb onBack={() => navigate("/settings")} backLabel="Settings" section="SETTINGS" title="Email Automations" />
 
       <div className="page-header">
         <div>

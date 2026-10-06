@@ -8,6 +8,7 @@ import {
   updateRole,
   updateRolePermissions,
 } from "../../api/identity";
+import Breadcrumb from "../../components/ui/Breadcrumb";
 
 // permissions are coded "group.action", so the prefix gives a natural grouping
 // without maintaining a separate list here.
@@ -127,16 +128,7 @@ function RoleFormPage() {
 
   return (
     <main className="page settings-sub-page settings-form-page">
-      <div className="workflow-breadcrumb">
-        <button type="button" onClick={() => navigate("/settings/users?tab=roles")}>
-          ← Back to Users &amp; Roles
-        </button>
-
-        <div className="workflow-context">
-          <span>SETTINGS</span>
-          <strong>{isEditing ? form.name || "Role" : "New Role"}</strong>
-        </div>
-      </div>
+      <Breadcrumb onBack={() => navigate("/settings/users?tab=roles")} backLabel="Users & Roles" section="SETTINGS" title={isEditing ? form.name || "Role" : "New Role"} />
 
       <div className="page-header">
         <div>
