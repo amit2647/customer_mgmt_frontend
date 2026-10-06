@@ -19,7 +19,9 @@ import { useAuth } from "../../context/AuthContext";
 import { useBundle } from "../../context/BundleContext";
 import ClientCompliance from "./ClientCompliance";
 import ClientEngagements from "./ClientEngagements";
+import ClientCredentials from "./ClientCredentials";
 import ClientDocuments from "./ClientDocuments";
+import ClientFiles from "./ClientFiles";
 import ClientOrigin from "./ClientOrigin";
 import Breadcrumb from "../../components/ui/Breadcrumb";
 
@@ -35,6 +37,8 @@ const TABS = [
   { id: "compliance", label: "Compliance", permission: "obligations.read", needs: "obligations" },
   { id: "fees", label: "Fees", permission: "fees.read", needs: "engagements" },
   { id: "documents", label: "Documents", permission: "documents.read", needs: "documents" },
+  { id: "credentials", label: "Credentials", permission: "vault.read", needs: "vault" },
+  { id: "files", label: "Files", permission: "files.read", needs: "vault" },
   { id: "people", label: "People" },
   { id: "bank", label: "Bank accounts", permission: "profiles.read" },
 ];
@@ -212,6 +216,10 @@ function ClientDetailPage() {
       )}
 
       {tab === "documents" && <ClientDocuments client={client} can={can} readOnly={archived} />}
+
+      {tab === "credentials" && <ClientCredentials client={client} can={can} readOnly={archived} onOpenFiles={() => setTab("files")} />}
+
+      {tab === "files" && <ClientFiles client={client} can={can} readOnly={archived} />}
 
       {tab === "people" && (
         <section className="card" role="tabpanel" aria-label="People">

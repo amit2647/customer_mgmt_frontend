@@ -88,4 +88,39 @@ async function request(url, options = {}) {
   return data;
 }
 
+/*
+ * The same call for bodies and responses that are not JSON — a multipart
+ * upload, a file download. The browser sets the upload's content type
+ * (with its boundary); the caller reads the Response itself.
+ */
+export async function requestRaw(url, options = {}) {
+  const token = getToken();
+  const headers = { ...(options.headers || {}) };
+
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+
+  const response = await fetch(API + url, { ...options, headers });
+
+  if (!response.ok) {
+    let data = null;
+
+    try {
+      data = await response.json();
+    } catch {
+      data = null;
+    }
+
+    if (response.status === 401) clearToken();
+
+    const error = new Error(data?.error || (response.status === 413 ? "That file is too large." : `Request failed with status ${response.status}`));
+    error.status = response.status;
+    if (data?.details) error.details = data.details;
+    throw error;
+  }
+
+  return response;
+}
+
 export default request;
