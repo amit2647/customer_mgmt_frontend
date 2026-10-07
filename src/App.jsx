@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Navigate, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 
 import SplashScreen from "./components/common/SplashScreen";
@@ -12,6 +12,8 @@ import { useAuth } from "./context/AuthContext";
 import AppLayout from "./components/layout/AppLayout";
 
 import LoginPage from "./pages/Login/LoginPage";
+import SetupPage from "./pages/Setup/SetupPage";
+import { getSetupStatus } from "./api/setup";
 import GuestAccessPage from "./pages/Guest/GuestAccessPage";
 import AssistantPage from "./pages/Assistant/AssistantPage";
 
@@ -94,6 +96,23 @@ function App() {
 
   const [showSplash, setShowSplash] = useState(true);
 
+  // A new installation is set up before anything else (SetupPage). Asked once,
+  // during the splash; if the question fails, the app carries on as set up —
+  // the server refuses setup anyway once an admin exists.
+  const [setup, setSetup] = useState(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    getSetupStatus()
+      .then((status) => !cancelled && setSetup(status))
+      .catch(() => !cancelled && setSetup({ required: false }));
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const [showOnboarding, setShowOnboarding] = useState(() => {
     return localStorage.getItem("omnicore-onboarding-completed") !== "true";
   });
@@ -120,6 +139,29 @@ function App() {
 
   if (showSplash && !isInviteLink) {
     return <SplashScreen onComplete={handleSplashComplete} />;
+  }
+
+  /*
+   * ---------------------------------------------------------
+   * FIRST-RUN SETUP
+   * ---------------------------------------------------------
+   */
+
+  if (!isInviteLink && setup === null) {
+    return null;
+  }
+
+  if (!isInviteLink && setup.required) {
+    return (
+      <SetupPage
+        status={setup}
+        onComplete={() => {
+          // Signed straight in: no tour for the person who just set it up.
+          setShowOnboarding(false);
+          setSetup({ required: false });
+        }}
+      />
+    );
   }
 
   /*

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import { getBundles, installBundle, upgradeBundle } from "../../api/bundles";
 import BundleCustomized from "./BundleCustomized";
@@ -52,6 +52,8 @@ function formatDate(value) {
  */
 function BundlePage() {
   const navigate = useNavigate();
+  // First-run setup lands here when installing its bundle stopped part-way.
+  const setupBundleError = useLocation().state?.setupBundleError;
   const { refresh } = useBundle();
 
   const [offered, setOffered] = useState([]);
@@ -158,6 +160,11 @@ function BundlePage() {
         </div>
       </div>
 
+      {setupBundleError && !success && (
+        <div className="alert alert-warning" role="status">
+          Setup is complete, but installing the profession bundle stopped: {setupBundleError}. Resume it below.
+        </div>
+      )}
       {success && <div className="alert alert-success">{success}</div>}
       {error && <div className="alert alert-error" role="alert">{error}</div>}
 

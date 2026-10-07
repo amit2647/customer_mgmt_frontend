@@ -32,6 +32,7 @@
 @import "./dashboard/dashboard-skeleton.css";
 @import "./pages/onboarding.css";
 @import "./pages/login.css";
+@import "./pages/setup.css";
 @import "./pages/settings.css";
 @import "./components/user-menu.css";
 @import "./features/assistant.css";

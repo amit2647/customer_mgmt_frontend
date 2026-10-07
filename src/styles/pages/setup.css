@@ -1,0 +1,183 @@
+/* =========================================================
+   OMNICORE — FIRST-RUN SETUP
+   The sign-in page's split layout (login.css) with a short wizard on the
+   right: organization, administrator, setup code. Only what differs is here.
+   ========================================================= */
+
+.setup-page .setup-form-wrap {
+    max-width: 440px;
+}
+
+.setup-page .login-heading {
+    margin-bottom: 20px;
+}
+
+/* The shared step bar, compact: no band, three columns in the narrow panel. */
+.setup-page .workflow-steps.setup-steps {
+    display: flex;
+    margin: 0 0 20px;
+    padding: 0;
+    border: 0;
+    background: none;
+}
+
+/* The titled (current) step takes the width its title needs; the rest share. */
+.setup-page .setup-steps .workflow-step {
+    flex: 1 1 0;
+    width: auto;
+    min-width: 32px;
+}
+
+.setup-page .setup-steps .workflow-step.active {
+    flex: 0 0 auto;
+    padding-right: 28px;
+}
+
+.setup-page .setup-steps .workflow-step.active:last-child {
+    padding-right: 0;
+}
+
+.setup-page .setup-steps .workflow-step-content {
+    background: var(--color-page);
+}
+
+.setup-page .setup-steps .workflow-step-content span {
+    display: none;
+}
+
+/* Four steps in a 440px panel: only the current step is titled; the others
+   are numbers (their buttons still carry the title for screen readers). */
+.setup-page .setup-steps .workflow-step:not(.active) .workflow-step-content strong {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+}
+
+.setup-page .login-error {
+    margin-bottom: 16px;
+}
+
+.setup-page .login-form select {
+    width: 100%;
+    height: var(--input-height);
+    padding: 0 12px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-surface);
+    color: var(--color-text);
+    font-family: var(--font-body);
+    font-size: 13px;
+}
+
+.setup-page .login-form select:focus {
+    outline: none;
+    border-color: var(--color-border-accent);
+    box-shadow: 0 0 0 3px var(--focus-ring-color-alpha);
+}
+
+.setup-page .setup-hint {
+    color: var(--color-text-muted);
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 1.45;
+}
+
+.setup-page .setup-hint code {
+    padding: 1px 4px;
+    border-radius: 4px;
+    background: var(--color-surface-muted);
+    color: var(--color-text);
+    font-size: 11px;
+}
+
+.setup-page .setup-code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.setup-page .setup-summary {
+    display: grid;
+    gap: 10px;
+    margin: 0;
+    padding: 14px 16px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-surface);
+    font-size: 12px;
+}
+
+.setup-page .setup-summary dt {
+    color: var(--color-text-muted);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.setup-page .setup-summary dd {
+    margin: 2px 0 0;
+    color: var(--color-text);
+    overflow-wrap: anywhere;
+}
+
+.setup-page .setup-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+.setup-page .setup-next {
+    margin-top: 0;
+    padding: 0 22px;
+}
+
+/* The Profession step: what setup installs with the workspace. */
+.setup-page .setup-bundle {
+    display: grid;
+    gap: 8px;
+    padding: 16px 18px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-surface);
+    font-size: 12px;
+}
+
+.setup-page .setup-bundle-eyebrow {
+    color: var(--color-text-muted);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.setup-page .setup-bundle strong {
+    color: var(--color-text);
+    font-family: var(--font-display);
+    font-size: 18px;
+}
+
+.setup-page .setup-bundle-version {
+    color: var(--color-text-muted);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.setup-page .setup-bundle p {
+    margin: 0;
+    color: var(--color-text-secondary);
+    line-height: 1.5;
+}
+
+.setup-page .setup-bundle ul {
+    display: grid;
+    gap: 4px;
+    margin: 0;
+    padding-left: 18px;
+    color: var(--color-text-secondary);
+}
