@@ -65,10 +65,18 @@ function DocumentEditorPage() {
       ? previewDocument({ templateKey, customerId: clientId, period, fieldValues: {} }).then((data) => ({ ...data, customer_id: Number(clientId), period_label: period, status: "new", rendered_html: data.html }))
       : getDocument(id);
 
+    // Only the current load fills the form: a late answer from a cleaned-up
+    // effect (StrictMode, or the inputs changed) must not overwrite edits.
+    let current = true;
+
     loading
-      .then(show)
-      .catch((requestError) => setError(requestError.message || "Could not load the document."))
-      .finally(() => setLoading(false));
+      .then((data) => current && show(data))
+      .catch((requestError) => current && setError(requestError.message || "Could not load the document."))
+      .finally(() => current && setLoading(false));
+
+    return () => {
+      current = false;
+    };
   }, [id, isNew, templateKey, clientId, period, show]);
 
   async function run(action, done) {

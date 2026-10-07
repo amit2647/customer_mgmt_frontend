@@ -1,4 +1,5 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { StrictMode } from "react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
@@ -39,6 +40,33 @@ beforeEach(() => {
  * same check as the bundle's, previewed before saving, restorable.
  */
 describe("DocumentTemplatePage", () => {
+  test("a load that answers late never overwrites text being typed (StrictMode loads twice)", async () => {
+    let answerFirst;
+    api.getDocumentTemplate.mockReset();
+    api.getDocumentTemplate
+      .mockImplementationOnce(() => new Promise((resolve) => { answerFirst = resolve; }))
+      .mockResolvedValue(TEMPLATE);
+
+    render(
+      <StrictMode>
+        <MemoryRouter initialEntries={["/settings/documents/consent_appointment"]}>
+          <Routes>
+            <Route path="/settings/documents/:key" element={<DocumentTemplatePage />} />
+          </Routes>
+        </MemoryRouter>
+      </StrictMode>,
+    );
+
+    const text = await screen.findByLabelText("Template text");
+    fireEvent.change(text, { target: { value: "<p>Our own words</p>" } });
+
+    // The first, cleaned-up load answers only now.
+    await act(async () => answerFirst(TEMPLATE));
+
+    expect(screen.getByLabelText("Template text")).toHaveValue("<p>Our own words</p>");
+    expect(screen.getByRole("button", { name: "Save as firm's version" })).toBeEnabled();
+  });
+
   test("saves edited text as the firm's version", async () => {
     api.saveDocumentTemplate.mockResolvedValue({ ...TEMPLATE, version: 2, customized: true, body: "<p>Dear {{client.name}}</p>" });
     renderPage();

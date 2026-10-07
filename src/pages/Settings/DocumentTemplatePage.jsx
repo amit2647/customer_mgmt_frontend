@@ -34,11 +34,22 @@ function DocumentTemplatePage() {
     setBody(data.body);
   }, []);
 
+  // A load whose effect was cleaned up (StrictMode runs effects twice; the
+  // key can change) is ignored: a late answer must never overwrite text the
+  // user has started typing.
   useEffect(() => {
-    getDocumentTemplate(key).then(show).catch((requestError) => setError(requestError.message || "Could not load the template."));
+    let current = true;
+
+    getDocumentTemplate(key)
+      .then((data) => current && show(data))
+      .catch((requestError) => current && setError(requestError.message || "Could not load the template."));
     getClients()
-      .then((list) => setClients(Array.isArray(list) ? list : list?.customers || []))
-      .catch(() => setClients([]));
+      .then((list) => current && setClients(Array.isArray(list) ? list : list?.customers || []))
+      .catch(() => current && setClients([]));
+
+    return () => {
+      current = false;
+    };
   }, [key, show]);
 
   async function run(action, done) {
