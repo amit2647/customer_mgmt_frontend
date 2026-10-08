@@ -12,8 +12,8 @@ function LoginPage() {
   const navigate = useNavigate();
   const { login } = useAuth();
 
-  const [email, setEmail] = useState("amitmahorkar799@gmail.com");
-  const [password, setPassword] = useState("amitmahorkar@7");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
