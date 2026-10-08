@@ -1,3 +1,5 @@
+import Modal from "../ui/Modal";
+
 function ServiceForm({ service = null, onSubmit, onClose }) {
   const isEditing = Boolean(service);
 
@@ -24,43 +26,27 @@ function ServiceForm({ service = null, onSubmit, onClose }) {
   }
 
   return (
-    <div className="modal">
-      <form onSubmit={handleSubmit}>
-        <div className="modal-head">
-          <h2>{isEditing ? "Edit Service" : "Add Service"}</h2>
-
-          <button type="button" onClick={onClose}>
-            ×
-          </button>
-        </div>
-
-        <label>
-          Service Name
-          <input
-            name="name"
-            required
-            placeholder="e.g. Cloud Migration"
-            defaultValue={service?.name || ""}
-          />
+    <Modal
+      title={isEditing ? "Edit service" : "Add service"}
+      description={isEditing ? "Its reference stays the same, so its deadlines and letters stay attached." : "Once saved, add its deadlines on the service's own page."}
+      onClose={onClose}
+      onSubmit={handleSubmit}
+      footer={
+        <>
+          <button type="button" className="secondary-button" onClick={onClose}>Cancel</button>
+          <button className="primary" type="submit">{isEditing ? "Save service" : "Add service"}</button>
+        </>
+      }
+    >
+      <div className="modal-fields two">
+        <label className="wide">
+          Service name
+          <input name="name" required placeholder="e.g. GST Returns" defaultValue={service?.name || ""} autoFocus />
         </label>
 
         <label>
-          Category
-          <input
-            name="category"
-            placeholder="e.g. Cloud"
-            defaultValue={service?.category || ""}
-          />
-        </label>
-
-        <label>
-          Description
-          <textarea
-            name="description"
-            rows="4"
-            placeholder="Describe the service..."
-            defaultValue={service?.description || ""}
-          />
+          Group
+          <input name="category" placeholder="e.g. GST" defaultValue={service?.category || ""} />
         </label>
 
         <label>
@@ -71,11 +57,12 @@ function ServiceForm({ service = null, onSubmit, onClose }) {
           </select>
         </label>
 
-        <button className="primary" type="submit">
-          {isEditing ? "Update Service" : "Create Service"}
-        </button>
-      </form>
-    </div>
+        <label className="wide">
+          Description
+          <textarea name="description" rows="4" placeholder="What the service covers" defaultValue={service?.description || ""} />
+        </label>
+      </div>
+    </Modal>
   );
 }
 

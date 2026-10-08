@@ -51,7 +51,7 @@ describe("Settings tabs", () => {
     bundle = { key: "ca-practice", capabilities: ["obligations", "documents"] };
     renderAt("/settings/email-templates");
 
-    expect(tabs()).toEqual(["Profile", "Appearance", "Organization", "Team", "Email", "Practice"]);
+    expect(tabs()).toEqual(["Profile", "Appearance", "Organization", "Team", "Email", "Update"]);
     expect(screen.getByRole("link", { name: "Email" })).toHaveAttribute("aria-current", "page");
 
     const sections = screen.getByRole("navigation", { name: "Email sections" });
@@ -66,7 +66,7 @@ describe("Settings tabs", () => {
 
     // Organization has no Firm section without a bundle, so no second row.
     expect(screen.queryByRole("navigation", { name: /sections/ })).not.toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Practice" })).toHaveAttribute("href", "/settings/bundle");
+    expect(screen.getByRole("link", { name: "Update" })).toHaveAttribute("href", "/settings/bundle");
     expect(screen.getByRole("note")).toHaveTextContent("no profession bundle yet");
   });
 

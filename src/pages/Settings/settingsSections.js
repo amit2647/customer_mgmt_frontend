@@ -41,14 +41,13 @@ export const SETTINGS_TABS = [
       { id: "email-automations", label: "Automations", path: "/settings/email-automations", permission: "email.automations.read" },
     ],
   },
+  // The profession bundle: install it, take its updates, keep or accept the
+  // firm's customized items. Deadline rules live with their services now,
+  // and letters under Documents.
   {
-    id: "practice",
-    label: "Practice",
-    sections: [
-      { id: "bundle", label: "Profession bundle", path: "/settings/bundle", permission: "bundles.manage" },
-      { id: "deadlines", label: "Deadline rules", path: "/settings/deadlines", permission: "obligations.read", needsBundle: true, needsCapability: "obligations" },
-      { id: "documents", label: "Document templates", path: "/settings/documents", permission: "system.settings", needsBundle: true, needsCapability: "documents" },
-    ],
+    id: "update",
+    label: "Update",
+    sections: [{ id: "bundle", label: "Profession bundle", path: "/settings/bundle", permission: "bundles.manage" }],
   },
 ];
 

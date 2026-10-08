@@ -9,8 +9,9 @@ vi.mock("../../api/engagements", () => ({
   getPeriods: vi.fn().mockResolvedValue({ current: "2026-27", periods: [{ label: "2025-26" }, { label: "2026-27" }] }),
 }));
 
-const api = vi.hoisted(() => ({ getDeadlines: vi.fn() }));
+const api = vi.hoisted(() => ({ getDeadlines: vi.fn(), runReminders: vi.fn() }));
 vi.mock("../../api/obligations", () => api);
+vi.mock("../../context/AuthContext", () => ({ useAuth: () => ({ user: { permissions: ["obligations.read"] } }) }));
 vi.mock("../../context/BundleContext", () => ({
   useBundle: () => ({ bundle: { key: "ca-practice", capabilities: ["obligations"] }, term: (key, many) => (many ? "Clients" : "Client") }),
 }));

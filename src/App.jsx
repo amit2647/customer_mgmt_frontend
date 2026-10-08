@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Navigate, Route, Routes, useLocation, useNavigate } from "react-router-dom";
+import { Navigate, Route, Routes, useLocation, useNavigate, useParams } from "react-router-dom";
 
 import SplashScreen from "./components/common/SplashScreen";
 import OnboardingScreen from "./components/common/OnboardingScreen";
@@ -28,6 +28,7 @@ import CustomerDetailPage from "./pages/Customers/CustomerDetailPage";
 import CustomerWorkflowPage from "./pages/Customers/CustomerWorkflowPage";
 
 import ServicesPage from "./pages/Services/ServicesPage";
+import ServiceDetailPage from "./pages/Services/ServiceDetailPage";
 
 import SettingsPage from "./pages/Settings/SettingsPage";
 import SettingsLayout from "./pages/Settings/SettingsLayout";
@@ -50,12 +51,17 @@ import ClientsImportPage from "./pages/Clients/ClientsImportPage";
 import ProspectsPage from "./pages/Prospects/ProspectsPage";
 import ProspectFormPage from "./pages/Prospects/ProspectFormPage";
 import DeadlinesPage from "./pages/Deadlines/DeadlinesPage";
-import DeadlineRulesPage from "./pages/Settings/DeadlineRulesPage";
 import DocumentEditorPage from "./pages/Documents/DocumentEditorPage";
-import DocumentTemplatesPage from "./pages/Settings/DocumentTemplatesPage";
-import DocumentTemplatePage from "./pages/Settings/DocumentTemplatePage";
+import DocumentsPage from "./pages/Documents/DocumentsPage";
+import DocumentTemplatePage from "./pages/Documents/DocumentTemplatePage";
 import RoleFormPage from "./pages/Settings/RoleFormPage";
 import AccessGrantsPage from "./pages/Settings/AccessGrantsPage";
+
+// The old Settings addresses of a template's editor land on its new one.
+function TemplateRedirect() {
+  const { key } = useParams();
+  return <Navigate to={`/documents/templates/${key}`} replace />;
+}
 
 // Checked in order when a user cannot open the dashboard.
 const LANDING_FALLBACKS = [
@@ -265,9 +271,20 @@ function App() {
             <Route path="/documents/:id" element={<DocumentEditorPage />} />
           </Route>
 
-          <Route element={<RequirePermission permission="system.settings" />}>
-            <Route path="/settings/documents/:key" element={<DocumentTemplatePage />} />
+          {/* Documents: every letter the firm issues; a letter's text is edited
+              with system.settings. Deadline rules and templates used to sit in
+              Settings — those addresses forward here and to Services. */}
+          <Route element={<RequirePermission permission="documents.read" />}>
+            <Route path="/documents" element={<DocumentsPage />} />
           </Route>
+
+          <Route element={<RequirePermission permission="system.settings" />}>
+            <Route path="/documents/templates/:key" element={<DocumentTemplatePage />} />
+          </Route>
+
+          <Route path="/settings/documents" element={<Navigate to="/documents" replace />} />
+          <Route path="/settings/documents/:key" element={<TemplateRedirect />} />
+          <Route path="/settings/deadlines" element={<Navigate to="/services" replace />} />
 
           <Route element={<RequirePermission permission="customers.read" />}>
             {/* With a bundle, Clients are the screens for customers (the same
@@ -288,6 +305,7 @@ function App() {
 
           <Route element={<RequirePermission permission="services.read" />}>
             <Route path="/services" element={<ServicesPage />} />
+            <Route path="/services/:id" element={<ServiceDetailPage />} />
           </Route>
 
           {/* Settings is one page with tabs (SettingsLayout); /settings opens
@@ -326,13 +344,6 @@ function App() {
               <Route path="/settings/bundle" element={<BundlePage />} />
             </Route>
 
-            <Route element={<RequirePermission permission="obligations.read" />}>
-              <Route path="/settings/deadlines" element={<DeadlineRulesPage />} />
-            </Route>
-
-            <Route element={<RequirePermission permission="system.settings" />}>
-              <Route path="/settings/documents" element={<DocumentTemplatesPage />} />
-            </Route>
           </Route>
 
           {/* Full-page editors opened from a settings section. */}

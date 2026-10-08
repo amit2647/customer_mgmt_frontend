@@ -23,9 +23,9 @@ const TEMPLATE = {
 
 const renderPage = () =>
   render(
-    <MemoryRouter initialEntries={["/settings/documents/consent_appointment"]}>
+    <MemoryRouter initialEntries={["/documents/templates/consent_appointment"]}>
       <Routes>
-        <Route path="/settings/documents/:key" element={<DocumentTemplatePage />} />
+        <Route path="/documents/templates/:key" element={<DocumentTemplatePage />} />
       </Routes>
     </MemoryRouter>,
   );
@@ -49,9 +49,9 @@ describe("DocumentTemplatePage", () => {
 
     render(
       <StrictMode>
-        <MemoryRouter initialEntries={["/settings/documents/consent_appointment"]}>
+        <MemoryRouter initialEntries={["/documents/templates/consent_appointment"]}>
           <Routes>
-            <Route path="/settings/documents/:key" element={<DocumentTemplatePage />} />
+            <Route path="/documents/templates/:key" element={<DocumentTemplatePage />} />
           </Routes>
         </MemoryRouter>
       </StrictMode>,

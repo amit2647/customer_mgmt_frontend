@@ -8,6 +8,7 @@ import { useBundle } from "../../context/BundleContext";
 import { enumLabel } from "../../components/bundle/bundleLabels";
 import { SettingRow, SettingRows } from "../../components/ui/SettingRow";
 import DataGrid from "../../components/ui/DataGrid";
+import Modal from "../../components/ui/Modal";
 import Pill from "../../components/ui/Pill";
 
 /*
@@ -189,10 +190,10 @@ function FirmPage() {
       <section className="card firm-partners" aria-label="Signing partners">
         <div className="bundle-summary">
           <h2>Signing partners</h2>
-          {canUpdate && !person && <button type="button" className="secondary-button" onClick={() => setPerson(PERSON)}>+ Add partner</button>}
+          {canUpdate && <button type="button" className="secondary-button" onClick={() => { setError(""); setPerson(PERSON); }}>+ Add partner</button>}
         </div>
 
-        {people.length === 0 && !person && <div className="settings-empty">No signing partners yet.</div>}
+        {people.length === 0 && <div className="settings-empty">No signing partners yet.</div>}
 
         {people.length > 0 && (
           <DataGrid
@@ -243,11 +244,24 @@ function FirmPage() {
         )}
 
         {person && (
-          <form className="client-account-form" onSubmit={savePerson} aria-label="Signing partner">
-            <div className="workflow-form-grid">
+          <Modal
+            title={person.id ? "Edit signing partner" : "Add signing partner"}
+            description="Partners who sign the firm's letters. The default signatory signs unless a letter names another."
+            onClose={() => setPerson(null)}
+            onSubmit={savePerson}
+            busy={saving}
+            footer={
+              <>
+                <button type="button" className="secondary-button" onClick={() => setPerson(null)} disabled={saving}>Cancel</button>
+                <button type="submit" className="primary" disabled={saving}>Save partner</button>
+              </>
+            }
+          >
+            {error && <div className="alert alert-error" role="alert">{error}</div>}
+            <div className="modal-fields two">
               <label>Name<input value={person.name} onChange={(e) => setPerson({ ...person, name: e.target.value })} required autoFocus /></label>
               <label>Designation<input value={person.designation} onChange={(e) => setPerson({ ...person, designation: e.target.value })} /></label>
-              <label className="client-checkbox">
+              <label className="client-checkbox wide">
                 <input type="checkbox" checked={person.isDefaultSignatory} onChange={(e) => setPerson({ ...person, isDefaultSignatory: e.target.checked })} />
                 Default signatory
               </label>
@@ -259,11 +273,7 @@ function FirmPage() {
               onChange={(attributes) => setPerson({ ...person, attributes })}
               idPrefix="partner"
             />
-            <div className="bundle-actions">
-              <button type="button" className="secondary-button" onClick={() => setPerson(null)}>Cancel</button>
-              <button type="submit" className="primary" disabled={saving}>Save partner</button>
-            </div>
-          </form>
+          </Modal>
         )}
       </section>
     </div>

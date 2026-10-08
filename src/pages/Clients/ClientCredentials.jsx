@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { getCredentials, getReveals, removeCredential, revealCredential, saveCredential } from "../../api/vault";
 import { formatDate } from "../../components/common/Field";
 import DataGrid from "../../components/ui/DataGrid";
+import Modal from "../../components/ui/Modal";
 import Pill from "../../components/ui/Pill";
 
 /*
@@ -91,6 +92,8 @@ function ClientCredentials({ client, can, readOnly, onOpenFiles }) {
   }
 
   const consentMissing = data.consent.category && !data.consent.onFile;
+  const editingPortal = editing && data.portals.find((portal) => portal.key === editing.portalKey);
+  const revealingPortal = revealing && data.portals.find((portal) => portal.key === revealing.portalKey);
 
   return (
     <section className="client-credentials" role="tabpanel" aria-label="Credentials">
@@ -194,51 +197,66 @@ function ClientCredentials({ client, can, readOnly, onOpenFiles }) {
             },
           },
         ]}
-        // Editing or revealing opens a form across the row's width.
-        expandedRow={(portal) => {
-          const credential = portal.credential;
-
-          if (editing?.portalKey === portal.key) {
-            return (
-              <form className="credential-form" onSubmit={save} aria-label={`${portal.name} credentials`}>
-                {portal.fields.map((field) => (
-                  <label key={field.key}>
-                    {field.label}
-                    <input
-                      type={field.secret ? "password" : "text"}
-                      autoComplete={field.secret ? "new-password" : "off"}
-                      value={editing.values[field.key] || ""}
-                      placeholder={field.secret && credential?.hasSecret ? "Leave blank to keep" : ""}
-                      onChange={(e) => setEditing({ ...editing, values: { ...editing.values, [field.key]: e.target.value } })}
-                    />
-                  </label>
-                ))}
-                <div className="bundle-actions">
-                  <button type="button" className="secondary-button" onClick={() => setEditing(null)}>Cancel</button>
-                  <button type="submit" className="primary" disabled={busy}>Save</button>
-                </div>
-              </form>
-            );
-          }
-
-          if (revealing?.portalKey === portal.key) {
-            return (
-              <form className="credential-form" onSubmit={reveal} aria-label={`Reveal ${portal.name}`}>
-                <label className="credential-reason">
-                  Why do you need it? (recorded)
-                  <input value={revealing.reason} onChange={(e) => setRevealing({ ...revealing, reason: e.target.value })} placeholder="e.g. Filing GSTR-3B for August" autoFocus required minLength={5} />
-                </label>
-                <div className="bundle-actions">
-                  <button type="button" className="secondary-button" onClick={() => setRevealing(null)}>Cancel</button>
-                  <button type="submit" className="primary" disabled={busy}>Reveal for 30 seconds</button>
-                </div>
-              </form>
-            );
-          }
-
-          return null;
-        }}
       />
+
+      {/* Saving or revealing a credential happens in a dialog over the list. */}
+      {editingPortal && (
+        <Modal
+          title={`${editingPortal.name} credentials`}
+          description={editingPortal.credential?.hasSecret ? "A password left blank keeps the one stored. Secrets are encrypted and shown only on Reveal." : "Secrets are encrypted and shown only on Reveal, with a reason."}
+          onClose={() => setEditing(null)}
+          onSubmit={save}
+          busy={busy}
+          footer={
+            <>
+              <button type="button" className="secondary-button" onClick={() => setEditing(null)} disabled={busy}>Cancel</button>
+              <button type="submit" className="primary" disabled={busy}>Save</button>
+            </>
+          }
+        >
+          {error && <div className="alert alert-error" role="alert">{error}</div>}
+          <div className="modal-fields">
+            {editingPortal.fields.map((field, index) => (
+              <label key={field.key}>
+                {field.label}
+                <input
+                  type={field.secret ? "password" : "text"}
+                  autoComplete={field.secret ? "new-password" : "off"}
+                  value={editing.values[field.key] || ""}
+                  placeholder={field.secret && editingPortal.credential?.hasSecret ? "Leave blank to keep" : ""}
+                  onChange={(e) => setEditing({ ...editing, values: { ...editing.values, [field.key]: e.target.value } })}
+                  autoFocus={index === 0}
+                />
+              </label>
+            ))}
+          </div>
+        </Modal>
+      )}
+
+      {revealingPortal && (
+        <Modal
+          size="sm"
+          title={`Reveal ${revealingPortal.name} password`}
+          description="Shown for 30 seconds. Your reason is recorded in the reveal log."
+          onClose={() => setRevealing(null)}
+          onSubmit={reveal}
+          busy={busy}
+          footer={
+            <>
+              <button type="button" className="secondary-button" onClick={() => setRevealing(null)} disabled={busy}>Cancel</button>
+              <button type="submit" className="primary" disabled={busy}>Reveal for 30 seconds</button>
+            </>
+          }
+        >
+          {error && <div className="alert alert-error" role="alert">{error}</div>}
+          <div className="modal-fields">
+            <label>
+              Why do you need it? (recorded)
+              <input value={revealing.reason} onChange={(e) => setRevealing({ ...revealing, reason: e.target.value })} placeholder="e.g. Filing GSTR-3B for August" autoFocus required minLength={5} />
+            </label>
+          </div>
+        </Modal>
+      )}
 
       {canReveal && (
         <section className="card credential-log" aria-label="Reveal log">

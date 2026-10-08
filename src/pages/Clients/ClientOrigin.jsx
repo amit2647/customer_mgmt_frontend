@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 
 import { getLead, getLeads, linkLead } from "../../api/leads";
 import { formatDay, formatMoney } from "../../components/bundle/bundleLabels";
+import Modal from "../../components/ui/Modal";
 
 /*
  * Where a client came from. A lead and the client it became are one entity
@@ -67,14 +68,10 @@ function ClientOrigin({ client, can, readOnly, onLinked }) {
     return (
       <section className="client-section client-origin" aria-label="Won from prospect">
         <div className="client-section-heading">
-        <span>Origin</span>
-        <div className="client-section-heading">
           <span>Origin</span>
           <h2>Won from prospect</h2>
           <p>What the prospect stage recorded before this client was won.</p>
         </div>
-        <p>What the prospect stage recorded before this client was won.</p>
-      </div>
         {missing && <p className="settings-row-hint">The prospect this client was won from has since been deleted.</p>}
         {lead && (
           <dl className="engagement-facts">
@@ -93,32 +90,47 @@ function ClientOrigin({ client, can, readOnly, onLinked }) {
 
   return (
     <section className="client-section client-origin" aria-label="Won from prospect">
-      <h2>Won from prospect</h2>
-      {error && <div className="alert alert-error" role="alert">{error}</div>}
+      <div className="client-section-heading">
+        <span>Origin</span>
+        <h2>Won from prospect</h2>
+        <p>Not linked to the prospect it was won from yet.</p>
+      </div>
+      {error && !candidates && <div className="alert alert-error" role="alert">{error}</div>}
 
-      {candidates === null ? (
-        <>
-          <p className="settings-row-hint">Not linked to the prospect it was won from.</p>
-          <div className="bundle-actions">
-            <button type="button" className="secondary-button" onClick={startLinking}>Link a prospect</button>
-          </div>
-        </>
-      ) : candidates.length === 0 ? (
-        <p className="settings-row-hint">There are no unlinked prospects to choose from.</p>
-      ) : (
-        <form className="client-origin-link" onSubmit={link}>
-          <label>
-            Prospect
-            <select value={choice} onChange={(e) => setChoice(e.target.value)} required>
-              <option value="">Choose…</option>
-              {candidates.map((item) => <option key={item.id} value={item.id}>{item.name}{item.email ? ` · ${item.email}` : ""}{item.status === "Converted" ? " (converted)" : ""}</option>)}
-            </select>
-          </label>
-          <div className="bundle-actions">
-            <button type="button" className="secondary-button" onClick={() => setCandidates(null)}>Cancel</button>
-            <button type="submit" className="primary" disabled={busy || !choice}>Link</button>
-          </div>
-        </form>
+      <div className="bundle-actions">
+        <button type="button" className="secondary-button" onClick={startLinking}>Link a prospect</button>
+      </div>
+
+      {candidates && (
+        <Modal
+          size="sm"
+          title="Link a prospect"
+          description="The prospect this client was won from. Its quote, meetings and notes then show here."
+          onClose={() => setCandidates(null)}
+          onSubmit={link}
+          busy={busy}
+          footer={
+            <>
+              <button type="button" className="secondary-button" onClick={() => setCandidates(null)} disabled={busy}>Cancel</button>
+              {candidates.length > 0 && <button type="submit" className="primary" disabled={busy || !choice}>Link</button>}
+            </>
+          }
+        >
+          {error && <div className="alert alert-error" role="alert">{error}</div>}
+          {candidates.length === 0 ? (
+            <p className="settings-row-hint">There are no unlinked prospects to choose from.</p>
+          ) : (
+            <div className="modal-fields">
+              <label>
+                Prospect
+                <select value={choice} onChange={(e) => setChoice(e.target.value)} required autoFocus>
+                  <option value="">Choose…</option>
+                  {candidates.map((item) => <option key={item.id} value={item.id}>{item.name}{item.email ? ` · ${item.email}` : ""}{item.status === "Converted" ? " (converted)" : ""}</option>)}
+                </select>
+              </label>
+            </div>
+          )}
+        </Modal>
       )}
     </section>
   );

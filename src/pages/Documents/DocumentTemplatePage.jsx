@@ -81,7 +81,7 @@ function DocumentTemplatePage() {
 
   if (!template) {
     return error ? (
-      <PageState icon="!" tone="error" title="Unable to open this template" action={<button type="button" className="primary" onClick={() => navigate("/settings/documents")}>Back to Document templates</button>}>
+      <PageState icon="!" tone="error" title="Unable to open this template" action={<button type="button" className="primary" onClick={() => navigate("/documents")}>Back to Documents</button>}>
         {error}
       </PageState>
     ) : (
@@ -94,7 +94,7 @@ function DocumentTemplatePage() {
 
   return (
     <main className="page settings-sub-page document-template-page">
-      <Breadcrumb onBack={() => navigate("/settings/documents")} backLabel="Document templates" section="SETTINGS" title={template.name} />
+      <Breadcrumb onBack={() => navigate("/documents")} backLabel="Documents" section="DOCUMENTS" title={template.name} />
 
       <header className="page-header">
         <div>

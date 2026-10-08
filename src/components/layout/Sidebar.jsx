@@ -5,6 +5,7 @@ import {
   CaretRight,
   GearSix,
   CalendarCheck,
+  FileText,
   Kanban,
   Sparkle,
   Package,
@@ -145,6 +146,17 @@ function Sidebar({ collapsed, onToggle }) {
             </span>
 
             <span className="sidebar-link-label">Services</span>
+          </NavLink>
+        )}
+
+        {/* The letters a firm issues: their text, and what each depends on. */}
+        {bundle?.capabilities?.includes("documents") && hasPermission("documents.read") && (
+          <NavLink to="/documents" end className={navigationClass} data-tooltip="Documents">
+            <span className="sidebar-icon" aria-hidden="true">
+              <FileText size={20} weight="regular" />
+            </span>
+
+            <span className="sidebar-link-label">Documents</span>
           </NavLink>
         )}
       </nav>

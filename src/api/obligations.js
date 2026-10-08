@@ -46,3 +46,16 @@ export function removeExtension(key, periodKey) {
 export function runReminders() {
   return request("/obligations/reminders/run", { method: "POST" });
 }
+
+// A firm's own deadline rule, or a change to one (its service never changes).
+export function createRule(data) {
+  return request("/obligations/rules", json("POST", data));
+}
+
+export function updateRule(key, data) {
+  return request(`/obligations/rules/${key}`, json("PUT", data));
+}
+
+export function removeRule(key) {
+  return request(`/obligations/rules/${key}`, { method: "DELETE" });
+}

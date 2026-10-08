@@ -1,0 +1,232 @@
+/* =========================================================
+   OMNICORE — MODAL (components/ui/Modal.jsx)
+   A dialog over a dimmed page: heading, a scrolling body, and
+   the actions pinned at the bottom. Theme tokens only.
+   ========================================================= */
+
+body.ui-modal-open {
+    overflow: hidden;
+}
+
+.ui-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: grid;
+    place-items: center;
+    padding: 24px;
+    background: rgba(15, 23, 42, 0.45);
+    animation: ui-modal-fade 0.14s ease-out;
+}
+
+.ui-modal {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 640px;
+    max-height: calc(100vh - 48px);
+    overflow: hidden;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface);
+    box-shadow: 0 24px 64px rgba(15, 23, 42, 0.28);
+    animation: ui-modal-rise 0.16s ease-out;
+}
+
+.ui-modal.size-sm {
+    max-width: 440px;
+}
+
+.ui-modal.size-lg {
+    max-width: 920px;
+}
+
+.ui-modal-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 20px 24px 16px;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.ui-modal-head h2 {
+    margin: 0;
+    color: var(--color-text);
+    font-family: var(--font-display);
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+}
+
+.ui-modal-head p {
+    margin: 4px 0 0;
+    color: var(--color-text-secondary);
+    font-size: 13px;
+    line-height: 1.45;
+}
+
+.ui-modal-close {
+    display: inline-grid;
+    flex-shrink: 0;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+}
+
+.ui-modal-close:hover:not(:disabled) {
+    background: var(--color-surface-muted);
+    color: var(--color-text);
+}
+
+.ui-modal-form {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+.ui-modal-body {
+    display: grid;
+    gap: 16px;
+    min-height: 0;
+    padding: 20px 24px;
+    overflow-y: auto;
+}
+
+/* A form inside a modal is just its fields: no card of its own. */
+.ui-modal-body > .card,
+.ui-modal-body .rule-form {
+    padding: 0;
+    border: 0;
+    box-shadow: none;
+    background: transparent;
+}
+
+.ui-modal-body .alert {
+    margin: 0;
+}
+
+/* A settings form card (Grant access) keeps its grid, without its frame. */
+.ui-modal-body > .settings-form-card {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    box-shadow: none;
+    background: transparent;
+}
+
+/* Plain labelled fields in a modal: label above, one column; two on wider dialogs. */
+.modal-fields {
+    display: grid;
+    gap: 14px;
+}
+
+.ui-modal.size-md .modal-fields.two,
+.ui-modal.size-lg .modal-fields.two {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px 16px;
+}
+
+.modal-fields > label,
+.modal-fields .modal-field {
+    display: grid;
+    gap: 6px;
+    min-width: 0;
+    color: var(--color-text-secondary);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.modal-fields .wide {
+    grid-column: 1 / -1;
+}
+
+.modal-fields input:not([type="checkbox"]):not([type="radio"]),
+.modal-fields select,
+.modal-fields textarea {
+    width: 100%;
+    height: 40px;
+    padding: 0 12px;
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    color: var(--color-text);
+    font-family: var(--font-body);
+    font-size: 13px;
+}
+
+.modal-fields textarea {
+    height: auto;
+    min-height: 90px;
+    padding: 10px 12px;
+}
+
+.modal-fields input:focus,
+.modal-fields select:focus,
+.modal-fields textarea:focus {
+    outline: none;
+    border-color: var(--color-border-accent);
+    box-shadow: 0 0 0 3px var(--focus-ring-color-alpha);
+}
+
+.modal-fields .client-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--color-text);
+    font-size: 13px;
+    font-weight: 500;
+}
+
+@media (max-width: 700px) {
+    .ui-modal.size-md .modal-fields.two,
+    .ui-modal.size-lg .modal-fields.two {
+        grid-template-columns: 1fr;
+    }
+}
+
+.ui-modal-actions {
+    display: flex;
+    flex-shrink: 0;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 14px 24px;
+    border-top: 1px solid var(--color-border);
+    background: var(--color-surface-subtle);
+}
+
+@keyframes ui-modal-fade {
+    from { opacity: 0; }
+}
+
+@keyframes ui-modal-rise {
+    from { opacity: 0; transform: translateY(8px); }
+}
+
+@media (max-width: 700px) {
+    .ui-modal-backdrop {
+        align-items: end;
+        padding: 0;
+    }
+
+    .ui-modal,
+    .ui-modal.size-sm,
+    .ui-modal.size-lg {
+        max-width: none;
+        max-height: 92vh;
+        border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .ui-modal-backdrop,
+    .ui-modal {
+        animation: none;
+    }
+}

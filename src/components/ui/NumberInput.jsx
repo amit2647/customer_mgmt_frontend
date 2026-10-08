@@ -30,7 +30,9 @@ function clean(text, decimals) {
 }
 
 function NumberInput({ value, onChange, prefix, grouped, decimals = 2, size = "md", disabled, readOnly, className = "", ...inputProps }) {
-  const [editing, setEditing] = useState(false);
+  // A field that opens focused (autoFocus) opens being edited: React focuses
+  // it while mounting, before onFocus below is listening.
+  const [editing, setEditing] = useState(Boolean(inputProps.autoFocus));
   const group = grouped ?? Boolean(prefix);
   const raw = value === null || value === undefined ? "" : String(value);
   const shown = group && !editing && raw !== "" && !Number.isNaN(Number(raw)) ? GROUPING.format(Number(raw)) : raw;

@@ -995,6 +995,7 @@
 
 .client-detail .alert,
 .clients-page .alert,
+.documents-page .alert,
 .prospects-page .alert,
 .deadlines-page .alert,
 .document-editor-page .alert,
@@ -2024,5 +2025,130 @@
     .engagement-stages li::after {
         display: none;
     }
+}
+
+/* ---------- Services: detail page, deadlines and their editor ---------- */
+
+/* A service's name in the Services table, opening its page. (Not
+   .service-link: the onboarding screen's card already has that name.) */
+.service-row-link {
+    color: var(--color-text);
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.service-row-link:hover {
+    text-decoration: underline;
+}
+
+.service-detail .setting-rows {
+    margin-bottom: 18px;
+}
+
+.rule-form {
+    display: grid;
+    gap: 18px;
+}
+
+.rule-name {
+    display: grid;
+    gap: 8px;
+    max-width: 420px;
+    color: var(--color-text-secondary);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.rule-name input {
+    height: 40px;
+    padding: 0 12px;
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    color: var(--color-text);
+    font-family: var(--font-body);
+    font-size: 13px;
+}
+
+.rule-field {
+    display: grid;
+    gap: 8px;
+}
+
+.rule-label {
+    color: var(--color-text-secondary);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.rule-modes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 24px;
+}
+
+/* "Day [11] of [the next month]" — a sentence made of fields. */
+.rule-timing {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 10px;
+    color: var(--color-text-secondary);
+    font-size: 13px;
+}
+
+.rule-timing .rule-day {
+    width: 72px;
+}
+
+.rule-timing .clients-select {
+    height: 36px;
+}
+
+.rule-quarters {
+    gap: 12px 24px;
+}
+
+.rule-quarter {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.rule-quarter strong {
+    color: var(--color-text);
+    font-size: 12px;
+}
+
+.rule-alternate {
+    padding: 14px 16px;
+    border: 1px dashed var(--color-border);
+    border-radius: var(--radius-md);
+}
+
+.rule-alternate-body {
+    display: grid;
+    gap: 12px;
+    margin-top: 12px;
+}
+
+.rule-alternate-body label {
+    display: grid;
+    gap: 6px;
+    max-width: 320px;
+    color: var(--color-text-secondary);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+/* What the fields add up to, in words, before saving. */
+.rule-preview {
+    margin: 0;
+    padding: 10px 14px;
+    border-radius: var(--radius-sm);
+    background: var(--color-surface-subtle);
+    color: var(--color-text);
+    font-size: 13px;
+    font-weight: 600;
 }
 

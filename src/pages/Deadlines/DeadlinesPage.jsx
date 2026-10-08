@@ -3,7 +3,8 @@ import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { getEngagementTypes, getPeriods } from "../../api/engagements";
-import { getDeadlines } from "../../api/obligations";
+import { getDeadlines, runReminders } from "../../api/obligations";
+import { useAuth } from "../../context/AuthContext";
 import { formatDay } from "../../components/bundle/bundleLabels";
 import { STATE_LABEL, STATE_TONE, STATES } from "../../components/deadlines/deadlineLabels";
 import { useBundle } from "../../context/BundleContext";
@@ -29,6 +30,9 @@ const STATE_HINT = {
 function DeadlinesPage() {
   const navigate = useNavigate();
   const { bundle, term } = useBundle();
+  const { user } = useAuth();
+  const canRunReminders = (user?.permissions || []).includes("obligations.rules");
+  const [notice, setNotice] = useState("");
 
   const [periods, setPeriods] = useState([]);
   const [period, setPeriod] = useState("");
@@ -75,9 +79,31 @@ function DeadlinesPage() {
       <header className="page-header">
         <div>
           <h1>Deadlines</h1>
-          <p>Every {term("client").toLowerCase()}'s compliance deadlines, overdue first.</p>
+          <p>Every {term("client").toLowerCase()}'s compliance deadlines, overdue first. Each service's deadlines are set on its page under Services.</p>
         </div>
+
+        {canRunReminders && (
+          <div className="page-header-actions">
+            <button
+              type="button"
+              className="secondary-button"
+              onClick={async () => {
+                try {
+                  setError("");
+                  const result = await runReminders();
+                  setNotice(`${result.raised} reminder${result.raised === 1 ? "" : "s"} raised. Emails go out only for reminder automations that are switched on.`);
+                } catch (requestError) {
+                  setError(requestError.message || "Reminders could not be sent.");
+                }
+              }}
+            >
+              Send reminders now
+            </button>
+          </div>
+        )}
       </header>
+
+      {notice && <div className="alert alert-success">{notice}</div>}
 
       {/* The dashboard's cards: a count per state, each a filter. */}
       <section className="dashboard-stats deadline-stats" role="group" aria-label="Deadlines by state">

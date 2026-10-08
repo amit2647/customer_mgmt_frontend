@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 import DataGrid from "../ui/DataGrid";
 import Pill, { toneFor } from "../ui/Pill";
 
@@ -11,7 +13,7 @@ function ServiceTable({ services, onEdit, onDelete }) {
       rows={services}
       search={{ placeholder: "Search services...", label: "Search services" }}
       columns={[
-        { key: "name", header: "Service", render: (service) => <span className="grid-cell-title">{service.name}</span> },
+        { key: "name", header: "Service", render: (service) => <Link className="grid-cell-title service-row-link" to={`/services/${service.id}`}>{service.name}</Link> },
         { key: "category", header: "Category", filter: { tone: toneFor }, render: (service) => (service.category ? <Pill tone={toneFor(service.category)}>{service.category}</Pill> : "—") },
         { key: "description", header: "Description", sortable: false, render: (service) => <span className="service-description">{service.description || "—"}</span> },
         {

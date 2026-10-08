@@ -71,13 +71,13 @@ describe("ClientEngagements", () => {
     expect(within(card).getByText("₹50,000")).toBeInTheDocument();
   });
 
-  test("Edit opens the form in place of the card, and the stage is a choice of pills", async () => {
+  test("Edit opens the form in a dialog over the card, and the stage is a choice of pills", async () => {
     api.getEngagements.mockResolvedValue([ENGAGEMENT]);
     api.updateEngagement.mockResolvedValue({});
     renderTab();
 
     fireEvent.click(await screen.findByRole("button", { name: "Edit engagement FY 2026-27" }));
-    expect(screen.queryByRole("article")).not.toBeInTheDocument();
+    expect(screen.getByRole("dialog", { name: "Edit engagement" })).toBeInTheDocument();
 
     const form = screen.getByRole("form", { name: "Edit engagement" });
     fireEvent.click(within(form).getByRole("radio", { name: "Signed" }));

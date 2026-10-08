@@ -13,7 +13,7 @@ disagree, the screen wins and this guide gets fixed.
 | Board | Prospects (board) | `src/pages/Prospects/ProspectsPage.jsx` |
 | One record, in tabs | Client detail | `src/pages/Clients/ClientDetailPage.jsx` |
 | Add / edit (a wizard) | Add client, Add prospect | `src/pages/Clients/ClientWizardPage.jsx`, `src/pages/Prospects/ProspectFormPage.jsx` |
-| Settings section (a tab) | My Profile (rows), Organization (rows), Deadline rules (a list) | `src/pages/Settings/ProfilePage.jsx`, `src/pages/Settings/OrganizationPage.jsx`, `src/pages/Settings/DeadlineRulesPage.jsx` |
+| Settings section (a tab) | My Profile (rows), Organization (rows), Users & roles (a list) | `src/pages/Settings/ProfilePage.jsx`, `src/pages/Settings/OrganizationPage.jsx`, `src/pages/Settings/UsersRolesPage.jsx` |
 | Fields beside a live preview | Letter editor, Document template | `src/pages/Documents/DocumentEditorPage.jsx`, `src/pages/Settings/DocumentTemplatePage.jsx` |
 
 ## 1. Rules
@@ -49,6 +49,7 @@ disagree, the screen wins and this guide gets fixed.
 | **Any table** — lists, settings tables, tabs, pickers | `<DataGrid label rows columns search controls actions selection expandedRow embedded empty />`. Columns: `{ key, header, render, value, align: "right", sortable, filter, hideable }`. Toolbar (search, Columns, Filters + chips) and paging appear only when useful; `embedded` inside a card that already frames it; `id` remembers hidden columns and page size | `components/ui/DataGrid.jsx` |
 | A value as a coloured badge | `<Pill tone dot>` — `tone` semantic (`success`, `danger`, `warning`, `info`, `neutral`) or `toneFor(value)` for a stable category hue; `dot` for states | `components/ui/Pill.jsx` |
 | One setting: title and help left, value or control right | `<SettingRows label>` › `<SettingRow icon title description action>` (children open inside the row); `<SettingNotice tone title action>` for an in-row notice | `components/ui/SettingRow.jsx` |
+| A task that interrupts a page (add a deadline, record a payment, save a credential) | `<Modal title description onClose onSubmit footer size busy>` — fields inside (`.modal-fields`, `.two` for two columns); never a form that expands inline | `components/ui/Modal.jsx` |
 | A label and value on a record | `<Field label value href />` | `components/common/Field.jsx` |
 | A letter or other rendered HTML, as it will print | `<LetterFrame html ref />` (sandboxed iframe; `ref.current.print()`) — never `dangerouslySetInnerHTML` | `components/documents/LetterFrame.jsx` |
 | Bundle-defined fields | `<SchemaForm />` | `components/bundle/SchemaForm.jsx` |

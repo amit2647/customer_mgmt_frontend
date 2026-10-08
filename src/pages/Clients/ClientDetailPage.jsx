@@ -39,6 +39,7 @@ import ClientFiles from "./ClientFiles";
 import ClientOrigin from "./ClientOrigin";
 import Breadcrumb from "../../components/ui/Breadcrumb";
 import DataGrid from "../../components/ui/DataGrid";
+import Modal from "../../components/ui/Modal";
 import Pill, { toneFor } from "../../components/ui/Pill";
 
 /*
@@ -406,39 +407,44 @@ function ClientDetailPage() {
           </div>
 
           {can("profiles.update") && !archived && (
-            account ? (
-              <form
-                className="client-account-form"
-                onSubmit={(event) => {
-                  event.preventDefault();
-                  act(async () => {
-                    await addBankAccount(id, account);
-                    setAccount(null);
-                  }, "Account added.");
-                }}
-              >
-                <div className="workflow-form-grid">
-                  <label>Bank<input value={account.bankName} onChange={(e) => setAccount({ ...account, bankName: e.target.value })} required /></label>
-                  <label>Branch<input value={account.branch} onChange={(e) => setAccount({ ...account, branch: e.target.value })} /></label>
-                  <label>Account number<input value={account.accountNumber} onChange={(e) => setAccount({ ...account, accountNumber: e.target.value })} required inputMode="numeric" /></label>
-                  <label>IFSC<input value={account.routingCode} onChange={(e) => setAccount({ ...account, routingCode: e.target.value.toUpperCase() })} /></label>
-                  <label>Type
-                    <select value={account.accountType} onChange={(e) => setAccount({ ...account, accountType: e.target.value })}>
-                      {["Current", "Savings", "Cash credit", "Overdraft"].map((type) => <option key={type}>{type}</option>)}
-                    </select>
-                  </label>
-                  <label>Account holder<input value={account.holderName} onChange={(e) => setAccount({ ...account, holderName: e.target.value })} /></label>
-                </div>
-                <div className="bundle-actions">
-                  <button type="button" className="secondary-button" onClick={() => setAccount(null)}>Cancel</button>
+            <div className="bundle-actions">
+              <button type="button" className="secondary-button" onClick={() => { setError(""); setAccount(NEW_ACCOUNT); }}>+ Add bank account</button>
+            </div>
+          )}
+
+          {account && (
+            <Modal
+              title="Add bank account"
+              description={`Where ${client.name} banks. The number is shown masked everywhere but here.`}
+              onClose={() => setAccount(null)}
+              onSubmit={() =>
+                act(async () => {
+                  await addBankAccount(id, account);
+                  setAccount(null);
+                }, "Account added.")
+              }
+              busy={busy}
+              footer={
+                <>
+                  <button type="button" className="secondary-button" onClick={() => setAccount(null)} disabled={busy}>Cancel</button>
                   <button type="submit" className="primary" disabled={busy}>Add account</button>
-                </div>
-              </form>
-            ) : (
-              <div className="bundle-actions">
-                <button type="button" className="secondary-button" onClick={() => setAccount(NEW_ACCOUNT)}>+ Add bank account</button>
+                </>
+              }
+            >
+              {error && <div className="alert alert-error" role="alert">{error}</div>}
+              <div className="modal-fields two">
+                <label>Bank<input value={account.bankName} onChange={(e) => setAccount({ ...account, bankName: e.target.value })} required autoFocus /></label>
+                <label>Branch<input value={account.branch} onChange={(e) => setAccount({ ...account, branch: e.target.value })} /></label>
+                <label>Account number<input value={account.accountNumber} onChange={(e) => setAccount({ ...account, accountNumber: e.target.value })} required inputMode="numeric" /></label>
+                <label>IFSC<input value={account.routingCode} onChange={(e) => setAccount({ ...account, routingCode: e.target.value.toUpperCase() })} /></label>
+                <label>Type
+                  <select value={account.accountType} onChange={(e) => setAccount({ ...account, accountType: e.target.value })}>
+                    {["Current", "Savings", "Cash credit", "Overdraft"].map((type) => <option key={type}>{type}</option>)}
+                  </select>
+                </label>
+                <label>Account holder<input value={account.holderName} onChange={(e) => setAccount({ ...account, holderName: e.target.value })} /></label>
               </div>
-            )
+            </Modal>
           )}
         </section>
       )}

@@ -56,4 +56,9 @@ describe("NumberInput", () => {
     expect(screen.queryByRole("button")).not.toBeInTheDocument();
     expect(screen.queryByRole("spinbutton")).not.toBeInTheDocument();
   });
+
+  test("a field that opens focused shows the plain number", () => {
+    render(<Field prefix="₹" initial="15500" autoFocus />);
+    expect(screen.getByLabelText("Fee")).toHaveValue("15500");
+  });
 });

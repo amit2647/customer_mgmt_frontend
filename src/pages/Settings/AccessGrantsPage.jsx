@@ -10,6 +10,7 @@ import {
 } from "../../api/identity";
 import DataGrid from "../../components/ui/DataGrid";
 import Pill, { toneFor } from "../../components/ui/Pill";
+import Modal from "../../components/ui/Modal";
 
 /*
  * Screens people actually ask for, mapped to the permission that unlocks them.
@@ -278,7 +279,7 @@ function AccessGrantsPage() {
           </p>
         </div>
 
-        {canManage && !showForm && (
+        {canManage && (
           <div className="page-header-actions">
             <button
               type="button"
@@ -332,7 +333,40 @@ function AccessGrantsPage() {
       {error && <div className="alert alert-error" role="alert">{error}</div>}
 
       {showForm && (
-        <form className="settings-form-card" onSubmit={handleGrant}>
+        <Modal
+          size="lg"
+          title="Grant access"
+          description="One screen or permission for a limited time. It starts and stops working at once — no sign-out needed."
+          onClose={() => {
+            resetForm();
+            setShowForm(false);
+          }}
+          onSubmit={handleGrant}
+          busy={saving}
+          footer={
+            <>
+              <button
+                type="button"
+                className="secondary-button"
+                onClick={() => {
+                  resetForm();
+                  setShowForm(false);
+                }}
+                disabled={saving}
+              >
+                Cancel
+              </button>
+
+              <button type="submit" className="primary" disabled={saving}>
+                {saving
+                  ? "Granting..."
+                  : `Grant Access${selectedCodes.length ? ` (${selectedCodes.length})` : ""}`}
+              </button>
+            </>
+          }
+        >
+          {error && <div className="alert alert-error" role="alert">{error}</div>}
+          <div className="settings-form-card grant-form">
           <label>
             Who is this for
             <select
@@ -498,26 +532,8 @@ function AccessGrantsPage() {
             />
           </label>
 
-          <div className="settings-form-actions">
-            <button
-              type="button"
-              className="secondary-button"
-              onClick={() => {
-                resetForm();
-                setShowForm(false);
-              }}
-              disabled={saving}
-            >
-              Cancel
-            </button>
-
-            <button type="submit" className="button button-primary" disabled={saving}>
-              {saving
-                ? "Granting..."
-                : `Grant Access${selectedCodes.length ? ` (${selectedCodes.length})` : ""}`}
-            </button>
           </div>
-        </form>
+        </Modal>
       )}
 
       <section className="card">

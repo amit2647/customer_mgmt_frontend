@@ -57,7 +57,7 @@ Parent-repo context (gateway, auth, bundles) is in `../CLAUDE.md`.
   adding a screen, expect to copy a block rather than find a generic rule.
 - **New screens follow `frontend/docs/ui-style-guide.md`** — read it before building one. It
   maps each kind of screen to its reference (Dashboard, Clients, client detail, the Add client
-  and Add prospect wizards, Deadline rules) and lists what to reuse. Shared components in
+  and Add prospect wizards, a service page) and lists what to reuse. Shared components in
   `src/components/ui/`: `Breadcrumb`, `StatCard`, `WizardSteps`, `ServicePicker`, `PageState`
   render existing classes; `SettingRow` (with `setting-rows.css`) is a setting on the tabbed
   Settings page (`SettingsLayout`, sections in `settingsSections.js`); `DataGrid` and `Pill` (styled by `styles/components/data-grid.css`)

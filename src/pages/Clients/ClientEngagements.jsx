@@ -5,6 +5,7 @@ import { createEngagement, getEngagementTypes, getEngagements, getPayments, getP
 import EngagementForm, { engagementPayload, engagementValue } from "../../components/bundle/EngagementForm";
 import { enumLabel, formatDay, formatMoney } from "../../components/bundle/bundleLabels";
 import DataGrid from "../../components/ui/DataGrid";
+import Modal from "../../components/ui/Modal";
 import Pill, { toneFor } from "../../components/ui/Pill";
 import NumberInput from "../../components/ui/NumberInput";
 
@@ -138,12 +139,23 @@ function ClientEngagements({ view, client, bundle, services, can, readOnly }) {
 
   if (loading) return <section className="card"><div className="settings-empty">Loading…</div></section>;
 
+  // Adding or editing an engagement happens in a dialog over the tab.
   const form = editing && type && (
-    <form className="card engagement-editor" onSubmit={saveEngagement} aria-label={editing.id ? "Edit engagement" : "New engagement"}>
-      <header className="engagement-editor-head">
-        <span>{editing.id ? "Editing" : "New"} · {type.name}</span>
-        <h3>{editing.value.period ? `FY ${editing.value.period}` : type.name}</h3>
-      </header>
+    <Modal
+      size="lg"
+      title={editing.id ? "Edit engagement" : "New engagement"}
+      description={`${type.name}${editing.value.period ? ` · FY ${editing.value.period}` : ""}`}
+      onClose={() => setEditing(null)}
+      onSubmit={saveEngagement}
+      busy={busy}
+      footer={
+        <>
+          <button type="button" className="secondary-button" onClick={() => setEditing(null)} disabled={busy}>Cancel</button>
+          <button type="submit" className="primary" disabled={busy}>{editing.id ? "Save changes" : "Add engagement"}</button>
+        </>
+      }
+    >
+      {error && <div className="alert alert-error" role="alert">{error}</div>}
       <EngagementForm
         type={type}
         periods={editing.id ? periods.filter((period) => period.label === editing.value.period).concat(periods.some((period) => period.label === editing.value.period) ? [] : [{ label: editing.value.period }]) : freePeriods}
@@ -156,11 +168,7 @@ function ClientEngagements({ view, client, bundle, services, can, readOnly }) {
         errors={errors}
         periodLocked={Boolean(editing.id)}
       />
-      <footer className="engagement-editor-actions">
-        <button type="button" className="secondary-button" onClick={() => setEditing(null)}>Cancel</button>
-        <button type="submit" className="primary" disabled={busy}>{editing.id ? "Save changes" : "Add engagement"}</button>
-      </footer>
-    </form>
+    </Modal>
   );
 
   return (
@@ -182,7 +190,7 @@ function ClientEngagements({ view, client, bundle, services, can, readOnly }) {
             )}
           </header>
 
-          {editing && !editing.id && form}
+          {form}
 
           {engagements.length === 0 && !editing && (
             <section className="card engagement-empty">
@@ -198,8 +206,6 @@ function ClientEngagements({ view, client, bundle, services, can, readOnly }) {
           )}
 
           {engagements.map((engagement) => {
-            if (editing?.id === engagement.id) return <div key={engagement.id}>{form}</div>;
-
             const auditor = engagement.attributes?.previous_auditor;
             const stages = engagement.type.stages || [];
             const stageIndex = stages.findIndex((item) => item.key === engagement.stage);
@@ -275,6 +281,34 @@ function ClientEngagements({ view, client, bundle, services, can, readOnly }) {
         </>
       )}
 
+      {paying && (
+        <Modal
+          title="Record payment"
+          description={`FY ${engagements.find((engagement) => engagement.id === paying.engagementId)?.periodLabel || ""} · received from the client`}
+          onClose={() => setPaying(null)}
+          onSubmit={savePayment}
+          busy={busy}
+          footer={
+            <>
+              <button type="button" className="secondary-button" onClick={() => setPaying(null)} disabled={busy}>Cancel</button>
+              <button type="submit" className="primary" disabled={busy}>Record payment</button>
+            </>
+          }
+        >
+          {error && <div className="alert alert-error" role="alert">{error}</div>}
+          <div className="modal-fields two">
+            <label>Amount<NumberInput prefix="₹" value={paying.value.amount} onChange={(amount) => setPaying({ ...paying, value: { ...paying.value, amount } })} required autoFocus /></label>
+            <label>Received on<input type="date" value={paying.value.receivedOn} onChange={(e) => setPaying({ ...paying, value: { ...paying.value, receivedOn: e.target.value } })} required /></label>
+            <label>Method
+              <select value={paying.value.method} onChange={(e) => setPaying({ ...paying, value: { ...paying.value, method: e.target.value } })}>
+                {METHODS.map((method) => <option key={method}>{method}</option>)}
+              </select>
+            </label>
+            <label>Reference<input value={paying.value.reference} onChange={(e) => setPaying({ ...paying, value: { ...paying.value, reference: e.target.value } })} /></label>
+          </div>
+        </Modal>
+      )}
+
       {view === "fees" && (
         <>
           {engagements.length === 0 && <section className="card"><div className="settings-empty">No engagements, so no fees yet.</div></section>}
@@ -320,24 +354,6 @@ function ClientEngagements({ view, client, bundle, services, can, readOnly }) {
                 )}
 
                 {!readOnly && canChangeFees && (
-                  paying?.engagementId === engagement.id ? (
-                    <form className="client-account-form" onSubmit={savePayment} aria-label="Record payment">
-                      <div className="workflow-form-grid">
-                        <label>Amount<NumberInput prefix="₹" value={paying.value.amount} onChange={(amount) => setPaying({ ...paying, value: { ...paying.value, amount } })} required autoFocus /></label>
-                        <label>Received on<input type="date" value={paying.value.receivedOn} onChange={(e) => setPaying({ ...paying, value: { ...paying.value, receivedOn: e.target.value } })} required /></label>
-                        <label>Method
-                          <select value={paying.value.method} onChange={(e) => setPaying({ ...paying, value: { ...paying.value, method: e.target.value } })}>
-                            {METHODS.map((method) => <option key={method}>{method}</option>)}
-                          </select>
-                        </label>
-                        <label>Reference<input value={paying.value.reference} onChange={(e) => setPaying({ ...paying, value: { ...paying.value, reference: e.target.value } })} /></label>
-                      </div>
-                      <div className="bundle-actions">
-                        <button type="button" className="secondary-button" onClick={() => setPaying(null)}>Cancel</button>
-                        <button type="submit" className="primary" disabled={busy}>Record payment</button>
-                      </div>
-                    </form>
-                  ) : (
                     <div className="bundle-actions">
                       <button
                         type="button"
@@ -347,7 +363,6 @@ function ClientEngagements({ view, client, bundle, services, can, readOnly }) {
                         Update payment
                       </button>
                     </div>
-                  )
                 )}
               </article>
             );
