@@ -1,103 +1,60 @@
-import ChannelBadge from "../common/ChannelBadge";
-import StatusBadge from "../common/StatusBadge";
+import DataGrid from "../ui/DataGrid";
+import Pill, { toneFor } from "../ui/Pill";
+
+// Each lead status's pill colour.
+const STATUS_TONE = { New: "info", Contacted: "violet", Qualified: "success", Converted: "success", Lost: "danger" };
 
 function LeadTable({ leads, onConvert, onEdit, onDelete, onView }) {
   return (
-    <section className="card">
-      <table>
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Company</th>
-            <th>Channel</th>
-            <th>Status</th>
-            <th>Score</th>
-            <th>Services</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          {leads.map((lead) => (
-            <tr key={lead.id}>
-              {/* Name */}
-              <td>
-                <b>{lead.name}</b>
-              </td>
-
-              {/* Company */}
-              <td>{lead.company || "—"}</td>
-
-              {/* Acquisition channel */}
-              <td>
-                <ChannelBadge channel={lead.channel} />
-              </td>
-
-              {/* Lead status */}
-              <td>
-                <StatusBadge status={lead.status} />
-              </td>
-
-              {/* Lead score */}
-              <td>{lead.score ?? 0}</td>
-
-              {/* Assigned services */}
-              <td>
-                {lead.services?.length > 0 ? (
-                  <div className="service-badges">
-                    {lead.services.map((service) => (
-                      <span
-                        key={service.id}
-                        className="service-badge"
-                        title={service.description || service.name}
-                      >
-                        {service.name}
-                      </span>
-                    ))}
-                  </div>
-                ) : (
-                  <span className="muted">No services</span>
-                )}
-              </td>
-
-              {/* Actions */}
-              <td>
-                <div className="table-actions">
-                  {/* Edit */}
-                  <button className="link" onClick={() => onView(lead)}>
-                    View
-                  </button>
-
-                  <button className="link" onClick={() => onEdit(lead)}>
-                    Edit
-                  </button>
-
-                  {/* Convert */}
-                  {lead.status === "Qualified" && (
-                    <button
-                      className="link convert-link"
-                      onClick={() => onConvert(lead.id)}
-                    >
-                      Convert
-                    </button>
-                  )}
-
-                  {/* Delete */}
-                  {onDelete && (
-                    <button
-                      className="link delete-link"
-                      onClick={() => onDelete(lead.id)}
-                    >
-                      Delete
-                    </button>
-                  )}
-                </div>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </section>
+    <DataGrid
+      id="leads"
+      label="Leads"
+      rows={leads}
+      search={{ placeholder: "Search leads...", label: "Search leads" }}
+      columns={[
+        { key: "name", header: "Name", render: (lead) => <span className="grid-cell-title">{lead.name}</span> },
+        { key: "company", header: "Company", render: (lead) => lead.company || "—" },
+        { key: "channel", header: "Channel", filter: { tone: toneFor }, render: (lead) => lead.channel && <Pill tone={toneFor(lead.channel)}>{lead.channel}</Pill> },
+        { key: "status", header: "Status", filter: { tone: (value) => STATUS_TONE[value] || "neutral" }, render: (lead) => <Pill dot tone={STATUS_TONE[lead.status] || "neutral"}>{lead.status}</Pill> },
+        { key: "score", header: "Score", align: "right", value: (lead) => Number(lead.score ?? 0) },
+        {
+          key: "services",
+          header: "Services",
+          sortable: false,
+          value: (lead) => (lead.services || []).map((service) => service.name),
+          filter: { tone: toneFor },
+          render: (lead) =>
+            lead.services?.length > 0 ? (
+              <div className="grid-pills">
+                {lead.services.map((service) => (
+                  <Pill key={service.id} tone={toneFor(service.name)} title={service.description || service.name}>{service.name}</Pill>
+                ))}
+              </div>
+            ) : (
+              <span className="muted">No services</span>
+            ),
+        },
+        {
+          key: "actions",
+          header: "",
+          sortable: false,
+          hideable: false,
+          render: (lead) => (
+            <div className="table-actions">
+              <button type="button" className="link" onClick={() => onView(lead)}>View</button>
+              <button type="button" className="link" onClick={() => onEdit(lead)}>Edit</button>
+              {lead.status === "Qualified" && (
+                <button type="button" className="link convert-link" onClick={() => onConvert(lead.id)}>Convert</button>
+              )}
+              {onDelete && (
+                <button type="button" className="link delete-link" onClick={() => onDelete(lead.id)}>Delete</button>
+              )}
+            </div>
+          ),
+        },
+      ]}
+      empty="No leads found."
+    />
   );
 }
 

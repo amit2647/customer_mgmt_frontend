@@ -3,8 +3,6 @@ import { useNavigate } from "react-router-dom";
 
 import { getCustomers, deleteCustomer } from "../../api/customers";
 
-import SearchBar from "../../components/common/SearchBar";
-import EmptyState from "../../components/common/EmptyState";
 
 import CustomerTable from "../../components/customers/CustomerTable";
 
@@ -12,7 +10,6 @@ function CustomersPage() {
   const navigate = useNavigate();
 
   const [customers, setCustomers] = useState([]);
-  const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
 
   /*
@@ -25,7 +22,8 @@ function CustomersPage() {
     try {
       setLoading(true);
 
-      const data = await getCustomers(query);
+      // The whole list: the table searches, sorts and filters it.
+      const data = await getCustomers("");
 
       setCustomers(Array.isArray(data) ? data : []);
     } catch (error) {
@@ -39,7 +37,7 @@ function CustomersPage() {
 
   useEffect(() => {
     loadCustomers();
-  }, [query]);
+  }, []);
 
   /*
    * =========================================================
@@ -112,24 +110,11 @@ function CustomersPage() {
       </header>
 
       {/* =====================================================
-          SEARCH
-          ===================================================== */}
-
-      <SearchBar
-        value={query}
-        onChange={setQuery}
-        placeholder="Search customers..."
-        count={customers.length}
-      />
-
-      {/* =====================================================
           CONTENT
           ===================================================== */}
 
       {loading ? (
         <div className="empty">Loading customers...</div>
-      ) : customers.length === 0 ? (
-        <EmptyState message="No customers found." />
       ) : (
         <CustomerTable
           customers={customers}

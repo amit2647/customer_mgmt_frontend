@@ -1,0 +1,227 @@
+/* =========================================================
+   OMNICORE — SETTING ROWS (components/ui/SettingRow.jsx)
+   A card of stacked rows, one setting each: title and help on
+   the left, the value or control on the right, and anything
+   about that setting (an editor, a notice) opening inside it.
+   ========================================================= */
+
+.setting-rows {
+    padding: 4px 24px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-card);
+}
+
+.setting-row {
+    padding: 18px 0;
+}
+
+.setting-row + .setting-row {
+    border-top: 1px solid var(--color-border);
+}
+
+.setting-row-main {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+}
+
+.setting-row-text {
+    min-width: 0;
+}
+
+.setting-row-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    color: var(--color-text);
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.setting-row-icon {
+    display: inline-flex;
+    color: var(--color-text-secondary);
+}
+
+.setting-row-text p {
+    margin: 6px 0 0;
+    color: var(--color-text-secondary);
+    font-size: 13px;
+    line-height: 1.45;
+}
+
+.setting-row-action {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    gap: 10px;
+    max-width: 60%;
+}
+
+.setting-value {
+    overflow: hidden;
+    color: var(--color-text);
+    font-size: 14px;
+    font-weight: 500;
+    text-align: right;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.setting-secret {
+    letter-spacing: 0.12em;
+}
+
+/* The pencil beside a value. */
+.setting-edit {
+    display: inline-grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+}
+
+.setting-edit:hover {
+    background: var(--color-surface-muted);
+    color: var(--color-text);
+}
+
+.setting-edit:focus-visible {
+    outline: 2px solid var(--focus-ring-color);
+    outline-offset: 2px;
+}
+
+.setting-select {
+    height: 36px;
+    min-width: 140px;
+    padding: 0 10px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-surface);
+    color: var(--color-text);
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+/* ---------- Inside a row ---------- */
+
+.setting-row-body {
+    margin-top: 14px;
+}
+
+.setting-form {
+    display: grid;
+    gap: 12px;
+    max-width: 520px;
+}
+
+.setting-form-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    max-width: 640px;
+}
+
+.setting-form-full {
+    grid-column: 1 / -1;
+}
+
+.setting-form label {
+    display: grid;
+    gap: 6px;
+    color: var(--color-text-secondary);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.setting-form input {
+    height: 38px;
+    padding: 0 12px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-surface);
+    color: var(--color-text);
+    font-family: var(--font-body);
+    font-size: 14px;
+}
+
+.setting-form input:focus {
+    outline: none;
+    border-color: var(--color-border-accent);
+    box-shadow: 0 0 0 3px var(--focus-ring-color-alpha);
+}
+
+.setting-form-actions {
+    display: flex;
+    gap: 8px;
+}
+
+/* A notice about this one setting, nested in its row. */
+.setting-notice {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 12px 16px;
+    border-radius: var(--radius-md);
+    background: var(--color-surface-muted);
+    color: var(--color-text-secondary);
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.setting-notice.tone-success {
+    background: var(--color-success-bg);
+    color: var(--color-success);
+}
+
+.setting-notice.tone-danger {
+    background: var(--color-danger-bg);
+    color: var(--color-danger);
+}
+
+.setting-notice-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+    color: var(--color-text);
+    font-weight: 600;
+}
+
+.setting-notice-action {
+    flex-shrink: 0;
+}
+
+@media (max-width: 700px) {
+    .setting-rows {
+        padding: 2px 16px;
+    }
+
+    .setting-row-main {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .setting-row-action {
+        max-width: 100%;
+    }
+
+    .setting-value {
+        text-align: left;
+        white-space: normal;
+    }
+
+    .setting-form-grid {
+        grid-template-columns: 1fr;
+    }
+}

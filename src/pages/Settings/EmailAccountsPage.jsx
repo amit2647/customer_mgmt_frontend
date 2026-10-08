@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 
 import {
   activateEmailAccount,
@@ -13,7 +12,6 @@ import EmailAccountWorkflow from "../../components/emailAccounts/EmailAccountWor
 import Breadcrumb from "../../components/ui/Breadcrumb";
 
 function EmailAccountsPage() {
-  const navigate = useNavigate();
 
   const [accounts, setAccounts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -75,10 +73,6 @@ function EmailAccountsPage() {
 
   function handleCancelWorkflow() {
     setWorkflow(null);
-  }
-
-  function handleBackToSettings() {
-    navigate("/settings");
   }
 
   async function handleWorkflowComplete() {
@@ -148,7 +142,7 @@ function EmailAccountsPage() {
 
   if (workflow) {
     return (
-      <main className="page email-accounts-page">
+      <div className="settings-panel email-accounts-page">
         <Breadcrumb onBack={handleCancelWorkflow} backLabel="Email Accounts" section="SETTINGS" title={workflow.mode === "edit" ? "Edit Email Account" : "Add Email Account"} />
 
         <EmailAccountWorkflow
@@ -156,16 +150,15 @@ function EmailAccountsPage() {
           onComplete={handleWorkflowComplete}
           onCancel={handleCancelWorkflow}
         />
-      </main>
+      </div>
     );
   }
 
   return (
-    <main className="page email-accounts-page">
-      <Breadcrumb onBack={handleBackToSettings} backLabel="Settings" section="SETTINGS" title="Email Accounts" />
-      <div className="page-header">
+    <div className="settings-panel email-accounts-page">
+      <div className="page-header settings-panel-header">
         <div>
-          <h1>Email Accounts</h1>
+          <h2>Email Accounts</h2>
 
           <p>
             Manage the SMTP and IMAP accounts used for OmniCore email
@@ -226,7 +219,7 @@ function EmailAccountsPage() {
           onDelete={handleDelete}
         />
       </section>
-    </main>
+    </div>
   );
 }
 

@@ -8,7 +8,8 @@ import {
   deleteEmailAutomation,
   getEmailAutomations,
 } from "../../api/emailAutomations";
-import Breadcrumb from "../../components/ui/Breadcrumb";
+import DataGrid from "../../components/ui/DataGrid";
+import Pill, { toneFor } from "../../components/ui/Pill";
 
 const EVENT_LABELS = {
   "lead.created": "Lead created",
@@ -92,12 +93,11 @@ function EmailAutomationsPage() {
   }
 
   return (
-    <main className="page settings-sub-page">
-      <Breadcrumb onBack={() => navigate("/settings")} backLabel="Settings" section="SETTINGS" title="Email Automations" />
+    <div className="settings-panel settings-sub-page">
 
-      <div className="page-header">
+      <div className="page-header settings-panel-header">
         <div>
-          <h1>Email Automations</h1>
+          <h2>Email Automations</h2>
 
           <p>
             Send a template automatically when something happens. Automations are
@@ -117,91 +117,86 @@ function EmailAutomationsPage() {
       {success && <div className="alert alert-success">{success}</div>}
       {error && <div className="alert alert-error" role="alert">{error}</div>}
 
-      <section className="card">
-        {loading ? (
+      {loading ? (
+        <section className="card">
           <div className="settings-empty">Loading automations...</div>
-        ) : automations.length === 0 ? (
-          <div className="settings-empty">No automations yet.</div>
-        ) : (
-          <table>
-            <thead>
-              <tr>
-                <th>Automation</th>
-                <th>Trigger</th>
-                <th>Template</th>
-                <th>Sends from</th>
-                <th>Status</th>
-                <th />
-              </tr>
-            </thead>
+        </section>
+      ) : (
+        <DataGrid
+          id="email-automations"
+          label="Email automations"
+          rows={automations}
+          search={{ placeholder: "Search automations", label: "Search automations", text: (automation) => [automation.name, automation.description, automation.template_name].join(" ") }}
+          columns={[
+            {
+              key: "name",
+              header: "Automation",
+              render: (automation) => (
+                <>
+                  <span className="grid-cell-title">{automation.name}</span>
+                  {automation.description && <span className="grid-cell-sub">{automation.description}</span>}
+                </>
+              ),
+            },
+            {
+              key: "trigger",
+              header: "Trigger",
+              value: (automation) => EVENT_LABELS[automation.trigger_event] || automation.trigger_event,
+              filter: { tone: toneFor },
+              render: (automation) => {
+                const label = EVENT_LABELS[automation.trigger_event] || automation.trigger_event;
+                return <Pill tone={toneFor(label)}>{label}</Pill>;
+              },
+            },
+            { key: "template_name", header: "Template", render: (automation) => <span className="settings-cell-muted">{automation.template_name || "—"}</span> },
+            {
+              key: "account",
+              header: "Sends from",
+              sortable: false,
+              // The default only resolves while exactly one account is
+              // connected; flag the rows that would fail to send.
+              render: (automation) => (
+                <span className="settings-cell-muted">
+                  {automation.email_account_id
+                    ? automation.email_account_address || "Inactive account"
+                    : accountCount === 1
+                      ? "Default account"
+                      : <span className="settings-cell-warning">Choose an account</span>}
+                </span>
+              ),
+            },
+            {
+              key: "status",
+              header: "Status",
+              value: (automation) => (automation.is_active ? "On" : "Off"),
+              filter: { tone: (value) => (value === "On" ? "success" : "neutral") },
+              render: (automation) => <Pill dot tone={automation.is_active ? "success" : "neutral"}>{automation.is_active ? "On" : "Off"}</Pill>,
+            },
+            {
+              key: "actions",
+              header: "",
+              sortable: false,
+              hideable: false,
+              render: (automation) => (
+                <div className="table-actions">
+                  {canUpdate && (
+                    <button type="button" className="link" onClick={() => handleToggle(automation)}>{automation.is_active ? "Disable" : "Enable"}</button>
+                  )}
+                  {canUpdate && (
+                    <button type="button" className="link" onClick={() => navigate(`/settings/email-automations/${automation.id}/edit`)}>Edit</button>
+                  )}
+                  {canDelete && (
+                    <button type="button" className="link delete-link" onClick={() => handleDelete(automation)}>Delete</button>
+                  )}
+                </div>
+              ),
+            },
+          ]}
+          empty="No automations yet."
+        />
+      )}
 
-            <tbody>
-              {automations.map((automation) => (
-                <tr key={automation.id}>
-                  <td>
-                    <strong>{automation.name}</strong>
-
-                    {automation.description && (
-                      <span className="settings-row-hint">{automation.description}</span>
-                    )}
-                  </td>
-
-                  <td>
-                    <span className="settings-event">
-                      {EVENT_LABELS[automation.trigger_event] || automation.trigger_event}
-                    </span>
-                  </td>
-
-                  <td className="settings-cell-muted">{automation.template_name || "—"}</td>
-
-                  {/* The default only resolves while exactly one account is
-                      connected; flag the rows that would fail to send. */}
-                  <td className="settings-cell-muted">
-                    {automation.email_account_id
-                      ? automation.email_account_address || "Inactive account"
-                      : accountCount === 1
-                        ? "Default account"
-                        : <span className="settings-cell-warning">Choose an account</span>}
-                  </td>
-
-                  <td>
-                    <span className={`settings-pill${automation.is_active ? " on" : ""}`}>
-                      {automation.is_active ? "On" : "Off"}
-                    </span>
-                  </td>
-
-                  <td>
-                    <div className="table-actions">
-                      {canUpdate && (
-                        <button className="link" onClick={() => handleToggle(automation)}>
-                          {automation.is_active ? "Disable" : "Enable"}
-                        </button>
-                      )}
-
-                      {canUpdate && (
-                        <button className="link" onClick={() => navigate(`/settings/email-automations/${automation.id}/edit`)}>
-                          Edit
-                        </button>
-                      )}
-
-                      {canDelete && (
-                        <button
-                          className="link delete-link"
-                          onClick={() => handleDelete(automation)}
-                        >
-                          Delete
-                        </button>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </section>
-
-    </main>
+    </div>
   );
 }
 

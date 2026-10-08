@@ -1,11 +1,14 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Buildings, Certificate, Clock, CurrencyInr, EnvelopeSimple, MapPin, Phone, Scroll } from "@phosphor-icons/react";
 
 import { createProfessional, getFirm, getProfessionals, removeProfessional, updateFirm, updateProfessional } from "../../api/firm";
 import SchemaForm from "../../components/bundle/SchemaForm";
 import { useAuth } from "../../context/AuthContext";
 import { useBundle } from "../../context/BundleContext";
-import Breadcrumb from "../../components/ui/Breadcrumb";
+import { enumLabel } from "../../components/bundle/bundleLabels";
+import { SettingRow, SettingRows } from "../../components/ui/SettingRow";
+import DataGrid from "../../components/ui/DataGrid";
+import Pill from "../../components/ui/Pill";
 
 /*
  * Settings → Firm (SET-01–03): the firm's details and the bundle's firm
@@ -16,8 +19,19 @@ import Breadcrumb from "../../components/ui/Breadcrumb";
 const TIME_ZONES = ["Asia/Kolkata", "Asia/Dubai", "Asia/Singapore", "Europe/London", "America/New_York", "UTC"];
 const PERSON = { name: "", designation: "", attributes: {}, isDefaultSignatory: false };
 
+// The firm's own fields, in the order the rows show them.
+const DETAILS = [
+  ["name", "Display name", "How the firm is named across the workspace", <Buildings size={16} key="i" />],
+  ["legalName", "Legal name", "The registered name, used on letters", <Scroll size={16} key="i" />],
+  ["address", "Address", "Printed on the letterhead", <MapPin size={16} key="i" />],
+  ["city", "City of signing", "Where letters are signed", <MapPin size={16} key="i" />],
+  ["email", "Email", "The firm's contact address", <EnvelopeSimple size={16} key="i" />],
+  ["phone", "Phone", "The firm's contact number", <Phone size={16} key="i" />],
+  ["timeZone", "Time zone", "Due dates and \"today\" are worked out in it", <Clock size={16} key="i" />],
+  ["currency", "Currency", "Fees and payments are shown in it", <CurrencyInr size={16} key="i" />],
+];
+
 function FirmPage() {
-  const navigate = useNavigate();
   const { user } = useAuth();
   const { bundle } = useBundle();
 
@@ -31,6 +45,7 @@ function FirmPage() {
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [saving, setSaving] = useState(false);
+  const [editingFirm, setEditingFirm] = useState(false);
 
   const firmFields = useRef(null);
 
@@ -58,6 +73,7 @@ function FirmPage() {
       setError("");
       setErrors({});
       setFirm(await updateFirm(firm));
+      setEditingFirm(false);
       setNotice("Firm saved.");
     } catch (requestError) {
       setError(requestError.message || "The firm could not be saved.");
@@ -96,14 +112,20 @@ function FirmPage() {
   );
 
   return (
-    <main className="page settings-sub-page settings-form-page firm-page">
-      <Breadcrumb onBack={() => navigate("/settings")} backLabel="Settings" section="SETTINGS" title="Firm" />
-
-      <div className="page-header">
+    <div className="settings-panel settings-sub-page settings-form-page firm-page">
+      <div className="page-header settings-panel-header">
         <div>
-          <h1>Firm</h1>
+          <h2>Firm</h2>
           <p>Your firm's details and signing partners. Generated documents take them from here.</p>
         </div>
+
+        {canUpdate && firm && !editingFirm && (
+          <div className="page-header-actions">
+            <button type="button" className="secondary-button" onClick={() => { setNotice(""); setEditingFirm(true); }}>
+              Edit firm details
+            </button>
+          </div>
+        )}
       </div>
 
       {notice && <div className="alert alert-success">{notice}</div>}
@@ -111,6 +133,21 @@ function FirmPage() {
 
       {!firm ? (
         <section className="card"><div className="settings-empty">Loading firm…</div></section>
+      ) : !editingFirm ? (
+        <SettingRows label="Firm details">
+          {DETAILS.map(([key, title, description, icon]) => (
+            <SettingRow key={key} icon={icon} title={title} description={description} action={<span className="setting-value">{firm[key] || "—"}</span>} />
+          ))}
+          {Object.entries(bundle?.profiles?.organization?.schema?.properties || {}).map(([key, property]) => (
+            <SettingRow
+              key={key}
+              icon={<Certificate size={16} />}
+              title={property.title || key}
+              description={property.description}
+              action={<span className="setting-value">{enumLabel(bundle.profiles.organization, key, firm.attributes?.[key]) || "—"}</span>}
+            />
+          ))}
+        </SettingRows>
       ) : (
         <form className="settings-form-card" onSubmit={saveFirm} aria-label="Firm details">
           <div className="workflow-form-grid">
@@ -142,6 +179,7 @@ function FirmPage() {
 
           {canUpdate && (
             <div className="bundle-actions">
+              <button type="button" className="secondary-button" onClick={() => { setEditingFirm(false); setErrors({}); load(); }} disabled={saving}>Cancel</button>
               <button type="submit" className="primary" disabled={saving}>{saving ? "Saving..." : "Save firm"}</button>
             </div>
           )}
@@ -157,35 +195,51 @@ function FirmPage() {
         {people.length === 0 && !person && <div className="settings-empty">No signing partners yet.</div>}
 
         {people.length > 0 && (
-          <table>
-            <thead><tr><th>Name</th><th>Designation</th><th>Details</th><th /></tr></thead>
-            <tbody>
-              {people.map((item) => (
-                <tr key={item.id}>
-                  <td>
-                    <strong>{item.name}</strong>
-                    {item.is_default_signatory && <span className="settings-pill on">Default signatory</span>}
-                  </td>
-                  <td className="settings-cell-muted">{item.designation}</td>
-                  <td className="settings-cell-muted">
+          <DataGrid
+            embedded
+            label="Signing partners"
+            rows={people}
+            columns={[
+              {
+                key: "name",
+                header: "Name",
+                render: (item) => (
+                  <>
+                    <span className="grid-cell-title">{item.name}</span>
+                    {item.is_default_signatory && <Pill dot tone="success">Default signatory</Pill>}
+                  </>
+                ),
+              },
+              { key: "designation", header: "Designation", render: (item) => <span className="settings-cell-muted">{item.designation}</span> },
+              {
+                key: "details",
+                header: "Details",
+                sortable: false,
+                render: (item) => (
+                  <span className="settings-cell-muted">
                     {Object.entries(item.attributes || {}).map(([key, value]) => `${bundle?.profiles?.professional?.schema?.properties?.[key]?.title || key}: ${value}`).join(" · ")}
-                  </td>
-                  <td>
-                    {canUpdate && (
-                      <div className="table-actions">
-                        <button type="button" className="link" onClick={() => setPerson({ id: item.id, name: item.name, designation: item.designation || "", attributes: item.attributes || {}, isDefaultSignatory: item.is_default_signatory })}>Edit</button>
-                        <button type="button" className="link delete-link" onClick={async () => {
-                          if (!window.confirm(`Remove ${item.name}?`)) return;
-                          await removeProfessional(item.id);
-                          setPeople(await getProfessionals());
-                        }}>Remove</button>
-                      </div>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                  </span>
+                ),
+              },
+              {
+                key: "actions",
+                header: "",
+                sortable: false,
+                hideable: false,
+                render: (item) =>
+                  canUpdate && (
+                    <div className="table-actions">
+                      <button type="button" className="link" onClick={() => setPerson({ id: item.id, name: item.name, designation: item.designation || "", attributes: item.attributes || {}, isDefaultSignatory: item.is_default_signatory })}>Edit</button>
+                      <button type="button" className="link delete-link" onClick={async () => {
+                        if (!window.confirm(`Remove ${item.name}?`)) return;
+                        await removeProfessional(item.id);
+                        setPeople(await getProfessionals());
+                      }}>Remove</button>
+                    </div>
+                  ),
+              },
+            ]}
+          />
         )}
 
         {person && (
@@ -212,7 +266,7 @@ function FirmPage() {
           </form>
         )}
       </section>
-    </main>
+    </div>
   );
 }
 

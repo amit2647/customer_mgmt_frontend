@@ -1,5 +1,4 @@
-import { Fragment, useCallback, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useCallback, useEffect, useState } from "react";
 
 import { useAuth } from "../../context/AuthContext";
 import {
@@ -9,7 +8,8 @@ import {
   getPermissions,
   revokeAccessGrant,
 } from "../../api/identity";
-import Breadcrumb from "../../components/ui/Breadcrumb";
+import DataGrid from "../../components/ui/DataGrid";
+import Pill, { toneFor } from "../../components/ui/Pill";
 
 /*
  * Screens people actually ask for, mapped to the permission that unlocks them.
@@ -66,23 +66,6 @@ const RECIPIENTS = [
   },
 ];
 
-// Permission codes are "group.action", so the prefix groups them without a
-// second list to maintain.
-function groupPermissions(permissions) {
-  const groups = new Map();
-
-  for (const permission of permissions) {
-    const [group] = permission.code.split(".");
-
-    if (!groups.has(group)) {
-      groups.set(group, []);
-    }
-
-    groups.get(group).push(permission);
-  }
-
-  return [...groups.entries()].map(([name, items]) => ({ name, items }));
-}
 
 function formatWhen(value) {
   if (!value) {
@@ -108,7 +91,6 @@ function remaining(expiresAt) {
 }
 
 function AccessGrantsPage() {
-  const navigate = useNavigate();
   const { user } = useAuth();
 
   const permissions = Array.isArray(user?.permissions) ? user.permissions : [];
@@ -158,56 +140,19 @@ function AccessGrantsPage() {
     load();
   }, [load]);
 
-  function toggleIn(setter) {
-    return (value) =>
-      setter((current) => {
-        const next = new Set(current);
-        next.has(value) ? next.delete(value) : next.add(value);
-        return next;
-      });
-  }
-
-  const togglePermission = toggleIn(setExtraPermissions);
-
-  function toggleGroup(items) {
-    const allOn = items.every((item) => extraPermissions.has(item.code));
-
-    setExtraPermissions((current) => {
-      const next = new Set(current);
-      items.forEach((item) =>
-        allOn ? next.delete(item.code) : next.add(item.code),
-      );
-      return next;
-    });
-  }
-
   /*
    * Deselecting a screen also drops any of its permissions that were ticked.
    * Otherwise they would stay selected while no longer visible, and get granted
    * without the person seeing them.
    */
-  function toggleScreen(screen) {
-    setScreens((current) => {
-      const next = new Set(current);
+  function chooseScreens(next) {
+    const dropped = SCREENS.filter((screen) => screens.has(screen.permission) && !next.has(screen.permission)).map((screen) => screen.group);
 
-      if (next.has(screen.permission)) {
-        next.delete(screen.permission);
+    if (dropped.length > 0) {
+      setExtraPermissions((codes) => new Set([...codes].filter((code) => !dropped.includes(code.split(".")[0]))));
+    }
 
-        setExtraPermissions((codes) => {
-          const kept = new Set(codes);
-          [...kept].forEach((code) => {
-            if (code.split(".")[0] === screen.group) {
-              kept.delete(code);
-            }
-          });
-          return kept;
-        });
-      } else {
-        next.add(screen.permission);
-      }
-
-      return next;
-    });
+    setScreens(next);
   }
 
   // A screen is just a permission, so the two selections merge into one deduped
@@ -222,10 +167,8 @@ function AccessGrantsPage() {
     selectedGroups.has(permission.code.split(".")[0]),
   ).length;
 
-  const visibleGroups = groupPermissions(
-    allPermissions.filter((permission) =>
-      selectedGroups.has(permission.code.split(".")[0]),
-    ),
+  const visiblePermissions = allPermissions.filter((permission) =>
+    selectedGroups.has(permission.code.split(".")[0]),
   );
 
   function resetForm() {
@@ -322,12 +265,11 @@ function AccessGrantsPage() {
   const past = grants.filter((grant) => !grant.is_active);
 
   return (
-    <main className="page settings-sub-page">
-      <Breadcrumb onBack={() => navigate("/settings")} backLabel="Settings" section="SETTINGS" title="Just-in-time Access" />
+    <div className="settings-panel settings-sub-page">
 
-      <div className="page-header">
+      <div className="page-header settings-panel-header">
         <div>
-          <h1>Just-in-time Access</h1>
+          <h2>Just-in-time Access</h2>
 
           <p>
             Give someone one screen for a limited time. Grants are checked on
@@ -453,48 +395,26 @@ function AccessGrantsPage() {
               <span>{screens.size} selected</span>
             </div>
 
-            <div className="permission-table-wrap">
-              <table className="permission-table">
-                <thead>
-                  <tr>
-                    <th className="permission-check-col" />
-                    <th>Screen</th>
-                    <th>Grants</th>
-                  </tr>
-                </thead>
-
-                <tbody>
-                  {SCREENS.map((screen) => (
-                    <tr
-                      key={screen.permission}
-                      className={screens.has(screen.permission) ? "selected" : ""}
-                    >
-                      <td className="permission-check-col">
-                        <input
-                          id={`screen-${screen.group}`}
-                          type="checkbox"
-                          checked={screens.has(screen.permission)}
-                          onChange={() => toggleScreen(screen)}
-                          disabled={saving}
-                        />
-                      </td>
-
-                      <td>
-                        <label htmlFor={`screen-${screen.group}`}>
-                          <strong>{screen.label}</strong>
-
-                          <span>{screen.description}</span>
-                        </label>
-                      </td>
-
-                      <td>
-                        <code>{screen.permission}</code>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <DataGrid
+              embedded
+              label="Screens"
+              rows={SCREENS}
+              rowKey={(screen) => screen.permission}
+              selection={{ selected: screens, onChange: chooseScreens, isDisabled: () => saving }}
+              columns={[
+                {
+                  key: "label",
+                  header: "Screen",
+                  render: (screen) => (
+                    <>
+                      <span className="grid-cell-title">{screen.label}</span>
+                      <span className="grid-cell-sub">{screen.description}</span>
+                    </>
+                  ),
+                },
+                { key: "permission", header: "Grants", render: (screen) => <code>{screen.permission}</code> },
+              ]}
+            />
           </div>
 
           <div className="settings-field-full">
@@ -521,65 +441,34 @@ function AccessGrantsPage() {
                 offer.
               </div>
             ) : (
-              <div className="permission-table-wrap">
-                <table className="permission-table">
-                  <tbody>
-                    {visibleGroups.map((group) => (
-                      <Fragment key={group.name}>
-                        <tr className="permission-group-row">
-                          <td>
-                            {group.name.replace(/_/g, " ")}
-                            <span className="permission-group-count">
-                              {group.items.length}
-                            </span>
-                          </td>
-
-                          <td>
-                            <button
-                              type="button"
-                              className="link"
-                              onClick={() => toggleGroup(group.items)}
-                            >
-                              {group.items.every((item) =>
-                                extraPermissions.has(item.code),
-                              )
-                                ? "Clear"
-                                : "Select all"}
-                            </button>
-                          </td>
-                        </tr>
-
-                        {group.items.map((permission) => (
-                          <tr
-                            key={permission.id}
-                            className={
-                              extraPermissions.has(permission.code) ? "selected" : ""
-                            }
-                          >
-                            <td className="permission-check-col">
-                              <input
-                                id={`grant-${permission.id}`}
-                                type="checkbox"
-                                checked={extraPermissions.has(permission.code)}
-                                onChange={() => togglePermission(permission.code)}
-                                disabled={saving}
-                              />
-                            </td>
-
-                            <td>
-                              <label htmlFor={`grant-${permission.id}`}>
-                                <strong>{permission.name}</strong>
-
-                                <span>{permission.code}</span>
-                              </label>
-                            </td>
-                          </tr>
-                        ))}
-                      </Fragment>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+              <DataGrid
+                embedded
+                label="Additional permissions"
+                rows={visiblePermissions}
+                rowKey={(permission) => permission.code}
+                search={visiblePermissions.length > 10 ? { placeholder: "Search permissions", label: "Search permissions", text: (permission) => [permission.name, permission.code, permission.description].join(" ") } : undefined}
+                selection={{ selected: extraPermissions, onChange: setExtraPermissions, isDisabled: () => saving }}
+                columns={[
+                  {
+                    key: "name",
+                    header: "Permission",
+                    render: (permission) => (
+                      <>
+                        <span className="grid-cell-title">{permission.name}</span>
+                        {permission.description && <span className="grid-cell-sub">{permission.description}</span>}
+                      </>
+                    ),
+                  },
+                  {
+                    key: "group",
+                    header: "Group",
+                    value: (permission) => permission.code.split(".")[0],
+                    filter: { label: (value) => value.replace(/_/g, " "), tone: toneFor },
+                    render: (permission) => <Pill tone={toneFor(permission.code.split(".")[0])}>{permission.code.split(".")[0].replace(/_/g, " ")}</Pill>,
+                  },
+                  { key: "code", header: "Code", render: (permission) => <code>{permission.code}</code> },
+                ]}
+              />
             )}
           </div>
 
@@ -639,63 +528,59 @@ function AccessGrantsPage() {
 
         {loading ? (
           <div className="settings-empty">Loading grants...</div>
-        ) : active.length === 0 ? (
-          <div className="settings-empty">No active grants.</div>
         ) : (
-          <table>
-            <thead>
-              <tr>
-                <th>Who</th>
-                <th>Access</th>
-                <th>Reason</th>
-                <th>Expires</th>
-                <th />
-              </tr>
-            </thead>
-
-            <tbody>
-              {active.map((grant) => (
-                <tr key={grant.id}>
-                  <td>
-                    <strong>{grant.user_name || grant.subject_email}</strong>
-
-                    <span className="settings-row-hint">
+          <DataGrid
+            embedded
+            label="Active grants"
+            rows={active}
+            search={active.length > 10 ? { placeholder: "Search grants", label: "Search grants", text: (grant) => [grant.user_name, grant.subject_email, grant.user_email, grant.permission_code, grant.reason].join(" ") } : undefined}
+            initialSort={{ key: "expires_at", dir: "asc" }}
+            columns={[
+              {
+                key: "who",
+                header: "Who",
+                value: (grant) => grant.user_name || grant.subject_email,
+                render: (grant) => (
+                  <>
+                    <span className="grid-cell-title">{grant.user_name || grant.subject_email}</span>
+                    <span className="grid-cell-sub">
                       {grant.is_invite
                         ? grant.redeemed_at
                           ? `Guest · opened ${formatWhen(grant.redeemed_at)}`
                           : "Guest · link not opened yet"
                         : grant.user_email}
                     </span>
-                  </td>
-
-                  <td>
-                    <span className="settings-event">{grant.permission_code}</span>
-                  </td>
-
-                  <td className="settings-cell-muted">{grant.reason}</td>
-
-                  <td>
-                    <span className="settings-pill on">{remaining(grant.expires_at)}</span>
-
-                    <span className="settings-row-hint">{formatWhen(grant.expires_at)}</span>
-                  </td>
-
-                  <td>
-                    <div className="table-actions">
-                      {canManage && (
-                        <button
-                          className="link delete-link"
-                          onClick={() => handleRevoke(grant)}
-                        >
-                          Revoke
-                        </button>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                  </>
+                ),
+              },
+              { key: "permission_code", header: "Access", filter: { tone: toneFor }, render: (grant) => <Pill tone={toneFor(grant.permission_code.split(".")[0])}>{grant.permission_code}</Pill> },
+              { key: "reason", header: "Reason", sortable: false, render: (grant) => <span className="settings-cell-muted">{grant.reason}</span> },
+              {
+                key: "expires_at",
+                header: "Expires",
+                render: (grant) => (
+                  <>
+                    <Pill dot tone="success">{remaining(grant.expires_at)}</Pill>
+                    <span className="grid-cell-sub">{formatWhen(grant.expires_at)}</span>
+                  </>
+                ),
+              },
+              {
+                key: "actions",
+                header: "",
+                sortable: false,
+                hideable: false,
+                render: (grant) => (
+                  <div className="table-actions">
+                    {canManage && (
+                      <button type="button" className="link delete-link" onClick={() => handleRevoke(grant)}>Revoke</button>
+                    )}
+                  </div>
+                ),
+              },
+            ]}
+            empty="No active grants."
+          />
         )}
       </section>
 
@@ -706,39 +591,31 @@ function AccessGrantsPage() {
             <span>{past.length}</span>
           </div>
 
-          <table>
-            <thead>
-              <tr>
-                <th>Who</th>
-                <th>Access</th>
-                <th>Reason</th>
-                <th>Ended</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {past.map((grant) => (
-                <tr key={grant.id}>
-                  <td>{grant.user_name || grant.subject_email}</td>
-
-                  <td>
-                    <span className="settings-event">{grant.permission_code}</span>
-                  </td>
-
-                  <td className="settings-cell-muted">{grant.reason}</td>
-
-                  <td className="settings-cell-muted">
-                    {grant.revoked_at
-                      ? `Revoked ${formatWhen(grant.revoked_at)}`
-                      : `Expired ${formatWhen(grant.expires_at)}`}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <DataGrid
+            embedded
+            label="Grant history"
+            rows={past}
+            initialSort={{ key: "ended", dir: "desc" }}
+            columns={[
+              { key: "who", header: "Who", value: (grant) => grant.user_name || grant.subject_email },
+              { key: "permission_code", header: "Access", filter: { tone: toneFor }, render: (grant) => <Pill tone={toneFor(grant.permission_code.split(".")[0])}>{grant.permission_code}</Pill> },
+              { key: "reason", header: "Reason", sortable: false, render: (grant) => <span className="settings-cell-muted">{grant.reason}</span> },
+              {
+                key: "ended",
+                header: "Ended",
+                value: (grant) => grant.revoked_at || grant.expires_at,
+                render: (grant) => (
+                  <>
+                    <Pill dot tone={grant.revoked_at ? "danger" : "neutral"}>{grant.revoked_at ? "Revoked" : "Expired"}</Pill>
+                    <span className="grid-cell-sub">{formatWhen(grant.revoked_at || grant.expires_at)}</span>
+                  </>
+                ),
+              },
+            ]}
+          />
         </section>
       )}
-    </main>
+    </div>
   );
 }
 

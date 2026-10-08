@@ -9,24 +9,8 @@ import {
   updateRolePermissions,
 } from "../../api/identity";
 import Breadcrumb from "../../components/ui/Breadcrumb";
-
-// permissions are coded "group.action", so the prefix gives a natural grouping
-// without maintaining a separate list here.
-function groupPermissions(permissions) {
-  const groups = new Map();
-
-  for (const permission of permissions) {
-    const [group] = permission.code.split(".");
-
-    if (!groups.has(group)) {
-      groups.set(group, []);
-    }
-
-    groups.get(group).push(permission);
-  }
-
-  return [...groups.entries()].map(([name, items]) => ({ name, items }));
-}
+import DataGrid from "../../components/ui/DataGrid";
+import Pill, { toneFor } from "../../components/ui/Pill";
 
 function RoleFormPage() {
   const { id } = useParams();
@@ -78,21 +62,7 @@ function RoleFormPage() {
     load();
   }, [load]);
 
-  function toggle(code) {
-    setSelected((current) => {
-      const next = new Set(current);
-      next.has(code) ? next.delete(code) : next.add(code);
-      return next;
-    });
-  }
 
-  function toggleGroup(items, allOn) {
-    setSelected((current) => {
-      const next = new Set(current);
-      items.forEach((item) => (allOn ? next.delete(item.code) : next.add(item.code)));
-      return next;
-    });
-  }
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -124,7 +94,6 @@ function RoleFormPage() {
     );
   }
 
-  const groups = groupPermissions(permissions);
 
   return (
     <main className="page settings-sub-page settings-form-page">
@@ -187,73 +156,39 @@ function RoleFormPage() {
             </span>
           </div>
 
-          <div className="permission-table-wrap">
-            <table className="permission-table">
-              <thead>
-                <tr>
-                  <th className="permission-check-col" />
-                  <th>Permission</th>
-                  <th>Code</th>
-                </tr>
-              </thead>
-
-              {groups.map((group) => {
-                const allOn = group.items.every((item) => selected.has(item.code));
-
-                return (
-                  <tbody key={group.name}>
-                    {/* Group header doubles as the select-all control. */}
-                    <tr className="permission-group-row">
-                      <td colSpan={2}>{group.name.replace(/_/g, " ")}</td>
-
-                      <td>
-                        {!readOnly && (
-                          <button
-                            type="button"
-                            className="link"
-                            onClick={() => toggleGroup(group.items, allOn)}
-                          >
-                            {allOn ? "Clear" : "Select all"}
-                          </button>
-                        )}
-                      </td>
-                    </tr>
-
-                    {group.items.map((permission) => (
-                      <tr
-                        key={permission.id}
-                        className={selected.has(permission.code) ? "selected" : ""}
-                      >
-                        <td className="permission-check-col">
-                          <input
-                            id={`perm-${permission.id}`}
-                            type="checkbox"
-                            checked={selected.has(permission.code)}
-                            onChange={() => toggle(permission.code)}
-                            disabled={saving || readOnly}
-                          />
-                        </td>
-
-                        <td>
-                          <label htmlFor={`perm-${permission.id}`}>
-                            <strong>{permission.name}</strong>
-
-                            {permission.description && (
-                              <span>{permission.description}</span>
-                            )}
-                          </label>
-                        </td>
-
-                        <td>
-                          <code>{permission.code}</code>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                );
-              })}
-            </table>
-          </div>
+          {/* Each permission is a row; checking it gives it to the role. The
+              group (the code's prefix) is a filter, and Select all takes
+              whatever the search and filters leave. */}
+          <DataGrid
+            embedded
+            id="role-permissions"
+            label="Permissions"
+            rows={permissions}
+            rowKey={(permission) => permission.code}
+            pageSize={25}
+            search={{ placeholder: "Search permissions", label: "Search permissions", text: (permission) => [permission.name, permission.code, permission.description].join(" ") }}
+            selection={{ selected, onChange: setSelected, isDisabled: () => saving || readOnly }}
+            columns={[
+              {
+                key: "name",
+                header: "Permission",
+                render: (permission) => (
+                  <>
+                    <span className="grid-cell-title">{permission.name}</span>
+                    {permission.description && <span className="grid-cell-sub">{permission.description}</span>}
+                  </>
+                ),
+              },
+              {
+                key: "group",
+                header: "Group",
+                value: (permission) => permission.code.split(".")[0],
+                filter: { label: (value) => value.replace(/_/g, " "), tone: toneFor },
+                render: (permission) => <Pill tone={toneFor(permission.code.split(".")[0])}>{permission.code.split(".")[0].replace(/_/g, " ")}</Pill>,
+              },
+              { key: "code", header: "Code", render: (permission) => <code>{permission.code}</code> },
+            ]}
+          />
         </div>
 
         <div className="settings-form-actions">

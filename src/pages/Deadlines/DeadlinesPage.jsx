@@ -5,9 +5,11 @@ import { useNavigate } from "react-router-dom";
 import { getEngagementTypes, getPeriods } from "../../api/engagements";
 import { getDeadlines } from "../../api/obligations";
 import { formatDay } from "../../components/bundle/bundleLabels";
-import { STATE_LABEL, STATES } from "../../components/deadlines/deadlineLabels";
+import { STATE_LABEL, STATE_TONE, STATES } from "../../components/deadlines/deadlineLabels";
 import { useBundle } from "../../context/BundleContext";
 import StatCard from "../../components/ui/StatCard";
+import DataGrid from "../../components/ui/DataGrid";
+import Pill, { toneFor } from "../../components/ui/Pill";
 
 /*
  * Every client's deadlines (COMP-04/05/06): counts per state as cards that
@@ -59,11 +61,8 @@ function DeadlinesPage() {
     load();
   }, [load]);
 
-  const [query, setQuery] = useState("");
-  const needle = query.trim().toLowerCase();
-  const items = (data?.items || []).filter(
-    (item) => (!state || item.state === state) && (!needle || [item.title, item.customer_name, item.service_name].some((value) => String(value || "").toLowerCase().includes(needle))),
-  );
+  // The state cards narrow the list; the grid searches and filters the rest.
+  const items = (data?.items || []).filter((item) => !state || item.state === state);
 
   if (!bundle) {
     return <main className="page deadlines-page"><div className="settings-empty">Deadlines need a profession bundle.</div></main>;
@@ -101,63 +100,59 @@ function DeadlinesPage() {
         })}
       </section>
 
-      <div className="clients-toolbar">
-        <input
-          type="search"
-          className="clients-search"
-          placeholder={`Search by deadline, ${term("client").toLowerCase()} or service`}
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          aria-label="Search deadlines"
-        />
-
-        <select className="clients-select" value={period} onChange={(e) => setPeriod(e.target.value)} aria-label="Financial year">
-          {periods.map((item) => <option key={item.label} value={item.label}>FY {item.label}</option>)}
-        </select>
-      </div>
-
       {error && <div className="alert alert-error" role="alert">{error}</div>}
 
-      <section className="card" aria-label="Deadlines">
-        {!data ? (
+      {!data ? (
+        <section className="card" aria-label="Deadlines">
           <div className="settings-empty">Loading…</div>
-        ) : items.length === 0 ? (
-          <div className="settings-empty">Nothing here.</div>
-        ) : (
-          <table className="clients-table deadlines-table">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Deadline</th>
-                <th>{term("client")}</th>
-                <th>Due</th>
-                <th>State</th>
-                <th />
-              </tr>
-            </thead>
-
-            <tbody>
-              {items.map((item, index) => (
-                <tr key={item.id}>
-                  <td className="settings-cell-muted">{index + 1}</td>
-                  <td>
-                    <button type="button" className="link client-name" onClick={() => openClient(item)}>{item.title}</button>
-                    {item.service_name && <span className="settings-row-hint">{item.service_name}</span>}
-                  </td>
-                  <td>{item.customer_name}</td>
-                  <td className="deadline-due">{formatDay(item.due_on)}</td>
-                  <td><span className={`deadline-pill state-${item.state}`}>{STATE_LABEL[item.state]}</span></td>
-                  <td>
-                    <div className="table-actions">
-                      <button type="button" className="link" onClick={() => openClient(item)} aria-label={`Open ${item.customer_name} for ${item.title}`}>View</button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </section>
+        </section>
+      ) : (
+        <DataGrid
+          id="deadlines"
+          label="Deadlines"
+          rows={items}
+          search={{ placeholder: `Search by deadline, ${term("client").toLowerCase()} or service`, label: "Search deadlines", text: (item) => [item.title, item.customer_name, item.service_name].join(" ") }}
+          controls={
+            <select className="clients-select" value={period} onChange={(e) => setPeriod(e.target.value)} aria-label="Financial year">
+              {periods.map((item) => <option key={item.label} value={item.label}>FY {item.label}</option>)}
+            </select>
+          }
+          columns={[
+            {
+              key: "title",
+              header: "Deadline",
+              render: (item) => (
+                <>
+                  <button type="button" className="link client-name" onClick={() => openClient(item)}>{item.title}</button>
+                  {item.service_name && <span className="grid-cell-sub">{item.service_name}</span>}
+                </>
+              ),
+            },
+            { key: "customer_name", header: term("client"), filter: true },
+            { key: "service_name", header: "Service", filter: { tone: toneFor }, hidden: true, render: (item) => item.service_name && <Pill tone={toneFor(item.service_name)}>{item.service_name}</Pill> },
+            { key: "due_on", header: "Due", render: (item) => <span className="deadline-due">{formatDay(item.due_on)}</span> },
+            {
+              key: "state",
+              header: "State",
+              value: (item) => STATES.findIndex((entry) => entry.key === item.state),
+              filter: { values: (item) => [item.state], label: (value) => STATE_LABEL[value], tone: (value) => STATE_TONE[value] },
+              render: (item) => <Pill dot tone={STATE_TONE[item.state]}>{STATE_LABEL[item.state]}</Pill>,
+            },
+            {
+              key: "actions",
+              header: "",
+              sortable: false,
+              hideable: false,
+              render: (item) => (
+                <div className="table-actions">
+                  <button type="button" className="link" onClick={() => openClient(item)} aria-label={`Open ${item.customer_name} for ${item.title}`}>View</button>
+                </div>
+              ),
+            },
+          ]}
+          empty="Nothing here."
+        />
+      )}
     </main>
   );
 }

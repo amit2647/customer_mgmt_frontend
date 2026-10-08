@@ -3,7 +3,8 @@ import { useNavigate } from "react-router-dom";
 
 import { useAuth } from "../../context/AuthContext";
 import { deleteEmailTemplate, getEmailTemplates } from "../../api/emailTemplates";
-import Breadcrumb from "../../components/ui/Breadcrumb";
+import DataGrid from "../../components/ui/DataGrid";
+import Pill from "../../components/ui/Pill";
 
 function EmailTemplatesPage() {
   const navigate = useNavigate();
@@ -59,12 +60,11 @@ function EmailTemplatesPage() {
   }
 
   return (
-    <main className="page settings-sub-page">
-      <Breadcrumb onBack={() => navigate("/settings")} backLabel="Settings" section="SETTINGS" title="Email Templates" />
+    <div className="settings-panel settings-sub-page">
 
-      <div className="page-header">
+      <div className="page-header settings-panel-header">
         <div>
-          <h1>Email Templates</h1>
+          <h2>Email Templates</h2>
 
           <p>
             Reusable copy for automations and manual sends. Use placeholders like{" "}
@@ -85,67 +85,57 @@ function EmailTemplatesPage() {
       {success && <div className="alert alert-success">{success}</div>}
       {error && <div className="alert alert-error" role="alert">{error}</div>}
 
-      <section className="card">
-        {loading ? (
+      {loading ? (
+        <section className="card">
           <div className="settings-empty">Loading templates...</div>
-        ) : templates.length === 0 ? (
-          <div className="settings-empty">No templates yet.</div>
-        ) : (
-          <table>
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Subject</th>
-                <th>Status</th>
-                <th />
-              </tr>
-            </thead>
+        </section>
+      ) : (
+        <DataGrid
+          id="email-templates"
+          label="Email templates"
+          rows={templates}
+          search={{ placeholder: "Search templates", label: "Search templates", text: (template) => [template.name, template.subject, template.description].join(" ") }}
+          columns={[
+            {
+              key: "name",
+              header: "Name",
+              render: (template) => (
+                <>
+                  <span className="grid-cell-title">{template.name}</span>
+                  {template.description && <span className="grid-cell-sub">{template.description}</span>}
+                </>
+              ),
+            },
+            { key: "subject", header: "Subject", render: (template) => <span className="settings-cell-muted">{template.subject}</span> },
+            {
+              key: "status",
+              header: "Status",
+              value: (template) => (template.is_active ? "Active" : "Inactive"),
+              filter: { tone: (value) => (value === "Active" ? "success" : "neutral") },
+              render: (template) => <Pill dot tone={template.is_active ? "success" : "neutral"}>{template.is_active ? "Active" : "Inactive"}</Pill>,
+            },
+            {
+              key: "actions",
+              header: "",
+              sortable: false,
+              hideable: false,
+              render: (template) => (
+                <div className="table-actions">
+                  {canUpdate && (
+                    <button type="button" className="link" onClick={() => navigate(`/settings/email-templates/${template.id}/edit`)}>Edit</button>
+                  )}
+                  {canDelete && (
+                    <button type="button" className="link delete-link" onClick={() => handleDelete(template)}>Delete</button>
+                  )}
+                </div>
+              ),
+            },
+          ]}
+          empty="No templates yet."
+        />
+      )}
 
-            <tbody>
-              {templates.map((template) => (
-                <tr key={template.id}>
-                  <td>
-                    <strong>{template.name}</strong>
-
-                    {template.description && (
-                      <span className="settings-row-hint">{template.description}</span>
-                    )}
-                  </td>
-
-                  <td className="settings-cell-muted">{template.subject}</td>
-
-                  <td>
-                    <span className={`settings-pill${template.is_active ? " on" : ""}`}>
-                      {template.is_active ? "Active" : "Inactive"}
-                    </span>
-                  </td>
-
-                  <td>
-                    <div className="table-actions">
-                      {canUpdate && (
-                        <button className="link" onClick={() => navigate(`/settings/email-templates/${template.id}/edit`)}>
-                          Edit
-                        </button>
-                      )}
-
-                      {canDelete && (
-                        <button
-                          className="link delete-link"
-                          onClick={() => handleDelete(template)}
-                        >
-                          Delete
-                        </button>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </section>
-
-    </main>
+    </div>
   );
 }
 

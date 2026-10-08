@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 
 import { getBundles, installBundle, upgradeBundle } from "../../api/bundles";
 import BundleCustomized from "./BundleCustomized";
 import { useBundle } from "../../context/BundleContext";
-import Breadcrumb from "../../components/ui/Breadcrumb";
+import DataGrid from "../../components/ui/DataGrid";
+import Pill from "../../components/ui/Pill";
 
 const STEP_LABELS = {
   permissions: "Permissions",
@@ -13,7 +14,9 @@ const STEP_LABELS = {
   engagementTypes: "Engagement types",
   obligations: "Deadline rules",
   documents: "Document templates",
+  vault: "Portals",
   email: "Reminder emails",
+  help: "Assistant help",
 };
 
 const STATUS_LABELS = {
@@ -51,7 +54,6 @@ function formatDate(value) {
  * and installing again resumes where it stopped.
  */
 function BundlePage() {
-  const navigate = useNavigate();
   // First-run setup lands here when installing its bundle stopped part-way.
   const setupBundleError = useLocation().state?.setupBundleError;
   const { refresh } = useBundle();
@@ -145,12 +147,11 @@ function BundlePage() {
   const upgradeTo = installed?.upgrade?.version || newer?.version;
 
   return (
-    <main className="page settings-sub-page bundle-page">
-      <Breadcrumb onBack={() => navigate("/settings")} backLabel="Settings" section="SETTINGS" title="Profession Bundle" />
+    <div className="settings-panel settings-sub-page bundle-page">
 
-      <div className="page-header">
+      <div className="page-header settings-panel-header">
         <div>
-          <h1>Profession Bundle</h1>
+          <h2>Profession Bundle</h2>
 
           <p>
             Set this workspace up for a profession: its services, role templates,
@@ -192,35 +193,37 @@ function BundlePage() {
             </span>
           </div>
 
-          <table>
-            <thead>
-              <tr>
-                <th>Step</th>
-                <th>Status</th>
-                <th>Attempts</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {installed.steps.map((step) => (
-                <tr key={step.step}>
-                  <td>
-                    <strong>{STEP_LABELS[step.step] || step.step}</strong>
-
-                    {step.error && <span className="settings-row-hint settings-cell-warning">{step.error}</span>}
-                  </td>
-
-                  <td>
-                    <span className={`settings-pill${step.status === "done" ? " on" : ""}`}>
-                      {STATUS_LABELS[step.status] || step.status}
-                    </span>
-                  </td>
-
-                  <td className="settings-cell-muted">{step.attempts}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <DataGrid
+            embedded
+            label="Install steps"
+            rows={installed.steps}
+            rowKey={(step) => step.step}
+            columns={[
+              {
+                key: "step",
+                header: "Step",
+                // The install order, not the alphabet.
+                sortable: false,
+                render: (step) => (
+                  <>
+                    <span className="grid-cell-title">{STEP_LABELS[step.step] || step.step}</span>
+                    {step.error && <span className="grid-cell-sub settings-cell-warning">{step.error}</span>}
+                  </>
+                ),
+              },
+              {
+                key: "status",
+                header: "Status",
+                sortable: false,
+                render: (step) => (
+                  <Pill dot tone={step.status === "done" ? "success" : step.status === "failed" ? "danger" : "neutral"}>
+                    {STATUS_LABELS[step.status] || step.status}
+                  </Pill>
+                ),
+              },
+              { key: "attempts", header: "Attempts", align: "right", sortable: false },
+            ]}
+          />
 
           {!unfinished && upgradeTo && (
             <div className="bundle-upgrade" aria-label="Upgrade">
@@ -306,7 +309,7 @@ function BundlePage() {
           ))}
         </section>
       )}
-    </main>
+    </div>
   );
 }
 

@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { deleteDocument, getDocuments, getDocumentTemplates } from "../../api/documents";
 import { getEngagementTypes, getPeriods } from "../../api/engagements";
 import { formatDate } from "../../components/common/Field";
+import DataGrid from "../../components/ui/DataGrid";
+import Pill from "../../components/ui/Pill";
 
 /*
  * A client's documents for one financial year (CD-12, DOC-09): a tile per
@@ -95,38 +97,46 @@ function ClientDocuments({ client, can, readOnly }) {
         ))}
       </div>
 
-      <section className="card" aria-label="Documents made">
-        {documents.length === 0 ? (
-          <div className="settings-empty">No documents for FY {period} yet. Choose a letter above to start one.</div>
-        ) : (
-          <table className="clients-table">
-            <thead>
-              <tr><th>#</th><th>Document</th><th>Status</th><th>Updated</th><th /></tr>
-            </thead>
-            <tbody>
-              {documents.map((document, index) => (
-                <tr key={document.id}>
-                  <td className="settings-cell-muted">{index + 1}</td>
-                  <td>
-                    <button type="button" className="link client-name" onClick={() => navigate(`/documents/${document.id}`)}>{document.title}</button>
-                    <span className="settings-row-hint">Template version {document.template_version}{document.udin ? ` · UDIN ${document.udin}` : ""}</span>
-                  </td>
-                  <td><span className={`deadline-pill ${document.status === "final" ? "state-completed" : "state-in_progress"}`}>{document.status === "final" ? "Final" : "Draft"}</span></td>
-                  <td className="settings-cell-muted">{formatDate(document.updated_at)}</td>
-                  <td>
-                    <div className="table-actions">
-                      <button type="button" className="link" onClick={() => navigate(`/documents/${document.id}`)}>{document.status === "final" ? "View" : "Edit"}</button>
-                      {canGenerate && document.status === "draft" && (
-                        <button type="button" className="link delete-link" onClick={() => remove(document)}>Delete</button>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </section>
+      <DataGrid
+        label="Documents made"
+        rows={documents}
+        initialSort={{ key: "updated_at", dir: "desc" }}
+        columns={[
+          {
+            key: "title",
+            header: "Document",
+            render: (document) => (
+              <>
+                <button type="button" className="link client-name" onClick={() => navigate(`/documents/${document.id}`)}>{document.title}</button>
+                <span className="grid-cell-sub">Template version {document.template_version}{document.udin ? ` · UDIN ${document.udin}` : ""}</span>
+              </>
+            ),
+          },
+          {
+            key: "status",
+            header: "Status",
+            value: (document) => (document.status === "final" ? "Final" : "Draft"),
+            filter: { tone: (value) => (value === "Final" ? "success" : "info") },
+            render: (document) => <Pill dot tone={document.status === "final" ? "success" : "info"}>{document.status === "final" ? "Final" : "Draft"}</Pill>,
+          },
+          { key: "updated_at", header: "Updated", render: (document) => <span className="settings-cell-muted">{formatDate(document.updated_at)}</span> },
+          {
+            key: "actions",
+            header: "",
+            sortable: false,
+            hideable: false,
+            render: (document) => (
+              <div className="table-actions">
+                <button type="button" className="link" onClick={() => navigate(`/documents/${document.id}`)}>{document.status === "final" ? "View" : "Edit"}</button>
+                {canGenerate && document.status === "draft" && (
+                  <button type="button" className="link delete-link" onClick={() => remove(document)}>Delete</button>
+                )}
+              </div>
+            ),
+          },
+        ]}
+        empty={`No documents for FY ${period} yet. Choose a letter above to start one.`}
+      />
     </section>
   );
 }

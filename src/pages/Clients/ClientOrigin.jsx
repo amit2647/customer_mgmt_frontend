@@ -65,8 +65,16 @@ function ClientOrigin({ client, can, readOnly, onLinked }) {
 
   if (sourceLeadId) {
     return (
-      <section className="card client-origin" aria-label="Won from prospect">
-        <h3>Won from prospect</h3>
+      <section className="client-section client-origin" aria-label="Won from prospect">
+        <div className="client-section-heading">
+        <span>Origin</span>
+        <div className="client-section-heading">
+          <span>Origin</span>
+          <h2>Won from prospect</h2>
+          <p>What the prospect stage recorded before this client was won.</p>
+        </div>
+        <p>What the prospect stage recorded before this client was won.</p>
+      </div>
         {missing && <p className="settings-row-hint">The prospect this client was won from has since been deleted.</p>}
         {lead && (
           <dl className="engagement-facts">
@@ -84,8 +92,8 @@ function ClientOrigin({ client, can, readOnly, onLinked }) {
   if (!canLink) return null;
 
   return (
-    <section className="card client-origin" aria-label="Won from prospect">
-      <h3>Won from prospect</h3>
+    <section className="client-section client-origin" aria-label="Won from prospect">
+      <h2>Won from prospect</h2>
       {error && <div className="alert alert-error" role="alert">{error}</div>}
 
       {candidates === null ? (

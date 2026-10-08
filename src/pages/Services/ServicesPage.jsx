@@ -13,7 +13,6 @@ import ServiceForm from "../../components/services/ServiceForm";
 function ServicesPage() {
   const [services, setServices] = useState([]);
 
-  const [query, setQuery] = useState("");
 
   const [showForm, setShowForm] = useState(false);
 
@@ -25,7 +24,8 @@ function ServicesPage() {
     try {
       setLoading(true);
 
-      const data = await getServices(query);
+      // The whole catalog: the table searches, sorts and filters it.
+      const data = await getServices("");
 
       setServices(Array.isArray(data) ? data : []);
     } catch (error) {
@@ -37,7 +37,7 @@ function ServicesPage() {
 
   useEffect(() => {
     loadServices();
-  }, [query]);
+  }, []);
 
   /*
    * Create / Update service
@@ -123,24 +123,8 @@ function ServicesPage() {
         </button>
       </header>
 
-      <div className="toolbar">
-        <input
-          type="search"
-          placeholder="Search services..."
-          value={query}
-          onChange={(event) => setQuery(event.target.value)}
-        />
-
-        <span>
-          {services.length} service
-          {services.length === 1 ? "" : "s"}
-        </span>
-      </div>
-
       {loading ? (
         <div className="empty">Loading services...</div>
-      ) : services.length === 0 ? (
-        <div className="empty">No services found.</div>
       ) : (
         <ServiceTable
           services={services}

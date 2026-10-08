@@ -9,6 +9,9 @@ export const STATES = [
 
 export const STATE_LABEL = Object.fromEntries(STATES.map((state) => [state.key, state.label]));
 
+// Each state's pill colour in tables (components/ui/Pill tones).
+export const STATE_TONE = { overdue: "danger", due_soon: "warning", in_progress: "info", upcoming: "neutral", completed: "success" };
+
 export const STATUSES = [
   { key: "pending", label: "Pending" },
   { key: "in_progress", label: "In progress" },

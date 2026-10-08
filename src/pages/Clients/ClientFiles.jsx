@@ -2,6 +2,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import { deleteFile, downloadFile, getFiles, uploadFile } from "../../api/vault";
 import { formatDate } from "../../components/common/Field";
+import DataGrid from "../../components/ui/DataGrid";
+import Pill from "../../components/ui/Pill";
 
 /*
  * A client's files (CD-13): drop or choose a file, give it a category, and
@@ -144,39 +146,48 @@ function ClientFiles({ client, can, readOnly }) {
         </section>
       )}
 
-      <section className="card" aria-label="Client files">
-        {data.files.length === 0 ? (
-          <div className="settings-empty">No files yet.</div>
-        ) : (
-          <table className="clients-table">
-            <thead>
-              <tr><th>#</th><th>File</th><th>Category</th><th className="numeric">Size</th><th>Uploaded</th><th /></tr>
-            </thead>
-            <tbody>
-              {data.files.map((file, index) => (
-                <tr key={file.id}>
-                  <td className="settings-cell-muted">{index + 1}</td>
-                  <td>
-                    <span className="client-name">{file.file_name}</span>
-                    <span className="settings-row-hint" title={file.sha256}>SHA-256 {file.sha256.slice(0, 12)}…</span>
-                  </td>
-                  <td><span className={`settings-pill${file.category === consentCategory ? " on" : ""}`}>{label(file.category)}</span></td>
-                  <td className="numeric">{sizeOf(file.size_bytes)}</td>
-                  <td className="settings-cell-muted">{formatDate(file.created_at)}{file.uploaded_by_name ? ` · ${file.uploaded_by_name}` : ""}</td>
-                  <td>
-                    <div className="table-actions">
-                      <button type="button" className="link" onClick={() => download(file)} aria-label={`Download ${file.file_name}`}>Download</button>
-                      {can("files.delete") && !readOnly && (
-                        <button type="button" className="link delete-link" onClick={() => remove(file)} aria-label={`Delete ${file.file_name}`}>Delete</button>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </section>
+      <DataGrid
+        label="Client files"
+        rows={data.files}
+        initialSort={{ key: "created_at", dir: "desc" }}
+        search={data.files.length > 10 ? { placeholder: "Search files", label: "Search files", text: (file) => [file.file_name, label(file.category)].join(" ") } : undefined}
+        columns={[
+          {
+            key: "file_name",
+            header: "File",
+            render: (file) => (
+              <>
+                <span className="grid-cell-title client-name">{file.file_name}</span>
+                <span className="grid-cell-sub" title={file.sha256}>SHA-256 {file.sha256.slice(0, 12)}…</span>
+              </>
+            ),
+          },
+          {
+            key: "category",
+            header: "Category",
+            value: (file) => label(file.category),
+            filter: { tone: (value) => (value === label(consentCategory) ? "success" : "neutral") },
+            render: (file) => <Pill tone={file.category === consentCategory ? "success" : "neutral"}>{label(file.category)}</Pill>,
+          },
+          { key: "size_bytes", header: "Size", align: "right", value: (file) => Number(file.size_bytes), render: (file) => sizeOf(file.size_bytes) },
+          { key: "created_at", header: "Uploaded", render: (file) => <span className="settings-cell-muted">{formatDate(file.created_at)}{file.uploaded_by_name ? ` · ${file.uploaded_by_name}` : ""}</span> },
+          {
+            key: "actions",
+            header: "",
+            sortable: false,
+            hideable: false,
+            render: (file) => (
+              <div className="table-actions">
+                <button type="button" className="link" onClick={() => download(file)} aria-label={`Download ${file.file_name}`}>Download</button>
+                {can("files.delete") && !readOnly && (
+                  <button type="button" className="link delete-link" onClick={() => remove(file)} aria-label={`Delete ${file.file_name}`}>Delete</button>
+                )}
+              </div>
+            ),
+          },
+        ]}
+        empty="No files yet."
+      />
     </section>
   );
 }

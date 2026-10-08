@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 
 import { chooseCustomizedItem, getCustomizedItems } from "../../api/bundles";
+import DataGrid from "../../components/ui/DataGrid";
+import Pill, { toneFor } from "../../components/ui/Pill";
 
 /*
  * Customized items: things the bundle installed that the firm has since
@@ -92,48 +94,52 @@ function BundleCustomized({ version }) {
       ) : items.length === 0 ? (
         <div className="settings-empty">Nothing customized: everything matches the installed version.</div>
       ) : (
-        <table>
-          <thead>
-            <tr>
-              <th>Item</th>
-              <th>What differs (yours → the bundle's)</th>
-              <th />
-            </tr>
-          </thead>
-          <tbody>
-            {items.map((item) => {
-              const id = `${item.kind}:${item.key}`;
-
-              return (
-                <tr key={id}>
-                  <td>
-                    <strong>{item.name}</strong>
-                    <span className="settings-row-hint">{KIND_LABELS[item.kind] || item.kind}</span>
-                  </td>
-                  <td>
-                    <ul className="bundle-diff">
-                      {differences(item.mine, item.theirs).map((change) => (
-                        <li key={change.field}>
-                          <span className="settings-cell-muted">{label(change.field)}:</span> {show(change.mine)} → <strong>{show(change.theirs)}</strong>
-                        </li>
-                      ))}
-                    </ul>
-                  </td>
-                  <td>
-                    <div className="table-actions">
-                      <button type="button" className="link" disabled={Boolean(busy)} onClick={() => choose(item, "accept")} aria-label={`Accept the bundle's ${item.name}`}>
-                        Accept new
-                      </button>
-                      <button type="button" className="link" disabled={Boolean(busy)} onClick={() => choose(item, "dismiss")} aria-label={`Keep my ${item.name}`}>
-                        Keep mine
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+        <DataGrid
+          embedded
+          label="Customized item list"
+          rows={items}
+          rowKey={(item) => `${item.kind}:${item.key}`}
+          columns={[
+            { key: "name", header: "Item", render: (item) => <span className="grid-cell-title">{item.name}</span> },
+            {
+              key: "kind",
+              header: "Kind",
+              value: (item) => KIND_LABELS[item.kind] || item.kind,
+              filter: { tone: toneFor },
+              render: (item) => <Pill tone={toneFor(KIND_LABELS[item.kind] || item.kind)}>{KIND_LABELS[item.kind] || item.kind}</Pill>,
+            },
+            {
+              key: "diff",
+              header: "What differs (yours → the bundle's)",
+              sortable: false,
+              render: (item) => (
+                <ul className="bundle-diff">
+                  {differences(item.mine, item.theirs).map((change) => (
+                    <li key={change.field}>
+                      <span className="settings-cell-muted">{label(change.field)}:</span> {show(change.mine)} → <strong>{show(change.theirs)}</strong>
+                    </li>
+                  ))}
+                </ul>
+              ),
+            },
+            {
+              key: "actions",
+              header: "",
+              sortable: false,
+              hideable: false,
+              render: (item) => (
+                <div className="table-actions">
+                  <button type="button" className="link" disabled={Boolean(busy)} onClick={() => choose(item, "accept")} aria-label={`Accept the bundle's ${item.name}`}>
+                    Accept new
+                  </button>
+                  <button type="button" className="link" disabled={Boolean(busy)} onClick={() => choose(item, "dismiss")} aria-label={`Keep my ${item.name}`}>
+                    Keep mine
+                  </button>
+                </div>
+              ),
+            },
+          ]}
+        />
       )}
     </section>
   );

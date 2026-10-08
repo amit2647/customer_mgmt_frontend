@@ -3,15 +3,12 @@ import { useNavigate } from "react-router-dom";
 
 import { getLeads, deleteLead, convertLead } from "../../api/leads";
 
-import SearchBar from "../../components/common/SearchBar";
-import EmptyState from "../../components/common/EmptyState";
 import LeadTable from "../../components/leads/LeadTable";
 
 function LeadsPage() {
   const navigate = useNavigate();
 
   const [leads, setLeads] = useState([]);
-  const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
 
   /*
@@ -24,7 +21,8 @@ function LeadsPage() {
     try {
       setLoading(true);
 
-      const data = await getLeads(query);
+      // The whole list: the table searches, sorts and filters it.
+      const data = await getLeads("");
 
       setLeads(Array.isArray(data) ? data : []);
     } catch (error) {
@@ -36,7 +34,7 @@ function LeadsPage() {
 
   useEffect(() => {
     loadLeads();
-  }, [query]);
+  }, []);
 
   /*
    * =========================================================
@@ -133,24 +131,11 @@ function LeadsPage() {
       </header>
 
       {/* =====================================================
-          SEARCH
-          ===================================================== */}
-
-      <SearchBar
-        value={query}
-        onChange={setQuery}
-        placeholder="Search leads..."
-        count={leads.length}
-      />
-
-      {/* =====================================================
           CONTENT
           ===================================================== */}
 
       {loading ? (
         <div className="empty">Loading leads...</div>
-      ) : leads.length === 0 ? (
-        <EmptyState message="No leads found." />
       ) : (
         <LeadTable
           leads={leads}

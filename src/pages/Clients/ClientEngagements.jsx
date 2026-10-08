@@ -1,8 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
+import { Briefcase, CalendarCheck, CalendarBlank, CurrencyInr, PencilSimple, Plus } from "@phosphor-icons/react";
 
 import { createEngagement, getEngagementTypes, getEngagements, getPayments, getPeriods, recordPayment, updateEngagement } from "../../api/engagements";
 import EngagementForm, { engagementPayload, engagementValue } from "../../components/bundle/EngagementForm";
 import { enumLabel, formatDay, formatMoney } from "../../components/bundle/bundleLabels";
+import DataGrid from "../../components/ui/DataGrid";
+import Pill, { toneFor } from "../../components/ui/Pill";
 
 /*
  * A client's engagements (CD-06, CD-09) and fees (CD-08), one card per
@@ -88,9 +91,13 @@ function ClientEngagements({ view, client, bundle, services, can, readOnly }) {
 
   const engagedPeriods = new Set(engagements.map((engagement) => engagement.periodLabel));
   const freePeriods = periods.filter((period) => !engagedPeriods.has(period.label));
+  const canAdd = !readOnly && can("engagements.update") && Boolean(type) && !editing && freePeriods.length > 0;
+
+  // The year Add offers: the current one if it is free, else the latest free.
+  const nextPeriod = freePeriods.at(-2) || freePeriods.at(-1);
 
   function startAdding() {
-    const period = freePeriods.at(-2) || freePeriods.at(-1);
+    const period = nextPeriod;
     setEditing({
       value: {
         period: period?.label || "",
@@ -131,8 +138,11 @@ function ClientEngagements({ view, client, bundle, services, can, readOnly }) {
   if (loading) return <section className="card"><div className="settings-empty">Loading…</div></section>;
 
   const form = editing && type && (
-    <form className="card client-account-form engagement-editor" onSubmit={saveEngagement} aria-label={editing.id ? "Edit engagement" : "New engagement"}>
-      <h3>{editing.id ? `Edit ${type.name.toLowerCase()} · ${editing.value.period}` : `New ${type.name.toLowerCase()}`}</h3>
+    <form className="card engagement-editor" onSubmit={saveEngagement} aria-label={editing.id ? "Edit engagement" : "New engagement"}>
+      <header className="engagement-editor-head">
+        <span>{editing.id ? "Editing" : "New"} · {type.name}</span>
+        <h3>{editing.value.period ? `FY ${editing.value.period}` : type.name}</h3>
+      </header>
       <EngagementForm
         type={type}
         periods={editing.id ? periods.filter((period) => period.label === editing.value.period).concat(periods.some((period) => period.label === editing.value.period) ? [] : [{ label: editing.value.period }]) : freePeriods}
@@ -145,10 +155,10 @@ function ClientEngagements({ view, client, bundle, services, can, readOnly }) {
         errors={errors}
         periodLocked={Boolean(editing.id)}
       />
-      <div className="bundle-actions">
+      <footer className="engagement-editor-actions">
         <button type="button" className="secondary-button" onClick={() => setEditing(null)}>Cancel</button>
-        <button type="submit" className="primary" disabled={busy}>{editing.id ? "Save engagement" : "Add engagement"}</button>
-      </div>
+        <button type="submit" className="primary" disabled={busy}>{editing.id ? "Save changes" : "Add engagement"}</button>
+      </footer>
     </form>
   );
 
@@ -159,49 +169,104 @@ function ClientEngagements({ view, client, bundle, services, can, readOnly }) {
 
       {view === "engagement" && (
         <>
-          {!readOnly && can("engagements.update") && type && !editing && freePeriods.length > 0 && (
-            <div className="bundle-actions engagement-add">
-              <button type="button" className="secondary-button" onClick={startAdding}>+ Add engagement</button>
+          <header className="engagement-tab-head">
+            <div>
+              <h2>Engagements</h2>
+              <p>One per financial year: the services you do that year, their fees, and the dates deadlines are worked out from.</p>
             </div>
+            {canAdd && engagements.length > 0 && (
+              <button type="button" className="primary" onClick={startAdding}>
+                <Plus size={14} aria-hidden="true" />Add engagement{nextPeriod ? ` for FY ${nextPeriod.label}` : ""}
+              </button>
+            )}
+          </header>
+
+          {editing && !editing.id && form}
+
+          {engagements.length === 0 && !editing && (
+            <section className="card engagement-empty">
+              <Briefcase size={28} aria-hidden="true" />
+              <h3>No engagements yet</h3>
+              <p>Add the first one to choose the services for a year and their fees. Its deadlines follow on the Compliance tab.</p>
+              {canAdd && (
+                <button type="button" className="primary" onClick={startAdding}>
+                  <Plus size={14} aria-hidden="true" />Add engagement{nextPeriod ? ` for FY ${nextPeriod.label}` : ""}
+                </button>
+              )}
+            </section>
           )}
 
-          {form}
-
-          {engagements.length === 0 && !editing && <section className="card"><div className="settings-empty">No engagements yet.</div></section>}
-
           {engagements.map((engagement) => {
+            if (editing?.id === engagement.id) return <div key={engagement.id}>{form}</div>;
+
             const auditor = engagement.attributes?.previous_auditor;
-            const stage = engagement.type.stages?.find((item) => item.key === engagement.stage)?.label;
+            const stages = engagement.type.stages || [];
+            const stageIndex = stages.findIndex((item) => item.key === engagement.stage);
+            const gross = engagement.totals?.gross;
 
             return (
               <article key={engagement.id} className="card engagement-card" aria-label={`${engagement.type.name} ${engagement.periodLabel}`}>
                 <header>
                   <div>
+                    <span className="engagement-card-type">{engagement.type.name}</span>
                     <h3>{engagement.periodLabel ? `FY ${engagement.periodLabel}` : engagement.type.name}</h3>
-                    <span className="settings-row-hint">{engagement.type.name}</span>
                   </div>
-                  {stage && <span className="settings-pill on">{stage}</span>}
+                  {!readOnly && can("engagements.update") && !editing && (
+                    <button type="button" className="secondary-button" onClick={() => setEditing({ id: engagement.id, value: engagementValue(engagement) })} aria-label={`Edit engagement FY ${engagement.periodLabel}`}>
+                      <PencilSimple size={14} aria-hidden="true" />Edit
+                    </button>
+                  )}
                 </header>
 
-                <dl className="engagement-facts">
-                  <div><dt>Appointed</dt><dd>{formatDay(engagement.appointmentOn) || "—"}</dd></div>
-                  {engagement.attributes?.agm_on && <div><dt>AGM / board meeting</dt><dd>{formatDay(engagement.attributes.agm_on)}</dd></div>}
-                  <div className="engagement-services"><dt>Services</dt><dd>{engagement.lines.map((line) => <span key={line.id} className="service-badge">{serviceName(line.serviceId)}</span>)}</dd></div>
-                  {auditor?.firm && (
-                    <div className="engagement-auditor">
-                      <dt>Previous auditor</dt>
-                      <dd>
-                        {auditor.firm}{auditor.frn ? ` (${auditor.frn})` : ""}
-                        {auditor.reason && <span className="settings-row-hint">{enumLabel(profile?.schema?.properties?.previous_auditor ? { schema: profile.schema.properties.previous_auditor, ui: profile.ui?.previous_auditor } : null, "reason", auditor.reason)}</span>}
-                      </dd>
+                {stages.length > 0 && (
+                  <ol className="engagement-stages" aria-label="Stage">
+                    {stages.map((item, index) => (
+                      <li
+                        key={item.key}
+                        className={index < stageIndex ? "done" : index === stageIndex ? "current" : undefined}
+                        aria-current={index === stageIndex ? "step" : undefined}
+                      >
+                        <span className="engagement-stage-dot" aria-hidden="true" />
+                        {item.label}
+                      </li>
+                    ))}
+                  </ol>
+                )}
+
+                <dl className="engagement-stats">
+                  <div>
+                    <dt><CalendarCheck size={14} aria-hidden="true" />Appointed</dt>
+                    <dd className={engagement.appointmentOn ? undefined : "muted"}>{formatDay(engagement.appointmentOn) || "Not set"}</dd>
+                  </div>
+                  {engagement.attributes?.agm_on && (
+                    <div>
+                      <dt><CalendarBlank size={14} aria-hidden="true" />AGM / board meeting</dt>
+                      <dd>{formatDay(engagement.attributes.agm_on)}</dd>
+                    </div>
+                  )}
+                  <div>
+                    <dt><Briefcase size={14} aria-hidden="true" />Services</dt>
+                    <dd>{engagement.lines.length}</dd>
+                  </div>
+                  {canReadFees && gross !== undefined && (
+                    <div>
+                      <dt><CurrencyInr size={14} aria-hidden="true" />Fees and expenses</dt>
+                      <dd>{formatMoney(gross)}</dd>
                     </div>
                   )}
                 </dl>
 
-                {!readOnly && can("engagements.update") && !editing && (
-                  <div className="bundle-actions">
-                    <button type="button" className="link" onClick={() => setEditing({ id: engagement.id, value: engagementValue(engagement) })}>Edit engagement</button>
-                  </div>
+                <div className="engagement-services">
+                  {engagement.lines.length === 0 && <span className="settings-cell-muted">No services engaged — edit to add them.</span>}
+                  {engagement.lines.map((line) => <Pill key={line.id} tone={toneFor(serviceName(line.serviceId))}>{serviceName(line.serviceId)}</Pill>)}
+                </div>
+
+                {auditor?.firm && (
+                  <aside className="engagement-auditor">
+                    <span>Previous auditor</span>
+                    <strong>{auditor.firm}{auditor.frn ? ` · FRN ${auditor.frn}` : ""}</strong>
+                    {auditor.reason && <em>{enumLabel(profile?.schema?.properties?.previous_auditor ? { schema: profile.schema.properties.previous_auditor, ui: profile.ui?.previous_auditor } : null, "reason", auditor.reason)}</em>}
+                  </aside>
                 )}
               </article>
             );
@@ -224,18 +289,16 @@ function ClientEngagements({ view, client, bundle, services, can, readOnly }) {
                   <span className={`settings-pill${paid ? " on" : ""}`}>{paid ? "Fully paid" : `Balance ${formatMoney(totals.balance)}`}</span>
                 </header>
 
-                <table>
-                  <thead><tr><th>Service</th><th className="numeric">Fee</th><th className="numeric">Expenses</th></tr></thead>
-                  <tbody>
-                    {engagement.lines.map((line) => (
-                      <tr key={line.id}>
-                        <td>{serviceName(line.serviceId)}</td>
-                        <td className="numeric">{formatMoney(line.feeAmount)}</td>
-                        <td className="numeric">{formatMoney(line.expensesAmount)}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                <DataGrid
+                  embedded
+                  label={`Services FY ${engagement.periodLabel}`}
+                  rows={engagement.lines}
+                  columns={[
+                    { key: "service", header: "Service", value: (line) => serviceName(line.serviceId) },
+                    { key: "feeAmount", header: "Fee", align: "right", value: (line) => Number(line.feeAmount || 0), render: (line) => formatMoney(line.feeAmount) },
+                    { key: "expensesAmount", header: "Expenses", align: "right", value: (line) => Number(line.expensesAmount || 0), render: (line) => formatMoney(line.expensesAmount) },
+                  ]}
+                />
 
                 <dl className="fee-totals">
                   <div><dt>Gross</dt><dd>{formatMoney(totals.gross)}</dd></div>

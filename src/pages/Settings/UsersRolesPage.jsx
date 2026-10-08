@@ -8,7 +8,8 @@ import {
   getOrganizationUsers,
   getRoles,
 } from "../../api/identity";
-import Breadcrumb from "../../components/ui/Breadcrumb";
+import DataGrid from "../../components/ui/DataGrid";
+import Pill, { toneFor } from "../../components/ui/Pill";
 
 const TABS = [
   { id: "users", label: "Users" },
@@ -109,12 +110,11 @@ function UsersRolesPage() {
   }
 
   return (
-    <main className="page settings-sub-page">
-      <Breadcrumb onBack={() => navigate("/settings")} backLabel="Settings" section="SETTINGS" title="Users & Roles" />
+    <div className="settings-panel settings-sub-page">
 
-      <div className="page-header">
+      <div className="page-header settings-panel-header">
         <div>
-          <h1>Users &amp; Roles</h1>
+          <h2>Users &amp; Roles</h2>
 
           <p>
             {tab === "users"
@@ -165,141 +165,127 @@ function UsersRolesPage() {
       {success && <div className="alert alert-success">{success}</div>}
       {error && <div className="alert alert-error" role="alert">{error}</div>}
 
-      <section className="card">
-        {loading ? (
+      {loading ? (
+        <section className="card">
           <div className="settings-empty">Loading...</div>
-        ) : tab === "users" ? (
-          users.length === 0 ? (
-            <div className="settings-empty">No users yet.</div>
-          ) : (
-            <table>
-              <thead>
-                <tr>
-                  <th>User</th>
-                  <th>Role</th>
-                  <th>Status</th>
-                  <th />
-                </tr>
-              </thead>
-
-              <tbody>
-                {users.map((item) => (
-                  <tr key={item.id}>
-                    <td>
-                      <strong>{item.name}</strong>
-
-                      <span className="settings-row-hint">{item.email}</span>
-                    </td>
-
-                    <td>
-                      <span className="settings-event">
-                        {item.role_name || item.role_code || "—"}
-                      </span>
-                    </td>
-
-                    <td>
-                      <span
-                        className={`settings-pill${item.status === "Active" ? " on" : ""}`}
-                      >
-                        {item.status || "Active"}
-                      </span>
-                    </td>
-
-                    <td>
-                      <div className="table-actions">
-                        {canUpdateUser && (
-                          <button
-                            className="link"
-                            onClick={() => navigate(`/settings/users/${item.id}/edit`)}
-                          >
-                            Edit
-                          </button>
-                        )}
-
-                        {canDeleteUser && item.id !== user?.userId && (
-                          <button
-                            className="link delete-link"
-                            onClick={() => handleDeleteUser(item)}
-                          >
-                            Remove
-                          </button>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )
-        ) : (
-          <table>
-            <thead>
-              <tr>
-                <th>Role</th>
-                <th>Type</th>
-                <th>Permissions</th>
-                <th>Users</th>
-                <th />
-              </tr>
-            </thead>
-
-            <tbody>
-              {roles.map((role) => {
+        </section>
+      ) : tab === "users" ? (
+        <DataGrid
+          id="users"
+          label="Users"
+          rows={users}
+          search={{ placeholder: "Search users", label: "Search users", text: (item) => [item.name, item.email].join(" ") }}
+          columns={[
+            {
+              key: "name",
+              header: "User",
+              render: (item) => (
+                <>
+                  <span className="grid-cell-title">{item.name}</span>
+                  <span className="grid-cell-sub">{item.email}</span>
+                </>
+              ),
+            },
+            {
+              key: "role",
+              header: "Role",
+              value: (item) => item.role_name || item.role_code || "",
+              filter: { tone: toneFor },
+              render: (item) => <Pill tone={toneFor(item.role_name || item.role_code)}>{item.role_name || item.role_code || "—"}</Pill>,
+            },
+            {
+              key: "status",
+              header: "Status",
+              value: (item) => item.status || "Active",
+              filter: { tone: (value) => (value === "Active" ? "success" : "neutral") },
+              render: (item) => <Pill dot tone={(item.status || "Active") === "Active" ? "success" : "neutral"}>{item.status || "Active"}</Pill>,
+            },
+            {
+              key: "actions",
+              header: "",
+              sortable: false,
+              hideable: false,
+              render: (item) => (
+                <div className="table-actions">
+                  {canUpdateUser && (
+                    <button type="button" className="link" onClick={() => navigate(`/settings/users/${item.id}/edit`)}>
+                      Edit
+                    </button>
+                  )}
+                  {canDeleteUser && item.id !== user?.userId && (
+                    <button type="button" className="link delete-link" onClick={() => handleDeleteUser(item)}>
+                      Remove
+                    </button>
+                  )}
+                </div>
+              ),
+            },
+          ]}
+          empty="No users yet."
+        />
+      ) : (
+        <DataGrid
+          id="roles"
+          label="Roles"
+          rows={roles}
+          search={{ placeholder: "Search roles", label: "Search roles", text: (role) => [role.name, role.code].join(" ") }}
+          columns={[
+            {
+              key: "name",
+              header: "Role",
+              render: (role) => (
+                <>
+                  <span className="grid-cell-title">{role.name}</span>
+                  <span className="grid-cell-sub">{role.code}</span>
+                </>
+              ),
+            },
+            {
+              key: "type",
+              header: "Type",
+              value: (role) => (role.is_system_role || role.organization_id === null ? "Built-in" : "Custom"),
+              filter: { tone: (value) => (value === "Custom" ? "violet" : "neutral") },
+              render: (role) => {
                 const builtIn = role.is_system_role || role.organization_id === null;
-
+                return <Pill tone={builtIn ? "neutral" : "violet"}>{builtIn ? "Built-in" : "Custom"}</Pill>;
+              },
+            },
+            { key: "permission_count", header: "Permissions", align: "right", value: (role) => Number(role.permission_count || 0) },
+            { key: "user_count", header: "Users", align: "right", value: (role) => Number(role.user_count || 0) },
+            {
+              key: "actions",
+              header: "",
+              sortable: false,
+              hideable: false,
+              render: (role) => {
+                const builtIn = role.is_system_role || role.organization_id === null;
                 return (
-                  <tr key={role.id}>
-                    <td>
-                      <strong>{role.name}</strong>
-
-                      <span className="settings-row-hint">{role.code}</span>
-                    </td>
-
-                    <td>
-                      <span className={`settings-pill${builtIn ? "" : " on"}`}>
-                        {builtIn ? "Built-in" : "Custom"}
-                      </span>
-                    </td>
-
-                    <td className="settings-cell-muted">{role.permission_count}</td>
-
-                    <td className="settings-cell-muted">{role.user_count}</td>
-
-                    <td>
-                      <div className="table-actions">
-                        <button
-                          className="link"
-                          onClick={() => navigate(`/settings/roles/${role.id}/edit`)}
-                        >
-                          {builtIn || !canManageRoles ? "View" : "Edit"}
-                        </button>
-
-                        {canManageRoles && !builtIn && (
-                          <button
-                            className="link delete-link"
-                            onClick={() => handleDeleteRole(role)}
-                            // A role in use cannot be deleted; saying so here
-                            // beats a 409 after the confirm dialog.
-                            disabled={role.user_count > 0}
-                            title={
-                              role.user_count > 0
-                                ? "Reassign its users before deleting"
-                                : undefined
-                            }
-                          >
-                            Delete
-                          </button>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
+                  <div className="table-actions">
+                    <button type="button" className="link" onClick={() => navigate(`/settings/roles/${role.id}/edit`)}>
+                      {builtIn || !canManageRoles ? "View" : "Edit"}
+                    </button>
+                    {canManageRoles && !builtIn && (
+                      <button
+                        type="button"
+                        className="link delete-link"
+                        onClick={() => handleDeleteRole(role)}
+                        // A role in use cannot be deleted; saying so here
+                        // beats a 409 after the confirm dialog.
+                        disabled={role.user_count > 0}
+                        title={role.user_count > 0 ? "Reassign its users before deleting" : undefined}
+                      >
+                        Delete
+                      </button>
+                    )}
+                  </div>
                 );
-              })}
-            </tbody>
-          </table>
-        )}
-      </section>
-    </main>
+              },
+            },
+          ]}
+          empty="No roles yet."
+        />
+      )}
+    </div>
   );
 }
 

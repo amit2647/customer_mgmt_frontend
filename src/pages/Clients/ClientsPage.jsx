@@ -1,15 +1,17 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { getClients, exportClients } from "../../api/clients";
 import { enumLabel } from "../../components/bundle/bundleLabels";
 import { useAuth } from "../../context/AuthContext";
 import { useBundle } from "../../context/BundleContext";
+import DataGrid from "../../components/ui/DataGrid";
+import Pill, { toneFor } from "../../components/ui/Pill";
 
 /*
  * The client list (DASH-02/03/04/07): search by name, PAN or CIN, filter by
- * service, and see each client's constitution, identifiers and services at
- * a glance. Archived clients are a separate view.
+ * service, constitution or type, and see each client's identifiers and
+ * services at a glance. Archived clients are a separate view (loaded apart).
  */
 function ClientsPage() {
   const navigate = useNavigate();
@@ -18,41 +20,92 @@ function ClientsPage() {
 
   const permissions = Array.isArray(user?.permissions) ? user.permissions : [];
 
-  const [query, setQuery] = useState("");
   const [archived, setArchived] = useState(false);
-  const [service, setService] = useState("all");
   const [clients, setClients] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // Debounced, so typing a PAN does not send a request per keystroke.
+  // The whole list (or the archived one); the grid searches and filters it.
   useEffect(() => {
-    const timer = setTimeout(async () => {
-      try {
-        setLoading(true);
-        setError("");
-        setClients(await getClients({ query, archived }));
-      } catch (requestError) {
-        setError(requestError.message || "Could not load clients.");
-      } finally {
-        setLoading(false);
-      }
-    }, 250);
+    let current = true;
 
-    return () => clearTimeout(timer);
-  }, [query, archived]);
+    setLoading(true);
+    setError("");
+    getClients({ query: "", archived })
+      .then((list) => current && setClients(list))
+      .catch((requestError) => current && setError(requestError.message || "Could not load clients."))
+      .finally(() => current && setLoading(false));
 
-  // Filter chips from the services the listed clients actually have (DASH-03).
-  const serviceChips = useMemo(() => {
-    const names = new Map();
-    clients.forEach((client) => (client.services || []).forEach((item) => names.set(String(item.id), item.name)));
-    return [...names.entries()].sort((a, b) => a[1].localeCompare(b[1]));
-  }, [clients]);
-
-  const visible = service === "all" ? clients : clients.filter((client) => (client.services || []).some((item) => String(item.id) === service));
+    return () => {
+      current = false;
+    };
+  }, [archived]);
 
   const clientProfile = bundle?.profiles?.client;
   const identifierLabel = (type) => bundle?.identifiers?.find((rule) => rule.type === type)?.label || type.toUpperCase();
+
+  const identifiersOf = (client) => Object.entries(client.identifiers || {}).filter(([type]) => ["pan", "cin", "llpin"].includes(type));
+  const constitution = (value) => enumLabel(clientProfile, "constitution", value);
+  const clientType = (value) => enumLabel(clientProfile, "client_type", value);
+
+  const columns = [
+    {
+      key: "name",
+      header: "Name",
+      render: (client) => {
+        const ids = identifiersOf(client);
+        return (
+          <>
+            <button type="button" className="link client-name" onClick={() => navigate(`/clients/${client.id}`)}>
+              {client.name}
+            </button>
+            {client.locked_at && <span className="client-badge locked" title="Locked">Locked</span>}
+            {ids.length > 0 && <span className="grid-cell-sub">{ids.map(([type, value]) => `${identifierLabel(type)} ${value}`).join(" · ")}</span>}
+          </>
+        );
+      },
+    },
+    {
+      key: "constitution",
+      header: "Constitution",
+      value: (client) => client.attributes?.constitution || "",
+      filter: { label: constitution, tone: toneFor },
+      render: (client) => client.attributes?.constitution && <Pill tone={toneFor(client.attributes.constitution)}>{constitution(client.attributes.constitution)}</Pill>,
+    },
+    {
+      key: "client_type",
+      header: "Type",
+      value: (client) => client.attributes?.client_type || "",
+      filter: { label: clientType, tone: (value) => (value === "one_time" ? "warning" : "neutral") },
+      render: (client) => client.attributes?.client_type && <Pill tone={client.attributes.client_type === "one_time" ? "warning" : "neutral"}>{clientType(client.attributes.client_type)}</Pill>,
+    },
+    {
+      key: "services",
+      header: "Services",
+      sortable: false,
+      value: (client) => (client.services || []).map((item) => item.name),
+      filter: { tone: toneFor },
+      render: (client) => (
+        <div className="grid-pills">
+          {(client.services || []).map((item) => <Pill key={item.id} tone={toneFor(item.name)}>{item.name}</Pill>)}
+        </div>
+      ),
+    },
+    {
+      key: "actions",
+      header: "",
+      sortable: false,
+      hideable: false,
+      render: (client) => (
+        <div className="table-actions">
+          <button type="button" className="link" onClick={() => navigate(`/clients/${client.id}`)}>View</button>
+          {!archived && permissions.includes("customers.update") && !client.locked_at && (
+            <button type="button" className="link" onClick={() => navigate(`/clients/${client.id}/edit`)}>Edit</button>
+          )}
+        </div>
+      ),
+    },
+  ];
 
   return (
     <main className="page clients-page">
@@ -79,109 +132,44 @@ function ClientsPage() {
         </div>
       </header>
 
-      <div className="clients-toolbar">
-        <input
-          type="search"
-          className="clients-search"
-          placeholder="Search by name, PAN or CIN"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          aria-label={`Search ${term("client", true).toLowerCase()}`}
-        />
-
-        <label className="client-checkbox">
-          <input type="checkbox" checked={archived} onChange={(e) => setArchived(e.target.checked)} />
-          Show archived
-        </label>
-      </div>
-
-      {serviceChips.length > 0 && (
-        <div className="clients-chips" role="group" aria-label="Filter by service">
-          <button type="button" className={`chip${service === "all" ? " active" : ""}`} onClick={() => setService("all")}>
-            All
-          </button>
-          {serviceChips.map(([idValue, name]) => (
-            <button key={idValue} type="button" className={`chip${service === idValue ? " active" : ""}`} onClick={() => setService(idValue)}>
-              {name}
-            </button>
-          ))}
-        </div>
-      )}
-
       {error && <div className="alert alert-error" role="alert">{error}</div>}
 
-      <section className="card">
-        {loading ? (
+      {loading ? (
+        <section className="card">
           <div className="settings-empty">Loading…</div>
-        ) : visible.length === 0 ? (
+        </section>
+      ) : clients.length === 0 && !archived && permissions.includes("customers.create") ? (
+        <section className="card">
           <div className="settings-empty">
-            {archived ? "No archived clients." : `No ${term("client", true).toLowerCase()} yet.`}
-            {!archived && !query && permissions.includes("customers.create") && (
-              <div>
-                <button type="button" className="primary" onClick={() => navigate("/clients/new")}>
-                  Add your first {term("client").toLowerCase()}
-                </button>
-              </div>
-            )}
+            No {term("client", true).toLowerCase()} yet.
+            <div>
+              <button type="button" className="primary" onClick={() => navigate("/clients/new")}>
+                Add your first {term("client").toLowerCase()}
+              </button>
+            </div>
           </div>
-        ) : (
-          <table className="clients-table">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Name</th>
-                <th>Constitution</th>
-                <th>Services</th>
-                <th />
-              </tr>
-            </thead>
-
-            <tbody>
-              {visible.map((client, index) => {
-                const ids = Object.entries(client.identifiers || {}).filter(([type]) => ["pan", "cin", "llpin"].includes(type));
-
-                return (
-                  <tr key={client.id}>
-                    <td className="settings-cell-muted">{index + 1}</td>
-                    <td>
-                      <button type="button" className="link client-name" onClick={() => navigate(`/clients/${client.id}`)}>
-                        {client.name}
-                      </button>
-                      {client.locked_at && <span className="client-badge locked" title="Locked">Locked</span>}
-                      {client.attributes?.client_type && (
-                        <span className="client-badge">{enumLabel(clientProfile, "client_type", client.attributes.client_type)}</span>
-                      )}
-                      {ids.length > 0 && (
-                        <span className="settings-row-hint">{ids.map(([type, value]) => `${identifierLabel(type)} ${value}`).join(" · ")}</span>
-                      )}
-                    </td>
-                    <td>
-                      {client.attributes?.constitution && (
-                        <span className={`client-constitution c-${client.attributes.constitution}`}>
-                          {enumLabel(clientProfile, "constitution", client.attributes.constitution)}
-                        </span>
-                      )}
-                    </td>
-                    <td>
-                      <div className="service-badges">
-                        {(client.services || []).map((item) => <span key={item.id} className="service-badge">{item.name}</span>)}
-                      </div>
-                    </td>
-                    <td>
-                      <div className="table-actions">
-                        <button type="button" className="link" onClick={() => navigate(`/clients/${client.id}`)}>View</button>
-                        {!archived && permissions.includes("customers.update") && !client.locked_at && (
-                          <button type="button" className="link" onClick={() => navigate(`/clients/${client.id}/edit`)}>Edit</button>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        )}
-      </section>
+        </section>
+      ) : (
+        <DataGrid
+          id="clients"
+          label={term("client", true)}
+          rows={clients}
+          columns={columns}
+          initialSort={{ key: "name", dir: "asc" }}
+          search={{
+            placeholder: "Search by name, PAN or CIN",
+            label: `Search ${term("client", true).toLowerCase()}`,
+            text: (client) => [client.name, client.email, ...identifiersOf(client).map(([, value]) => value)].join(" "),
+          }}
+          controls={
+            <label className="client-checkbox">
+              <input type="checkbox" checked={archived} onChange={(e) => setArchived(e.target.checked)} />
+              Show archived
+            </label>
+          }
+          empty={archived ? "No archived clients." : `No ${term("client", true).toLowerCase()} yet.`}
+        />
+      )}
     </main>
   );
 }

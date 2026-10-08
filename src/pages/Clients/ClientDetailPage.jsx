@@ -1,5 +1,19 @@
 import { useCallback, useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
+import {
+  Archive,
+  ArrowCounterClockwise,
+  Buildings,
+  CalendarBlank,
+  ClockCounterClockwise,
+  EnvelopeSimple,
+  IdentificationCard,
+  Lock,
+  LockOpen,
+  PencilSimple,
+  Phone,
+  Trash,
+} from "@phosphor-icons/react";
 
 import {
   addBankAccount,
@@ -13,7 +27,7 @@ import {
   unlockClient,
 } from "../../api/clients";
 import { getServices } from "../../api/services";
-import Field, { formatDate } from "../../components/common/Field";
+import { formatDate } from "../../components/common/Field";
 import { enumLabel, formatDay, identifiersFor, roleLabel } from "../../components/bundle/bundleLabels";
 import { useAuth } from "../../context/AuthContext";
 import { useBundle } from "../../context/BundleContext";
@@ -24,6 +38,8 @@ import ClientDocuments from "./ClientDocuments";
 import ClientFiles from "./ClientFiles";
 import ClientOrigin from "./ClientOrigin";
 import Breadcrumb from "../../components/ui/Breadcrumb";
+import DataGrid from "../../components/ui/DataGrid";
+import Pill, { toneFor } from "../../components/ui/Pill";
 
 /*
  * One client (CD-01–05, CD-11): header with lock and type flags, then tabs.
@@ -42,6 +58,28 @@ const TABS = [
   { id: "people", label: "People" },
   { id: "bank", label: "Bank accounts", permission: "profiles.read" },
 ];
+
+// A label over a read-only value, in a field-shaped box (the Overview cards).
+function DetailField({ label, value, href, wide }) {
+  const shown = value === undefined || value === null || value === "" ? "—" : value;
+
+  return (
+    <div className={`client-field${wide ? " wide" : ""}`}>
+      <span className="client-field-label">{label}</span>
+      <div className="client-field-value">{href && value ? <a href={href}>{shown}</a> : shown}</div>
+    </div>
+  );
+}
+
+function initials(name) {
+  return String(name || "")
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0])
+    .join("")
+    .toUpperCase();
+}
 
 const NEW_ACCOUNT = { bankName: "", branch: "", accountNumber: "", routingCode: "", accountType: "Current", holderName: "" };
 
@@ -115,73 +153,122 @@ function ClientDetailPage() {
   const archived = Boolean(client.archived_at);
   const locked = Boolean(client.locked_at);
   const shownIdentifiers = identifiersFor(bundle, attributes).filter((rule) => rule.shown || client.identifiers?.[rule.type]);
+  const primaryIdentifier = shownIdentifiers.find((rule) => client.identifiers?.[rule.type]);
+  const signatory = (client.people || []).find((person) => person.is_signatory);
 
   return (
     <main className="page record-detail-page client-detail">
       <Breadcrumb onBack={() => navigate("/clients")} backLabel={term("client", true)} section={term("client", true).toUpperCase()} title={client.name} />
 
-      <div className="page-header">
-        <div>
-          <h1>
-            {client.name}
-            {locked && <span className="client-badge locked">Locked</span>}
-            {archived && <span className="client-badge archived">Archived</span>}
-            {attributes.client_type && <span className="client-badge">{enumLabel(profile, "client_type", attributes.client_type)}</span>}
-          </h1>
-          <p>
-            {[enumLabel(profile, "constitution", attributes.constitution), ...shownIdentifiers.filter((rule) => client.identifiers?.[rule.type]).map((rule) => `${rule.label} ${client.identifiers[rule.type]}`)]
-              .filter(Boolean)
-              .join(" · ")}
-          </p>
-          <div className="service-badges">
-            {(client.services || []).map((service) => <span key={service.id} className="service-badge">{service.name}</span>)}
+      <section className="client-hero" aria-label={`${term("client")} summary`}>
+        <div className="client-hero-top">
+          <div className="client-hero-main">
+            <div className="client-hero-title">
+              <h1>{client.name}</h1>
+              {client.phone && (
+                <a className="client-quick" href={`tel:${client.phone}`} aria-label={`Call ${client.phone}`} title={client.phone}>
+                  <Phone size={15} />
+                </a>
+              )}
+              {client.email && (
+                <a className="client-quick" href={`mailto:${client.email}`} aria-label={`Email ${client.email}`} title={client.email}>
+                  <EnvelopeSimple size={15} />
+                </a>
+              )}
+              {locked && <span className="client-badge locked">Locked</span>}
+              {archived && <span className="client-badge archived">Archived</span>}
+            </div>
+
+            <div className="client-hero-meta">
+              {attributes.constitution && (
+                <span><Buildings size={15} aria-hidden="true" />{enumLabel(profile, "constitution", attributes.constitution)}</span>
+              )}
+              {primaryIdentifier && (
+                <span><IdentificationCard size={15} aria-hidden="true" />{primaryIdentifier.label} {client.identifiers[primaryIdentifier.type]}</span>
+              )}
+              <span><CalendarBlank size={15} aria-hidden="true" />Added {formatDate(client.created_at)}</span>
+              {client.updated_at && (
+                <span><ClockCounterClockwise size={15} aria-hidden="true" />Updated {formatDate(client.updated_at)}</span>
+              )}
+            </div>
+
+            <dl className="client-hero-facts">
+              {attributes.client_type && (
+                <div>
+                  <dt>Client type</dt>
+                  <dd><Pill tone="info">{enumLabel(profile, "client_type", attributes.client_type)}</Pill></dd>
+                </div>
+              )}
+              <div className="client-hero-services">
+                <dt>Services</dt>
+                <dd className="grid-pills">
+                  {(client.services || []).length === 0 && <span className="settings-cell-muted">None yet</span>}
+                  {(client.services || []).map((service) => <Pill key={service.id} tone={toneFor(service.name)}>{service.name}</Pill>)}
+                </dd>
+              </div>
+              {signatory && (
+                <div>
+                  <dt>Signatory</dt>
+                  <dd className="client-signatory">
+                    <span className="client-signatory-dot" aria-hidden="true">{initials(signatory.name).slice(0, 1)}</span>
+                    {signatory.name}
+                  </dd>
+                </div>
+              )}
+            </dl>
+          </div>
+
+          <div className="client-hero-actions">
+            {!archived && can("customers.update") && (!locked || can("profiles.lock")) && (
+              <button type="button" className="secondary-button" onClick={() => navigate(`/clients/${id}/edit`)} disabled={busy}>
+                <PencilSimple size={15} aria-hidden="true" />Edit
+              </button>
+            )}
+            {!archived && can("profiles.lock") && (
+              <button type="button" className="secondary-button" disabled={busy} onClick={() => act(() => (locked ? unlockClient(id) : lockClient(id)), locked ? "Unlocked." : "Locked — only people who can unlock clients can change it now.")}>
+                {locked ? <LockOpen size={15} aria-hidden="true" /> : <Lock size={15} aria-hidden="true" />}
+                {locked ? "Unlock" : "Lock"}
+              </button>
+            )}
+            {!archived && can("customers.delete") && (
+              <button type="button" className="secondary-button" disabled={busy} onClick={() => act(() => archiveClient(id), "Archived. Its records are kept; restore it to work on it again.", `Archive ${client.name}? It leaves every list, and nothing about it is deleted.`)}>
+                <Archive size={15} aria-hidden="true" />Archive
+              </button>
+            )}
+            {archived && can("customers.delete") && (
+              <button type="button" className="secondary-button" disabled={busy} onClick={() => act(() => restoreClient(id), "Restored.")}>
+                <ArrowCounterClockwise size={15} aria-hidden="true" />Restore
+              </button>
+            )}
+            {archived && can("customers.purge") && (
+              <button
+                type="button"
+                className="secondary-button danger"
+                disabled={busy}
+                onClick={() =>
+                  act(
+                    async () => {
+                      await purgeClient(id);
+                      navigate("/clients", { replace: true });
+                    },
+                    "Deleted permanently.",
+                    `Permanently delete ${client.name} and everything recorded about it? This cannot be undone.`,
+                  )
+                }
+              >
+                <Trash size={15} aria-hidden="true" />Delete permanently
+              </button>
+            )}
           </div>
         </div>
 
-        <div className="page-header-actions">
-          {!archived && can("customers.update") && (!locked || can("profiles.lock")) && (
-            <button type="button" className="secondary-button" onClick={() => navigate(`/clients/${id}/edit`)} disabled={busy}>Edit</button>
-          )}
-          {!archived && can("profiles.lock") && (
-            <button type="button" className="secondary-button" disabled={busy} onClick={() => act(() => (locked ? unlockClient(id) : lockClient(id)), locked ? "Unlocked." : "Locked — only people who can unlock clients can change it now.")}>
-              {locked ? "Unlock" : "Lock"}
-            </button>
-          )}
-          {!archived && can("customers.delete") && (
-            <button type="button" className="secondary-button" disabled={busy} onClick={() => act(() => archiveClient(id), "Archived. Its records are kept; restore it to work on it again.", `Archive ${client.name}? It leaves every list, and nothing about it is deleted.`)}>
-              Archive
-            </button>
-          )}
-          {archived && can("customers.delete") && (
-            <button type="button" className="secondary-button" disabled={busy} onClick={() => act(() => restoreClient(id), "Restored.")}>Restore</button>
-          )}
-          {archived && can("customers.purge") && (
-            <button
-              type="button"
-              className="secondary-button danger"
-              disabled={busy}
-              onClick={() =>
-                act(
-                  async () => {
-                    await purgeClient(id);
-                    navigate("/clients", { replace: true });
-                  },
-                  "Deleted permanently.",
-                  `Permanently delete ${client.name} and everything recorded about it? This cannot be undone.`,
-                )
-              }
-            >
-              Delete permanently
-            </button>
-          )}
-        </div>
-      </div>
+      </section>
 
       {notice && <div className="alert alert-success">{notice}</div>}
       {location.state?.warning && <div className="alert alert-error" role="alert">{location.state.warning}</div>}
       {error && <div className="alert alert-error" role="alert">{error}</div>}
 
-      <div className="client-tabs" role="tablist">
+      <div className="settings-subtabs client-subtabs" role="tablist">
         {TABS.filter((item) => (!item.permission || can(item.permission)) && (!item.needs || (bundle?.capabilities || []).includes(item.needs))).map((item) => (
           <button key={item.id} type="button" role="tab" aria-selected={tab === item.id} className={tab === item.id ? "active" : ""} onClick={() => setTab(item.id)}>
             {item.label}
@@ -190,22 +277,54 @@ function ClientDetailPage() {
       </div>
 
       {tab === "overview" && (
-        <section className="record-details" role="tabpanel" aria-label="Overview">
-          <Field label="Constitution" value={enumLabel(profile, "constitution", attributes.constitution)} />
-          {Object.entries(profile?.schema?.properties || {})
-            .filter(([field]) => field !== "constitution" && attributes[field] !== undefined && attributes[field] !== "")
-            .map(([field, definition]) => (
-              <Field key={field} label={definition.title || field} value={enumLabel(profile, field, attributes[field])} />
-            ))}
-          {shownIdentifiers.map((rule) => <Field key={rule.type} label={rule.label} value={client.identifiers?.[rule.type]} />)}
-          <Field label="Email" value={client.email} href={client.email && `mailto:${client.email}`} />
-          <Field label="Phone" value={client.phone} href={client.phone && `tel:${client.phone}`} />
-          <Field label="Address" value={client.address} />
-          <Field label="Added" value={formatDate(client.created_at)} />
+        <section className="card client-overview" role="tabpanel" aria-label="Overview">
+          <section className="client-section" aria-label={`${term("client")} details`}>
+            <div className="client-section-heading">
+              <span>Profile</span>
+              <h2>{term("client")} details</h2>
+              <p>Constitution, type and how to reach them. Change any of it with Edit.</p>
+            </div>
+            <div className="client-fields">
+              <DetailField label="Constitution" value={enumLabel(profile, "constitution", attributes.constitution)} />
+              {Object.entries(profile?.schema?.properties || {})
+                .filter(([field]) => field !== "constitution" && attributes[field] !== undefined && attributes[field] !== "")
+                .map(([field, definition]) => (
+                  <DetailField key={field} label={definition.title || field} value={enumLabel(profile, field, attributes[field])} />
+                ))}
+              <DetailField label="Email" value={client.email} href={client.email && `mailto:${client.email}`} />
+              <DetailField label="Phone" value={client.phone} href={client.phone && `tel:${client.phone}`} />
+            </div>
+          </section>
+
+          <section className="client-section" aria-label="Address">
+            <div className="client-section-heading">
+              <span>Contact</span>
+              <h2>Address</h2>
+              <p>Where the {term("client").toLowerCase()} is, and when the record was made and last changed.</p>
+            </div>
+            <div className="client-fields">
+              <DetailField wide label="Address" value={client.address} />
+              <DetailField label="Added" value={formatDate(client.created_at)} />
+              <DetailField label="Last updated" value={client.updated_at ? formatDate(client.updated_at) : ""} />
+            </div>
+          </section>
+
+          {shownIdentifiers.length > 0 && (
+            <section className="client-section" aria-label="Identifiers">
+              <div className="client-section-heading">
+                <span>Registration</span>
+                <h2>Identifiers</h2>
+                <p>The registration numbers this constitution asks for.</p>
+              </div>
+              <div className="client-fields">
+                {shownIdentifiers.map((rule) => <DetailField key={rule.type} label={rule.label} value={client.identifiers?.[rule.type]} />)}
+              </div>
+            </section>
+          )}
+
+          <ClientOrigin client={client} can={can} readOnly={archived} onLinked={load} />
         </section>
       )}
-
-      {tab === "overview" && <ClientOrigin client={client} can={can} readOnly={archived} onLinked={load} />}
 
       {(tab === "engagement" || tab === "fees") && (
         <ClientEngagements view={tab} client={client} bundle={bundle} services={services} can={can} readOnly={archived || (locked && !can("profiles.lock"))} />
@@ -223,30 +342,35 @@ function ClientDetailPage() {
 
       {tab === "people" && (
         <section className="card" role="tabpanel" aria-label="People">
-          {(client.people || []).length === 0 ? (
-            <div className="settings-empty">No people recorded.</div>
-          ) : (
-            <table>
-              <thead>
-                <tr><th>Name</th><th>Role</th><th>Designation</th><th>Details</th><th /></tr>
-              </thead>
-              <tbody>
-                {client.people.map((person) => (
-                  <tr key={person.id}>
-                    <td><strong>{person.name}</strong></td>
-                    <td>{roleLabel(bundle, person.role, attributes)}</td>
-                    <td className="settings-cell-muted">{person.designation}</td>
-                    <td className="settings-cell-muted">
-                      {Object.entries(person.attributes || {})
-                        .map(([field, value]) => `${bundle?.profiles?.person?.schema?.properties?.[field]?.title || field}: ${/_on$/.test(field) ? formatDay(value) : value}`)
-                        .join(" · ")}
-                    </td>
-                    <td>{person.is_signatory && <span className="settings-pill on">Signatory</span>}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
+          <DataGrid
+            embedded
+            label="People list"
+            rows={client.people || []}
+            columns={[
+              { key: "name", header: "Name", render: (person) => <span className="grid-cell-title">{person.name}</span> },
+              {
+                key: "role",
+                header: "Role",
+                value: (person) => roleLabel(bundle, person.role, attributes),
+                render: (person) => <Pill tone={toneFor(person.role)}>{roleLabel(bundle, person.role, attributes)}</Pill>,
+              },
+              { key: "designation", header: "Designation", render: (person) => <span className="settings-cell-muted">{person.designation}</span> },
+              {
+                key: "details",
+                header: "Details",
+                sortable: false,
+                render: (person) => (
+                  <span className="settings-cell-muted">
+                    {Object.entries(person.attributes || {})
+                      .map(([field, value]) => `${bundle?.profiles?.person?.schema?.properties?.[field]?.title || field}: ${/_on$/.test(field) ? formatDay(value) : value}`)
+                      .join(" · ")}
+                  </span>
+                ),
+              },
+              { key: "is_signatory", header: "", sortable: false, hideable: false, render: (person) => person.is_signatory && <Pill dot tone="success">Signatory</Pill> },
+            ]}
+            empty="No people recorded."
+          />
         </section>
       )}
 

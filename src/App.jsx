@@ -30,6 +30,7 @@ import CustomerWorkflowPage from "./pages/Customers/CustomerWorkflowPage";
 import ServicesPage from "./pages/Services/ServicesPage";
 
 import SettingsPage from "./pages/Settings/SettingsPage";
+import SettingsLayout from "./pages/Settings/SettingsLayout";
 import EmailAccountsPage from "./pages/Settings/EmailAccountsPage";
 import AppearancePage from "./pages/Settings/AppearancePage";
 import ProfilePage from "./pages/Settings/ProfilePage";
@@ -254,7 +255,6 @@ function App() {
 
           <Route element={<RequirePermission permission="obligations.read" />}>
             <Route path="/deadlines" element={<DeadlinesPage />} />
-            <Route path="/settings/deadlines" element={<DeadlineRulesPage />} />
           </Route>
 
           <Route element={<RequirePermission permission="documents.generate" />}>
@@ -266,7 +266,6 @@ function App() {
           </Route>
 
           <Route element={<RequirePermission permission="system.settings" />}>
-            <Route path="/settings/documents" element={<DocumentTemplatesPage />} />
             <Route path="/settings/documents/:key" element={<DocumentTemplatePage />} />
           </Route>
 
@@ -291,89 +290,67 @@ function App() {
             <Route path="/services" element={<ServicesPage />} />
           </Route>
 
-          {/* The settings landing filters its own cards, so it stays open — the
-              sub-routes below carry the same permissions those cards use. */}
+          {/* Settings is one page with tabs (SettingsLayout); /settings opens
+              the first tab this person can see. Each section keeps its own
+              route and permission, so a denied one says so inside the tabs. */}
           <Route path="/settings" element={<SettingsPage />} />
 
-          <Route path="/settings/appearance" element={<AppearancePage />} />
+          <Route element={<SettingsLayout />}>
+            {/* Everyone's own record and look, so nothing beyond being signed in. */}
+            <Route path="/settings/profile" element={<ProfilePage />} />
+            <Route path="/settings/appearance" element={<AppearancePage />} />
 
-          {/* Everyone's own record, so no permission beyond being signed in. */}
-          <Route path="/settings/profile" element={<ProfilePage />} />
+            <Route element={<RequirePermission permission="organization.read" />}>
+              <Route path="/settings/organization" element={<OrganizationPage />} />
+              <Route path="/settings/firm" element={<FirmPage />} />
+            </Route>
 
-          <Route
-            element={<RequirePermission permission="system.integrations" />}
-          >
-            <Route
-              path="/settings/email-accounts"
-              element={<EmailAccountsPage />}
-            />
+            <Route element={<RequirePermission permission="users.read" />}>
+              <Route path="/settings/users" element={<UsersRolesPage />} />
+              <Route path="/settings/access" element={<AccessGrantsPage />} />
+            </Route>
+
+            <Route element={<RequirePermission permission="system.integrations" />}>
+              <Route path="/settings/email-accounts" element={<EmailAccountsPage />} />
+            </Route>
+
+            <Route element={<RequirePermission permission="email.templates.read" />}>
+              <Route path="/settings/email-templates" element={<EmailTemplatesPage />} />
+            </Route>
+
+            <Route element={<RequirePermission permission="email.automations.read" />}>
+              <Route path="/settings/email-automations" element={<EmailAutomationsPage />} />
+            </Route>
+
+            <Route element={<RequirePermission permission="bundles.manage" />}>
+              <Route path="/settings/bundle" element={<BundlePage />} />
+            </Route>
+
+            <Route element={<RequirePermission permission="obligations.read" />}>
+              <Route path="/settings/deadlines" element={<DeadlineRulesPage />} />
+            </Route>
+
+            <Route element={<RequirePermission permission="system.settings" />}>
+              <Route path="/settings/documents" element={<DocumentTemplatesPage />} />
+            </Route>
           </Route>
 
-          <Route
-            element={<RequirePermission permission="email.templates.read" />}
-          >
-            <Route
-              path="/settings/email-templates"
-              element={<EmailTemplatesPage />}
-            />
-
-            <Route
-              path="/settings/email-templates/new"
-              element={<EmailTemplateFormPage />}
-            />
-
-            <Route
-              path="/settings/email-templates/:id/edit"
-              element={<EmailTemplateFormPage />}
-            />
+          {/* Full-page editors opened from a settings section. */}
+          <Route element={<RequirePermission permission="email.templates.read" />}>
+            <Route path="/settings/email-templates/new" element={<EmailTemplateFormPage />} />
+            <Route path="/settings/email-templates/:id/edit" element={<EmailTemplateFormPage />} />
           </Route>
 
-          <Route
-            element={<RequirePermission permission="email.automations.read" />}
-          >
-            <Route
-              path="/settings/email-automations"
-              element={<EmailAutomationsPage />}
-            />
-
-            <Route
-              path="/settings/email-automations/new"
-              element={<EmailAutomationFormPage />}
-            />
-
-            <Route
-              path="/settings/email-automations/:id/edit"
-              element={<EmailAutomationFormPage />}
-            />
+          <Route element={<RequirePermission permission="email.automations.read" />}>
+            <Route path="/settings/email-automations/new" element={<EmailAutomationFormPage />} />
+            <Route path="/settings/email-automations/:id/edit" element={<EmailAutomationFormPage />} />
           </Route>
 
           <Route element={<RequirePermission permission="users.read" />}>
-            <Route path="/settings/users" element={<UsersRolesPage />} />
-
             <Route path="/settings/users/new" element={<UserFormPage />} />
-
             <Route path="/settings/users/:id/edit" element={<UserFormPage />} />
-
             <Route path="/settings/roles/new" element={<RoleFormPage />} />
-
             <Route path="/settings/roles/:id/edit" element={<RoleFormPage />} />
-
-            <Route path="/settings/access" element={<AccessGrantsPage />} />
-          </Route>
-
-          <Route element={<RequirePermission permission="bundles.manage" />}>
-            <Route path="/settings/bundle" element={<BundlePage />} />
-          </Route>
-
-          <Route element={<RequirePermission permission="organization.read" />}>
-            <Route path="/settings/firm" element={<FirmPage />} />
-          </Route>
-
-          <Route element={<RequirePermission permission="organization.read" />}>
-            <Route
-              path="/settings/organization"
-              element={<OrganizationPage />}
-            />
           </Route>
         </Route>
       </Route>

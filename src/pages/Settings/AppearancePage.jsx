@@ -1,6 +1,7 @@
-import { useNavigate } from "react-router-dom";
+import { Palette } from "@phosphor-icons/react";
+
 import { useTheme } from "../../context/ThemeContext";
-import Breadcrumb from "../../components/ui/Breadcrumb";
+import { SettingRow, SettingRows } from "../../components/ui/SettingRow";
 
 const themeOptions = [
   {
@@ -49,50 +50,36 @@ const themeOptions = [
 ];
 
 function AppearancePage() {
-  const navigate = useNavigate();
   const { theme, setTheme } = useTheme();
-
-  const currentTheme =
-    themeOptions.find((option) => option.id === theme) || themeOptions[0];
-
-  function handleBackToSettings() {
-    navigate("/settings");
-  }
 
   function handleThemeChange(themeId) {
     setTheme(themeId);
   }
 
   return (
-    <main className="page appearance-page">
-      <Breadcrumb onBack={handleBackToSettings} backLabel="Settings" section="SETTINGS" title="Appearance" />
-
-      <header className="page-header">
+    <div className="settings-panel settings-sub-page appearance-page">
+      <div className="page-header settings-panel-header">
         <div>
-          <h1>Appearance</h1>
-          <p>Customize the color palette used across the OmniCore platform.</p>
+          <h2>Appearance</h2>
+          <p>How OmniCore looks for you. Saved in this browser as soon as you choose.</p>
         </div>
-      </header>
+      </div>
 
-      <section className="appearance-section">
-        <div className="appearance-section-header">
-          <div>
-            <span className="appearance-eyebrow">COLOR PALETTE</span>
-
-            <h2>Choose a palette</h2>
-
-            <p>
-              Your selection is saved automatically and remains active after
-              refreshing the application.
-            </p>
-          </div>
-
-          <div className="appearance-current">
-            <span>Current</span>
-            <strong>{currentTheme.name}</strong>
-          </div>
-        </div>
-
+      <SettingRows label="Appearance">
+        <SettingRow
+          icon={<Palette size={16} />}
+          title="Colour palette"
+          description="Two light and two dark palettes; the assistant and every screen follow it"
+          action={
+            <select className="setting-select" aria-label="Colour palette" value={theme} onChange={(event) => handleThemeChange(event.target.value)}>
+              {themeOptions.map((option) => (
+                <option key={option.id} value={option.id}>
+                  {option.name} · {option.mode}
+                </option>
+              ))}
+            </select>
+          }
+        >
         <div className="theme-grid">
           {themeOptions.map((option) => {
             const selected = theme === option.id;
@@ -181,8 +168,9 @@ function AppearancePage() {
             );
           })}
         </div>
-      </section>
-    </main>
+        </SettingRow>
+      </SettingRows>
+    </div>
   );
 }
 

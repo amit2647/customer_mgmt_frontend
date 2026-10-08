@@ -7,6 +7,8 @@ import { enumLabel, formatDay, formatMoney } from "../../components/bundle/bundl
 import { useAuth } from "../../context/AuthContext";
 import { useBundle } from "../../context/BundleContext";
 import StatCard from "../../components/ui/StatCard";
+import DataGrid from "../../components/ui/DataGrid";
+import Pill, { toneFor } from "../../components/ui/Pill";
 
 /*
  * The prospect board (PROS-01–05): the bundle's pipeline as columns. Cards
@@ -85,10 +87,11 @@ function ProspectsPage() {
   };
   const needle = search.trim().toLowerCase();
   const matches = (lead) => !needle || [lead.name, lead.email, lead.phone].some((value) => String(value || "").toLowerCase().includes(needle));
+  // The list: the stage cards narrow it; the grid searches and filters the rest.
   const listed = everyLead
     .filter((lead) => showConverted || lead.status !== "Converted")
-    .filter((lead) => stage === "all" || (lead.status !== "Converted" && columns[columnOf(lead)]?.key === stage))
-    .filter(matches);
+    .filter((lead) => stage === "all" || (lead.status !== "Converted" && columns[columnOf(lead)]?.key === stage));
+  const stageOf = (lead) => (lead.status === "Converted" ? "Converted" : columns[columnOf(lead)]?.label);
 
   // The Dashboard's cards: open prospects, one per stage, and what is quoted.
   const quoted = (list) => list.reduce((total, lead) => total + (Number(lead.quoted_fee) || 0), 0);
@@ -217,32 +220,16 @@ function ProspectsPage() {
 
       {notice && <div className="alert alert-success">{notice}</div>}
 
-      <div className="clients-toolbar">
-        <input
-          type="search"
-          className="clients-search"
-          placeholder="Search by name, email or phone"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          aria-label="Search prospects"
-        />
-
-        {view === "list" && (
-          <label className="client-checkbox">
-            <input type="checkbox" checked={showConverted} onChange={(e) => setShowConverted(e.target.checked)} />
-            Show converted
-          </label>
-        )}
-      </div>
-
-      {view === "list" && (
-        <div className="clients-chips" role="group" aria-label="Filter by stage">
-          <button type="button" className={`chip${stage === "all" ? " active" : ""}`} onClick={() => setStage("all")}>All</button>
-          {columns.map((column) => (
-            <button key={column.key} type="button" className={`chip${stage === column.key ? " active" : ""}`} onClick={() => setStage(column.key)}>
-              {column.label}
-            </button>
-          ))}
+      {view !== "list" && (
+        <div className="clients-toolbar">
+          <input
+            type="search"
+            className="clients-search"
+            placeholder="Search by name, email or phone"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            aria-label="Search prospects"
+          />
         </div>
       )}
 
@@ -251,54 +238,63 @@ function ProspectsPage() {
       {loading ? (
         <section className="card"><div className="settings-empty">Loading…</div></section>
       ) : view === "list" ? (
-        <section className="card prospect-list" aria-label="Prospect list">
-          {listed.length === 0 ? (
-            <div className="settings-empty">No prospects match.</div>
-          ) : (
-            <table className="clients-table">
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>Name</th>
-                  <th>Stage</th>
-                  <th>Source</th>
-                  <th>Constitution</th>
-                  <th className="numeric">Quoted fee</th>
-                  <th>Next meeting</th>
-                  <th />
-                </tr>
-              </thead>
-              <tbody>
-                {listed.map((lead, index) => {
-                  const converted = lead.status === "Converted";
-                  const columnIndex = columnOf(lead);
-
-                  return (
-                    <tr key={lead.id} className={converted ? "prospect-row-converted" : undefined}>
-                      <td className="settings-cell-muted">{index + 1}</td>
-                      <td>
-                        <span className="client-name">{lead.name}</span>
-                        {(lead.email || lead.phone) && <span className="settings-row-hint">{[lead.email, lead.phone].filter(Boolean).join(" · ")}</span>}
-                      </td>
-                      <td><span className="service-badge">{converted ? "Converted" : columns[columnIndex]?.label}</span></td>
-                      <td className="settings-cell-muted">{lead.channel || "—"}</td>
-                      <td>{constitutionPill(lead)}</td>
-                      <td className="numeric">{lead.quoted_fee !== null && lead.quoted_fee !== undefined ? formatMoney(lead.quoted_fee) : "—"}</td>
-                      <td>{lead.next_meeting_on ? formatDay(lead.next_meeting_on) : "—"}</td>
-                      <td>
-                        <div className="table-actions">
-                          {converted
-                            ? lead.converted_customer_id && <Link className="link" to={`/clients/${lead.converted_customer_id}`}>Open {term("client").toLowerCase()}</Link>
-                            : actionsFor(lead, columnIndex)}
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          )}
-        </section>
+        <DataGrid
+          id="prospects"
+          label="Prospect list"
+          rows={listed}
+          search={{ placeholder: "Search by name, email or phone", label: "Search prospects", text: (lead) => [lead.name, lead.email, lead.phone].join(" ") }}
+          controls={
+            <label className="client-checkbox">
+              <input type="checkbox" checked={showConverted} onChange={(e) => setShowConverted(e.target.checked)} />
+              Show converted
+            </label>
+          }
+          rowClassName={(lead) => (lead.status === "Converted" ? "prospect-row-converted" : "")}
+          columns={[
+            {
+              key: "name",
+              header: "Name",
+              render: (lead) => (
+                <>
+                  <span className="grid-cell-title client-name">{lead.name}</span>
+                  {(lead.email || lead.phone) && <span className="grid-cell-sub">{[lead.email, lead.phone].filter(Boolean).join(" · ")}</span>}
+                </>
+              ),
+            },
+            {
+              key: "stage",
+              header: "Stage",
+              value: (lead) => (lead.status === "Converted" ? columns.length : columnOf(lead)),
+              filter: { values: (lead) => [stageOf(lead)], tone: (value) => (value === "Converted" ? "success" : "info") },
+              render: (lead) => <Pill dot tone={lead.status === "Converted" ? "success" : "info"}>{stageOf(lead)}</Pill>,
+            },
+            { key: "channel", header: "Source", filter: { tone: toneFor }, render: (lead) => lead.channel ? <Pill tone={toneFor(lead.channel)}>{lead.channel}</Pill> : "—" },
+            {
+              key: "constitution",
+              header: "Constitution",
+              value: (lead) => lead.attributes?.constitution || "",
+              filter: { label: (value) => enumLabel(bundle?.profiles?.client || leadProfile, "constitution", value), tone: toneFor },
+              render: (lead) => lead.attributes?.constitution && <Pill tone={toneFor(lead.attributes.constitution)}>{enumLabel(bundle?.profiles?.client || leadProfile, "constitution", lead.attributes.constitution)}</Pill>,
+            },
+            { key: "quoted_fee", header: "Quoted fee", align: "right", value: (lead) => (lead.quoted_fee === null || lead.quoted_fee === undefined ? null : Number(lead.quoted_fee)), render: (lead) => (lead.quoted_fee !== null && lead.quoted_fee !== undefined ? formatMoney(lead.quoted_fee) : "—") },
+            { key: "next_meeting_on", header: "Next meeting", render: (lead) => (lead.next_meeting_on ? formatDay(lead.next_meeting_on) : "—") },
+            {
+              key: "actions",
+              header: "",
+              sortable: false,
+              hideable: false,
+              render: (lead) => (
+                <div className="table-actions">
+                  {lead.status === "Converted"
+                    ? lead.converted_customer_id && <Link className="link" to={`/clients/${lead.converted_customer_id}`}>Open {term("client").toLowerCase()}</Link>
+                    : actionsFor(lead, columnOf(lead))}
+                </div>
+              ),
+            },
+          ]}
+          empty="No prospects match."
+          emptyFiltered="No prospects match."
+        />
       ) : (
         <div className="prospect-board">
           {columns.map((column, columnIndex) => {

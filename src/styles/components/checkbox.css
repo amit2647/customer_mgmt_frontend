@@ -1,0 +1,67 @@
+/* =========================================================
+   OMNICORE — CHECKBOX
+   One checkbox everywhere: tables, filters, forms, wizards.
+   Drawn by hand (appearance: none) so it follows the theme —
+   the native box with accent-color vanished in the dark
+   palettes, and form rules sized it like a text field.
+   Switches (ToggleField, role="switch") draw their own.
+   Loaded last; `html` lifts it over page rules such as
+   `.settings-form-card input`.
+   ========================================================= */
+
+html input[type="checkbox"]:not([role="switch"]) {
+    position: relative;
+    display: inline-grid;
+    flex: 0 0 auto;
+    place-content: center;
+    width: 16px;
+    min-width: 16px;
+    height: 16px;
+    margin: 0;
+    padding: 0;
+    border: 1.5px solid var(--color-border-strong);
+    border-radius: 4px;
+    background: var(--color-surface);
+    box-shadow: none;
+    vertical-align: middle;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    transition:
+        background var(--transition-fast),
+        border-color var(--transition-fast);
+}
+
+/* The tick: a clipped square in the surface colour, shown when checked. */
+html input[type="checkbox"]:not([role="switch"])::before {
+    width: 10px;
+    height: 10px;
+    background: var(--color-surface);
+    clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+    transform: scale(0);
+    transition: transform 0.12s ease-in-out;
+    content: "";
+}
+
+html input[type="checkbox"]:not([role="switch"]):hover:not(:disabled) {
+    border-color: var(--color-text-muted);
+}
+
+html input[type="checkbox"]:not([role="switch"]):checked {
+    border-color: var(--color-text);
+    background: var(--color-text);
+}
+
+html input[type="checkbox"]:not([role="switch"]):checked::before {
+    transform: scale(1);
+}
+
+html input[type="checkbox"]:not([role="switch"]):focus-visible {
+    outline: 2px solid var(--focus-ring-color);
+    outline-offset: 2px;
+}
+
+html input[type="checkbox"]:not([role="switch"]):disabled {
+    cursor: not-allowed;
+    opacity: 0.45;
+}

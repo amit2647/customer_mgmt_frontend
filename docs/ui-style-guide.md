@@ -13,7 +13,7 @@ disagree, the screen wins and this guide gets fixed.
 | Board | Prospects (board) | `src/pages/Prospects/ProspectsPage.jsx` |
 | One record, in tabs | Client detail | `src/pages/Clients/ClientDetailPage.jsx` |
 | Add / edit (a wizard) | Add client, Add prospect | `src/pages/Clients/ClientWizardPage.jsx`, `src/pages/Prospects/ProspectFormPage.jsx` |
-| Settings sub-page | Deadline rules, Firm | `src/pages/Settings/DeadlineRulesPage.jsx`, `src/pages/Settings/FirmPage.jsx` |
+| Settings section (a tab) | My Profile (rows), Organization (rows), Deadline rules (a list) | `src/pages/Settings/ProfilePage.jsx`, `src/pages/Settings/OrganizationPage.jsx`, `src/pages/Settings/DeadlineRulesPage.jsx` |
 | Fields beside a live preview | Letter editor, Document template | `src/pages/Documents/DocumentEditorPage.jsx`, `src/pages/Settings/DocumentTemplatePage.jsx` |
 
 ## 1. Rules
@@ -46,6 +46,9 @@ disagree, the screen wins and this guide gets fixed.
 | A wizard's step bar: one row, a column per step; numbers clickable | `<WizardSteps steps current className="customer-workflow-steps" onSelect={(target) => goToStep(target, { step, validateStep, setStep })} />` — back is free, forward validates each step on the way | `components/ui/WizardSteps.jsx` |
 | Choosing services | `<ServicePicker services selected onChange />` (grouped; `grouped={false}` for a flat grid) | `components/ui/ServicePicker.jsx` |
 | A whole page loading, failed or with nothing to edit | `<PageState icon tone title action>sentence</PageState>` | `components/ui/PageState.jsx` |
+| **Any table** — lists, settings tables, tabs, pickers | `<DataGrid label rows columns search controls actions selection expandedRow embedded empty />`. Columns: `{ key, header, render, value, align: "right", sortable, filter, hideable }`. Toolbar (search, Columns, Filters + chips) and paging appear only when useful; `embedded` inside a card that already frames it; `id` remembers hidden columns and page size | `components/ui/DataGrid.jsx` |
+| A value as a coloured badge | `<Pill tone dot>` — `tone` semantic (`success`, `danger`, `warning`, `info`, `neutral`) or `toneFor(value)` for a stable category hue; `dot` for states | `components/ui/Pill.jsx` |
+| One setting: title and help left, value or control right | `<SettingRows label>` › `<SettingRow icon title description action>` (children open inside the row); `<SettingNotice tone title action>` for an in-row notice | `components/ui/SettingRow.jsx` |
 | A label and value on a record | `<Field label value href />` | `components/common/Field.jsx` |
 | A letter or other rendered HTML, as it will print | `<LetterFrame html ref />` (sandboxed iframe; `ref.current.print()`) — never `dangerouslySetInnerHTML` | `components/documents/LetterFrame.jsx` |
 | Bundle-defined fields | `<SchemaForm />` | `components/bundle/SchemaForm.jsx` |
@@ -53,18 +56,18 @@ disagree, the screen wins and this guide gets fixed.
 | Route guards | `RequirePermission`, `WithoutBundle` | `components/auth/` |
 | Money, dates, enum labels | `formatMoney` (`₹45,000`), `formatDay` (`31 Jul 2027`), `enumLabel` | `components/bundle/bundleLabels.js` |
 
-`SearchBar`, `EmptyState`, `StatusBadge` and the `*Table` / `*Workflow` components in
-`components/{leads,customers,services,emailAccounts}` belong to the original core screens.
-Don't use them on new screens; use the classes below.
+Every table in the product is a `DataGrid` — never hand-write `<table>` markup. `SearchBar`,
+`EmptyState`, `StatusBadge` and the `*Workflow` components in
+`components/{leads,customers,services,emailAccounts}` belong to the original core screens;
+don't use them on new screens.
 
 ### Classes
 
 | Need | Classes |
 |---|---|
 | Page title and actions | `.page-header` (an `h1`, one sentence `p`, buttons on the right) |
-| List toolbar | `.clients-toolbar` holding `.clients-search`, `.clients-select`, `.client-checkbox` |
-| Filter chips | `.clients-chips` holding `.chip` / `.chip.active` (single choice, `All` first) |
-| A list | `.card` holding `table.clients-table` |
+| Extra list controls | passed to `DataGrid` as `controls` (a `.clients-select`, a `.client-checkbox` such as "Show archived") |
+| Two-line cell | `.grid-cell-title` and `.grid-cell-sub` |
 | Row actions | `.table-actions` holding `.link` buttons (View, Edit…) and `.link.delete-link` |
 | Hint under a name | `.settings-row-hint`; a muted cell is `.settings-cell-muted` |
 | Main action | `.primary` (one per area). Others are `.secondary-button`; destructive is `.secondary-button.danger` |
@@ -124,11 +127,10 @@ Don't use them on new screens; use the classes below.
 2. Optionally, `StatCard`s in a `.dashboard-stats` section. The first card is the lemon one
    and the most important; cards that filter get `onClick` and `active`.
 3. The notice.
-4. The toolbar, then the chips.
-5. The error.
-6. `.card` › `table.clients-table`. Lists start with a muted `#` column; then a bold name
-   with one `.settings-row-hint` line; pills; money in `.numeric` (right-aligned); actions
-   last.
+4. The error.
+5. `DataGrid` with the whole list (it searches, filters, sorts and pages on the client):
+   a bold name with one `.grid-cell-sub` line; `Pill`s for categories and states (make those
+   columns `filter`able); money with `align: "right"`; row actions last as `.table-actions`.
 
 Converted, archived or read-only rows stay in the table, muted, with one link to where the
 record lives now. A list that also has a board gets a **Board | List** toggle
@@ -160,13 +162,22 @@ never a form inside a list.
   updates instead of duplicating.
 - **Loading or failed** is a `PageState`.
 
-**Settings sub-page.**
+**Settings section.** Settings is one page (`SettingsLayout`): the header, a row of tabs
+(groups), and a pill row when a group has several sections. A section is its own route,
+listed in `pages/Settings/settingsSections.js` with the same permission as its route in
+`App.jsx` (`needsBundle` / `needsCapability` for bundle-only ones). The section itself:
 
-1. `Breadcrumb` (`backLabel="Settings" section="SETTINGS"`).
-2. `.page-header`.
-3. Cards.
+1. A `<div className="settings-panel settings-sub-page">` — never `<main>`, and no
+   `Breadcrumb`: the tabs are the way back.
+2. `.page-header.settings-panel-header` with an `h2`, one sentence, and its actions.
+3. Settings that are values (a name, a time zone, a status) are `SettingRow`s in one
+   `SettingRows` card: icon, title and one line of help on the left; the value with a
+   pencil, a `.setting-select` or a toggle on the right. Editing opens in the row
+   (`.setting-form`), and a result or warning about that setting is a `SettingNotice` in
+   the same row — never a page-level alert or a popup. Lists stay a `DataGrid`.
 
-A bundle-only setting shows in Settings only when the bundle needs it (`needsCapability`).
+Full-page editors opened from a section (new user, edit template) are routes outside the
+tabs, with a `Breadcrumb` back to their section.
 
 **Behaviour that tests rely on.**
 

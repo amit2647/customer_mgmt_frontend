@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { downloadImportTemplate, importClients } from "../../api/clients";
 import Breadcrumb from "../../components/ui/Breadcrumb";
 import { useBundle } from "../../context/BundleContext";
+import DataGrid from "../../components/ui/DataGrid";
+import Pill from "../../components/ui/Pill";
 
 /*
  * Importing clients from CSV (DATA-03, DATA-04): download the template,
@@ -73,24 +75,20 @@ function ClientsImportPage() {
             {report.added} added · {report.skipped.length} skipped · {report.errors.length} refused
           </div>
 
-          {[...report.skipped.map((row) => ({ ...row, kind: "Skipped", why: row.reason })), ...report.errors.map((row) => ({ ...row, kind: "Refused", why: row.error }))].length > 0 && (
-            <table className="clients-table">
-              <thead>
-                <tr><th>Line</th><th>Name</th><th>Outcome</th><th>Why</th></tr>
-              </thead>
-              <tbody>
-                {[...report.skipped.map((row) => ({ ...row, kind: "Skipped", why: row.reason })), ...report.errors.map((row) => ({ ...row, kind: "Refused", why: row.error }))]
-                  .sort((a, b) => a.line - b.line)
-                  .map((row) => (
-                    <tr key={`${row.kind}-${row.line}`}>
-                      <td className="settings-cell-muted">{row.line}</td>
-                      <td>{row.name || "—"}</td>
-                      <td><span className={`deadline-pill ${row.kind === "Skipped" ? "state-due_soon" : "state-overdue"}`}>{row.kind}</span></td>
-                      <td className="settings-cell-muted">{row.why}</td>
-                    </tr>
-                  ))}
-              </tbody>
-            </table>
+          {report.skipped.length + report.errors.length > 0 && (
+            <DataGrid
+              embedded
+              label="Rows not added"
+              rows={[...report.skipped.map((row) => ({ ...row, kind: "Skipped", why: row.reason })), ...report.errors.map((row) => ({ ...row, kind: "Refused", why: row.error }))]}
+              rowKey={(row) => `${row.kind}-${row.line}`}
+              initialSort={{ key: "line", dir: "asc" }}
+              columns={[
+                { key: "line", header: "Line", value: (row) => Number(row.line), render: (row) => <span className="settings-cell-muted">{row.line}</span> },
+                { key: "name", header: "Name", render: (row) => row.name || "—" },
+                { key: "kind", header: "Outcome", filter: { tone: (value) => (value === "Skipped" ? "warning" : "danger") }, render: (row) => <Pill dot tone={row.kind === "Skipped" ? "warning" : "danger"}>{row.kind}</Pill> },
+                { key: "why", header: "Why", sortable: false, render: (row) => <span className="settings-cell-muted">{row.why}</span> },
+              ]}
+            />
           )}
 
           <div className="bundle-actions">

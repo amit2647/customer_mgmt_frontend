@@ -1,0 +1,544 @@
+/* =========================================================
+   OMNICORE — DATA GRID (components/ui/DataGrid.jsx, Pill.jsx)
+   The one table design: toolbar (search, Columns, Filters), filter chips,
+   a framed table with sortable headers and pills, and a footer with the
+   total and paging. Colours are theme tokens only, so it reads in every
+   theme; category hues are mixed with the theme's text and surface.
+   ========================================================= */
+
+.data-grid {
+    display: grid;
+    gap: 12px;
+    min-width: 0;
+}
+
+/* ---------- Toolbar ---------- */
+
+.grid-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.grid-toolbar-start,
+.grid-toolbar-end {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+}
+
+.grid-toolbar-end {
+    margin-left: auto;
+}
+
+.grid-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-left: 10px;
+    border-left: 1px solid var(--color-border);
+}
+
+.grid-tool,
+.grid-chip-button,
+.grid-clear {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 36px;
+    padding: 0 12px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-surface);
+    color: var(--color-text);
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+    transition:
+        border-color var(--transition-fast),
+        background var(--transition-fast);
+}
+
+.grid-tool:hover,
+.grid-chip-button:hover,
+.grid-clear:hover {
+    border-color: var(--color-border-strong);
+}
+
+.grid-tool[aria-expanded="true"] {
+    border-color: var(--color-border-accent);
+    background: var(--color-surface-subtle);
+}
+
+.grid-tool-icon {
+    justify-content: center;
+    width: 36px;
+    padding: 0;
+}
+
+.grid-search {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+/* The magnifier sits inside the field. */
+.grid-search svg {
+    position: absolute;
+    left: 11px;
+    color: var(--color-text-muted);
+    pointer-events: none;
+}
+
+.data-grid .grid-search input {
+    width: 260px;
+    height: 36px;
+    padding: 0 12px 0 34px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-surface);
+    color: var(--color-text);
+    font-family: var(--font-body);
+    font-size: 13px;
+}
+
+.data-grid .grid-search input:focus {
+    outline: none;
+    border-color: var(--color-border-accent);
+    box-shadow: 0 0 0 3px var(--focus-ring-color-alpha);
+}
+
+/* ---------- Popovers (Columns, Filters, a chip's values) ---------- */
+
+.grid-popover {
+    position: relative;
+}
+
+.grid-popover-panel {
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    z-index: 30;
+    min-width: 220px;
+    max-width: 320px;
+    padding: 6px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    box-shadow: 0 12px 32px rgba(15, 23, 42, 0.14);
+}
+
+.grid-chip .grid-popover-panel {
+    right: auto;
+    left: 0;
+}
+
+.grid-options {
+    display: grid;
+    gap: 2px;
+    max-height: 320px;
+    overflow-y: auto;
+}
+
+.grid-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 8px;
+    border-radius: var(--radius-sm);
+    color: var(--color-text);
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.grid-option:hover {
+    background: var(--color-surface-subtle);
+}
+
+.grid-option-all {
+    justify-content: space-between;
+    margin-top: 4px;
+    padding-top: 10px;
+    border-top: 1px solid var(--color-border);
+    border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+    font-weight: 600;
+}
+
+.grid-options-empty {
+    padding: 8px;
+    color: var(--color-text-muted);
+    font-size: 12px;
+}
+
+/* ---------- Filter chips ---------- */
+
+.grid-chips {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+}
+
+.grid-chip {
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-surface);
+}
+
+.grid-chip .grid-chip-button {
+    gap: 8px;
+    border: 0;
+    border-radius: var(--radius-sm) 0 0 var(--radius-sm);
+    background: transparent;
+}
+
+.grid-chip-name {
+    color: var(--color-text-muted);
+    font-weight: 500;
+}
+
+.grid-chip-any {
+    color: var(--color-text-faint);
+    font-weight: 500;
+}
+
+.grid-chip-count {
+    display: inline-grid;
+    place-items: center;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 5px;
+    border-radius: 5px;
+    background: var(--brand-lemon-soft);
+    color: var(--color-text);
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.grid-chip-remove {
+    display: inline-grid;
+    place-items: center;
+    width: 30px;
+    height: 34px;
+    border: 0;
+    border-left: 1px solid var(--color-border);
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    background: transparent;
+    color: var(--color-text-muted);
+    cursor: pointer;
+}
+
+.grid-chip-remove:hover {
+    color: var(--color-text);
+}
+
+.grid-clear {
+    margin-left: auto;
+    border-style: dashed;
+    color: var(--color-text-secondary);
+}
+
+/* ---------- Table ---------- */
+
+.grid-frame {
+    min-width: 0;
+    overflow: hidden;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-card);
+}
+
+.grid-scroll {
+    overflow-x: auto;
+}
+
+/* Inside a card: the card is the frame. */
+.data-grid.embedded .grid-frame {
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    background: transparent;
+}
+
+.grid-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.grid-table thead th {
+    padding: 12px 16px;
+    background: var(--color-surface-subtle);
+    border-bottom: 1px solid var(--color-border);
+    color: var(--color-text-muted);
+    font-size: 11px;
+    font-weight: 600;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.grid-sort {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    /* Buttons drop these by default; keep sortable headers like the rest. */
+    letter-spacing: inherit;
+    text-transform: inherit;
+    cursor: pointer;
+}
+
+.grid-sort svg {
+    opacity: 0.55;
+}
+
+.grid-sort:hover,
+.grid-sort.active {
+    color: var(--color-text);
+}
+
+.grid-sort.active svg {
+    opacity: 1;
+}
+
+.grid-table tbody td {
+    padding: 14px 16px;
+    border-top: 1px solid var(--color-border);
+    color: var(--color-text);
+    font-size: 13px;
+    vertical-align: middle;
+}
+
+.grid-table tbody tr:first-child td {
+    border-top: 0;
+}
+
+.grid-table tbody tr:hover > td {
+    background: var(--color-surface-subtle);
+}
+
+.grid-table tbody tr.selected > td {
+    background: color-mix(in srgb, var(--brand-lemon-soft) 55%, var(--color-surface));
+}
+
+.grid-table .numeric {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+.grid-table th.numeric .grid-sort {
+    flex-direction: row-reverse;
+}
+
+.grid-check {
+    width: 44px;
+    padding-right: 0 !important;
+}
+
+.grid-empty-row td {
+    padding: 28px 16px !important;
+    color: var(--color-text-muted);
+    text-align: center;
+}
+
+.grid-expanded-row > td {
+    background: var(--color-surface-subtle);
+}
+
+.grid-table tbody tr.grid-expanded-row:hover > td {
+    background: var(--color-surface-subtle);
+}
+
+/* ---------- Footer ---------- */
+
+.grid-footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 16px;
+    border-top: 1px solid var(--color-border);
+    color: var(--color-text-secondary);
+    font-size: 13px;
+}
+
+.grid-total strong {
+    margin-left: 4px;
+    color: var(--color-text);
+}
+
+.grid-selected {
+    color: var(--color-text-muted);
+}
+
+.grid-paging {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 18px;
+}
+
+.grid-page-size {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.data-grid .grid-page-size select {
+    height: 32px;
+    padding: 0 8px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-surface);
+    color: var(--color-text);
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.grid-pages {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.grid-page {
+    display: inline-grid;
+    place-items: center;
+    min-width: 32px;
+    height: 32px;
+    padding: 0 6px;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--color-text);
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.grid-page:hover:not(:disabled):not(.current) {
+    background: var(--color-surface-subtle);
+}
+
+.grid-page.current {
+    background: var(--color-primary);
+    color: var(--brand-lemon);
+}
+
+.grid-page:disabled {
+    cursor: default;
+    opacity: 0.35;
+}
+
+.grid-page-gap {
+    min-width: 24px;
+    color: var(--color-text-muted);
+    text-align: center;
+}
+
+/* ---------- Pills ---------- */
+
+.grid-pill {
+    --pill: var(--color-text-muted);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    max-width: 100%;
+    padding: 3px 8px;
+    border: 1px solid color-mix(in srgb, var(--pill) 28%, transparent);
+    border-radius: 6px;
+    background: color-mix(in srgb, var(--pill) 12%, var(--color-surface));
+    color: color-mix(in srgb, var(--pill) 72%, var(--color-text));
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    line-height: 1.4;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.grid-pill.with-dot {
+    border-color: var(--color-border);
+    background: var(--color-surface);
+    color: var(--color-text);
+}
+
+.grid-pill-dot {
+    width: 6px;
+    height: 6px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: var(--pill);
+}
+
+.grid-pill.tone-neutral { --pill: var(--color-text-muted); }
+.grid-pill.tone-success { --pill: var(--color-success); }
+.grid-pill.tone-danger { --pill: var(--color-danger); }
+.grid-pill.tone-warning { --pill: var(--color-warning); }
+.grid-pill.tone-info { --pill: var(--color-info); }
+.grid-pill.tone-violet { --pill: #7c3aed; }
+.grid-pill.tone-pink { --pill: #db2777; }
+.grid-pill.tone-teal { --pill: #0d9488; }
+.grid-pill.tone-orange { --pill: #ea580c; }
+.grid-pill.tone-lime { --pill: #65a30d; }
+.grid-pill.tone-cyan { --pill: #0891b2; }
+.grid-pill.tone-rose { --pill: #e11d48; }
+.grid-pill.tone-amber { --pill: #b45309; }
+.grid-pill.tone-indigo { --pill: #4f46e5; }
+
+.grid-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+/* A primary line and a quiet second line in one cell. */
+.grid-cell-title {
+    display: block;
+    color: var(--color-text);
+    font-weight: 600;
+}
+
+.grid-cell-sub {
+    display: block;
+    margin-top: 2px;
+    color: var(--color-text-muted);
+    font-size: 12px;
+}
+
+/* ---------- Narrow screens ---------- */
+
+@media (max-width: 768px) {
+    .grid-toolbar-end {
+        margin-left: 0;
+    }
+
+    .data-grid .grid-search input {
+        width: 100%;
+        min-width: 160px;
+    }
+
+    .grid-actions {
+        padding-left: 0;
+        border-left: 0;
+    }
+
+    .grid-paging {
+        gap: 10px;
+    }
+}
