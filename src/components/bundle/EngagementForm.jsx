@@ -1,4 +1,5 @@
 import SchemaForm from "./SchemaForm";
+import NumberInput from "../ui/NumberInput";
 
 /*
  * One engagement as a form: period, appointment and stage, the services
@@ -88,14 +89,8 @@ function EngagementForm({ type, periods, services, value, onChange, profile, can
 
                 {canReadFees && (line ? (
                   <>
-                    <span className="engagement-money">
-                      <span aria-hidden="true">₹</span>
-                      <input type="number" min="0" step="0.01" placeholder="0" value={line.feeAmount} onChange={(e) => setAmount(service.id, "feeAmount", e.target.value)} disabled={!canChangeFees} aria-label={`Fee for ${service.name}`} />
-                    </span>
-                    <span className="engagement-money">
-                      <span aria-hidden="true">₹</span>
-                      <input type="number" min="0" step="0.01" placeholder="0" value={line.expensesAmount} onChange={(e) => setAmount(service.id, "expensesAmount", e.target.value)} disabled={!canChangeFees} aria-label={`Expenses for ${service.name}`} />
-                    </span>
+                    <NumberInput size="sm" prefix="₹" placeholder="0" value={line.feeAmount} onChange={(next) => setAmount(service.id, "feeAmount", next)} disabled={!canChangeFees} aria-label={`Fee for ${service.name}`} />
+                    <NumberInput size="sm" prefix="₹" placeholder="0" value={line.expensesAmount} onChange={(next) => setAmount(service.id, "expensesAmount", next)} disabled={!canChangeFees} aria-label={`Expenses for ${service.name}`} />
                   </>
                 ) : (
                   <span className="engagement-line-off">Not engaged</span>

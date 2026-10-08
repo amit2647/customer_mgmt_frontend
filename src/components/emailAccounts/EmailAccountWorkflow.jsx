@@ -6,6 +6,7 @@ import {
   updateEmailAccount,
 } from "../../api/emailAccounts";
 import WizardSteps, { goToStep } from "../ui/WizardSteps";
+import NumberInput from "../ui/NumberInput";
 
 const STEPS = [
   {
@@ -395,12 +396,10 @@ function EmailAccountWorkflow({ accountId = null, onComplete, onCancel }) {
 
               <label>
                 SMTP Port
-                <input
-                  type="number"
-                  min="1"
-                  max="65535"
+                <NumberInput
+                  decimals={0}
                   value={form.smtp_port}
-                  onChange={(e) => updateField("smtp_port", e.target.value)}
+                  onChange={(next) => updateField("smtp_port", next)}
                   placeholder="587"
                   disabled={submitting}
                 />
@@ -477,12 +476,10 @@ function EmailAccountWorkflow({ accountId = null, onComplete, onCancel }) {
 
               <label>
                 IMAP Port
-                <input
-                  type="number"
-                  min="1"
-                  max="65535"
+                <NumberInput
+                  decimals={0}
                   value={form.imap_port}
-                  onChange={(e) => updateField("imap_port", e.target.value)}
+                  onChange={(next) => updateField("imap_port", next)}
                   placeholder="993"
                   disabled={submitting}
                 />

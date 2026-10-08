@@ -1,6 +1,45 @@
 import { forwardRef, useImperativeHandle, useMemo, useRef } from "react";
-import Form from "@rjsf/core";
+import Form, { getDefaultRegistry } from "@rjsf/core";
 import validator from "@rjsf/validator-ajv8";
+
+import NumberInput from "../ui/NumberInput";
+
+const DefaultInput = getDefaultRegistry().templates.BaseInputTemplate;
+
+/*
+ * Number fields use the product's NumberInput. A bundle's "number" fields are
+ * money (audit fee, turnover): ₹, grouped digits, two decimals. "integer"
+ * fields are counts (days, months, years): whole numbers. Every other input
+ * is rjsf's own.
+ */
+function BaseInputTemplate(props) {
+  const { id, htmlName, value, onChange, onBlur, onFocus, options, schema, disabled, readonly, autofocus, required, placeholder, type } = props;
+  const kind = schema?.type === "integer" || type === "integer" ? "integer" : schema?.type === "number" || type === "number" ? "number" : null;
+
+  if (!kind) return <DefaultInput {...props} />;
+
+  const money = kind === "number";
+
+  return (
+    <NumberInput
+      id={id}
+      name={htmlName || id}
+      value={value || value === 0 ? String(value) : ""}
+      onChange={(next) => onChange(next === "" ? options.emptyValue : next)}
+      onBlur={(event) => onBlur(id, event.target.value)}
+      onFocus={(event) => onFocus(id, event.target.value)}
+      prefix={money ? "₹" : undefined}
+      decimals={money ? 2 : 0}
+      disabled={disabled}
+      readOnly={readonly}
+      required={required}
+      autoFocus={autofocus}
+      placeholder={placeholder}
+    />
+  );
+}
+
+const TEMPLATES = { BaseInputTemplate };
 
 /*
  * A profession bundle's fields as a form (react-jsonschema-form), from the
@@ -51,6 +90,7 @@ const SchemaForm = forwardRef(function SchemaForm({ schema, uiSchema, formData, 
         disabled={disabled}
         idPrefix={idPrefix}
         tagName="div"
+        templates={TEMPLATES}
       />
     </div>
   );

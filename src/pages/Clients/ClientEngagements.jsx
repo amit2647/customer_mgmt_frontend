@@ -6,6 +6,7 @@ import EngagementForm, { engagementPayload, engagementValue } from "../../compon
 import { enumLabel, formatDay, formatMoney } from "../../components/bundle/bundleLabels";
 import DataGrid from "../../components/ui/DataGrid";
 import Pill, { toneFor } from "../../components/ui/Pill";
+import NumberInput from "../../components/ui/NumberInput";
 
 /*
  * A client's engagements (CD-06, CD-09) and fees (CD-08), one card per
@@ -322,7 +323,7 @@ function ClientEngagements({ view, client, bundle, services, can, readOnly }) {
                   paying?.engagementId === engagement.id ? (
                     <form className="client-account-form" onSubmit={savePayment} aria-label="Record payment">
                       <div className="workflow-form-grid">
-                        <label>Amount<input type="number" min="0.01" step="0.01" value={paying.value.amount} onChange={(e) => setPaying({ ...paying, value: { ...paying.value, amount: e.target.value } })} required autoFocus /></label>
+                        <label>Amount<NumberInput prefix="₹" value={paying.value.amount} onChange={(amount) => setPaying({ ...paying, value: { ...paying.value, amount } })} required autoFocus /></label>
                         <label>Received on<input type="date" value={paying.value.receivedOn} onChange={(e) => setPaying({ ...paying, value: { ...paying.value, receivedOn: e.target.value } })} required /></label>
                         <label>Method
                           <select value={paying.value.method} onChange={(e) => setPaying({ ...paying, value: { ...paying.value, method: e.target.value } })}>

@@ -9,6 +9,7 @@ import WizardSteps, { goToStep } from "../../components/ui/WizardSteps";
 import Breadcrumb from "../../components/ui/Breadcrumb";
 import ServicePicker from "../../components/ui/ServicePicker";
 import PageState from "../../components/ui/PageState";
+import NumberInput from "../../components/ui/NumberInput";
 
 /*
  * Add or edit one prospect (PROS-01–03) as a wizard, in the same chrome and
@@ -302,7 +303,7 @@ function ProspectFormPage() {
                 </label>
                 <label>
                   Quoted fee
-                  <input type="number" min="0" value={form.quotedFee} onChange={(e) => update("quotedFee", e.target.value)} />
+                  <NumberInput prefix="₹" value={form.quotedFee} onChange={(next) => update("quotedFee", next)} />
                   {fieldError("quotedFee")}
                 </label>
                 <label>

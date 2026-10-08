@@ -1,0 +1,95 @@
+/* =========================================================
+   OMNICORE — NUMBER INPUT (components/ui/NumberInput.jsx)
+   One field: an optional prefix (₹) and the number, typed —
+   no stepper. The browser's own spinners stay hidden for any
+   type="number" input that remains.
+   `html` lifts these over page rules that style every input in
+   a form (`.workflow-form-grid input`, `.schema-form input`).
+   ========================================================= */
+
+html input[type="number"] {
+    appearance: textfield;
+    -moz-appearance: textfield;
+}
+
+html input[type="number"]::-webkit-inner-spin-button,
+html input[type="number"]::-webkit-outer-spin-button {
+    margin: 0;
+    -webkit-appearance: none;
+}
+
+html .number-input {
+    --number-height: 46px;
+    display: flex;
+    align-items: stretch;
+    width: 100%;
+    height: var(--number-height);
+    overflow: hidden;
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    transition:
+        border-color var(--transition-fast),
+        box-shadow var(--transition-fast);
+}
+
+html .number-input.size-sm {
+    --number-height: 36px;
+    border-radius: var(--radius-sm);
+}
+
+/* Under its label like the other inputs: inside a <label>, or after one in a
+   schema form (rjsf puts the field beside its label, not in it). */
+html label > .number-input,
+html .schema-form .number-input {
+    margin-top: 8px;
+}
+
+html .number-input:focus-within {
+    border-color: var(--color-border-accent);
+    box-shadow: 0 0 0 3px var(--focus-ring-color-alpha);
+}
+
+html .number-input.is-disabled {
+    background: var(--color-surface-subtle);
+    opacity: 0.7;
+}
+
+html .number-input-prefix::before {
+    content: attr(data-prefix);
+}
+
+html .number-input-prefix {
+    display: flex;
+    align-items: center;
+    padding-left: 12px;
+    color: var(--color-text-muted);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+/* The inner input is reset with !important: page rules such as
+   `.email-account-workflow .workflow-form-grid input:not([type="checkbox"]):hover`
+   outrank any plain selector, and would draw a second box inside the field. */
+html .number-input input {
+    flex: 1;
+    width: 100% !important;
+    min-width: 0;
+    height: 100% !important;
+    margin: 0 !important;
+    padding: 0 10px 0 12px !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    outline: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    color: var(--color-text);
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+}
+
+html .number-input-prefix + input {
+    padding-left: 6px !important;
+}
