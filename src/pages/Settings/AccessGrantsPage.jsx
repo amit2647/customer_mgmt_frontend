@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 
 import { useAuth } from "../../context/AuthContext";
+import { useBundle } from "../../context/BundleContext";
 import {
   createAccessGrant,
   getAccessGrants,
@@ -36,6 +37,55 @@ const SCREENS = [
   { permission: "email.templates.read", group: "email", label: "Email settings", description: "Templates and automations" },
   { permission: "users.read", group: "users", label: "Users & Roles", description: "People and their roles" },
 ];
+
+/*
+ * The screens a profession bundle adds, each shown only when the installed
+ * bundle has the capability behind it — the same gates as the sidebar and the
+ * client's tabs. The client tabs open from a client, so they need the clients
+ * screen as well.
+ */
+const BUNDLE_SCREENS = [
+  { permission: "obligations.read", group: "obligations", needs: "obligations", label: (term) => term("obligation", true), description: (term) => `The ${term("obligation", true).toLowerCase()} list, and a ${term("client").toLowerCase()}'s Compliance tab` },
+  { permission: "documents.read", group: "documents", needs: "documents", label: (term) => term("document", true), description: (term) => `Letters, and a ${term("client").toLowerCase()}'s Documents tab` },
+  { permission: "engagements.read", group: "engagements", needs: "engagements", label: (term) => term("engagement", true), description: (term) => `A ${term("client").toLowerCase()}'s Engagement tab` },
+  { permission: "fees.read", group: "fees", needs: "engagements", label: () => "Fees", description: (term) => `A ${term("client").toLowerCase()}'s Fees tab and fee amounts` },
+  { permission: "profiles.read", group: "profiles", label: () => "Bank accounts", description: (term) => `A ${term("client").toLowerCase()}'s Bank accounts tab` },
+  { permission: "vault.read", group: "vault", needs: "vault", label: () => "Credentials", description: (term) => `A ${term("client").toLowerCase()}'s portal logins (revealing a password is separate)` },
+  { permission: "files.read", group: "files", needs: "vault", label: () => "Files", description: (term) => `A ${term("client").toLowerCase()}'s Files tab` },
+];
+
+// Without a bundle this is exactly SCREENS; with one, Leads and Customers take
+// the bundle's names and its screens follow them.
+function screensFor(bundle, term) {
+  if (!bundle) {
+    return SCREENS;
+  }
+
+  const capabilities = bundle.capabilities || [];
+
+  const renamed = SCREENS.map((screen) => {
+    if (screen.permission === "leads.read") {
+      return { ...screen, label: "Prospects", description: "Prospect board and list" };
+    }
+
+    if (screen.permission === "customers.read") {
+      return { ...screen, label: term("client", true), description: `${term("client")} list and detail` };
+    }
+
+    return screen;
+  });
+
+  const added = BUNDLE_SCREENS.filter((screen) => !screen.needs || capabilities.includes(screen.needs)).map((screen) => ({
+    permission: screen.permission,
+    group: screen.group,
+    label: screen.label(term),
+    description: screen.description(term),
+  }));
+
+  const at = renamed.findIndex((screen) => screen.permission === "customers.read") + 1;
+
+  return [...renamed.slice(0, at), ...added, ...renamed.slice(at)];
+}
 
 const DURATIONS = [
   { minutes: 15, label: "15 minutes" },
@@ -93,6 +143,8 @@ function remaining(expiresAt) {
 
 function AccessGrantsPage() {
   const { user } = useAuth();
+  const { bundle, term } = useBundle();
+  const screenOptions = screensFor(bundle, term);
 
   const permissions = Array.isArray(user?.permissions) ? user.permissions : [];
   const canManage = permissions.includes("system.settings");
@@ -147,7 +199,7 @@ function AccessGrantsPage() {
    * without the person seeing them.
    */
   function chooseScreens(next) {
-    const dropped = SCREENS.filter((screen) => screens.has(screen.permission) && !next.has(screen.permission)).map((screen) => screen.group);
+    const dropped = screenOptions.filter((screen) => screens.has(screen.permission) && !next.has(screen.permission)).map((screen) => screen.group);
 
     if (dropped.length > 0) {
       setExtraPermissions((codes) => new Set([...codes].filter((code) => !dropped.includes(code.split(".")[0]))));
@@ -161,7 +213,7 @@ function AccessGrantsPage() {
   const selectedCodes = [...new Set([...screens, ...extraPermissions])];
 
   const selectedGroups = new Set(
-    SCREENS.filter((screen) => screens.has(screen.permission)).map((s) => s.group),
+    screenOptions.filter((screen) => screens.has(screen.permission)).map((s) => s.group),
   );
 
   const visibleCount = allPermissions.filter((permission) =>
@@ -432,7 +484,7 @@ function AccessGrantsPage() {
             <DataGrid
               embedded
               label="Screens"
-              rows={SCREENS}
+              rows={screenOptions}
               rowKey={(screen) => screen.permission}
               selection={{ selected: screens, onChange: chooseScreens, isDisabled: () => saving }}
               columns={[
