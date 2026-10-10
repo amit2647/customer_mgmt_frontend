@@ -90,9 +90,35 @@ export function revokeAccessGrant(id) {
  * the body is the credential, so this is the one call here that works with no
  * bearer token present.
  */
-export function redeemAccessInvite(token) {
+/*
+ * A guest's invite link enters the sign-in flow (auth-hardening P1): the
+ * invite is kept for this tab while the browser goes through Hydra, and the
+ * login page redeems it with Hydra's login_challenge.
+ */
+const PENDING_INVITE = "omnicore-pending-invite";
+
+export function rememberPendingInvite(token) {
+  try {
+    sessionStorage.setItem(PENDING_INVITE, token);
+  } catch {
+    // Without storage the guest lands on the plain sign-in page instead.
+  }
+}
+
+export function takePendingInvite() {
+  try {
+    const token = sessionStorage.getItem(PENDING_INVITE);
+    sessionStorage.removeItem(PENDING_INVITE);
+    return token;
+  } catch {
+    return null;
+  }
+}
+
+// { redirect_to } to follow, with the guest signed in.
+export function redeemAccessInvite(token, loginChallenge) {
   return request("/access-grants/redeem", {
     method: "POST",
-    body: JSON.stringify({ token }),
+    body: JSON.stringify({ token, login_challenge: loginChallenge }),
   });
 }

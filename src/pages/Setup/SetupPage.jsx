@@ -1,9 +1,8 @@
 import { useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
 
-import { completeSetup } from "../../api/setup";
+import { startSignIn } from "../../api/auth";
+import { completeSetup, rememberSetupBundleError } from "../../api/setup";
 import WizardSteps, { goToStep } from "../../components/ui/WizardSteps";
-import { useAuth } from "../../context/AuthContext";
 
 /*
  * First-run setup of a new installation: name the organization, choose the
@@ -33,9 +32,7 @@ function timeZones(current) {
   return [...new Set([current, ...listed].filter(Boolean))].sort();
 }
 
-function SetupPage({ status, onComplete }) {
-  const navigate = useNavigate();
-  const { login } = useAuth();
+function SetupPage({ status }) {
   const suggested = status?.organization || {};
   const bundle = status?.bundle || null;
   const steps = useMemo(() => stepsFor(bundle), [bundle]);
@@ -109,20 +106,22 @@ function SetupPage({ status, onComplete }) {
         admin: { name: form.adminName.trim(), email: form.email.trim(), password: form.password },
       });
 
-      // Set up: sign straight in. The product tour is for people joining later.
+      // Set up. The product tour is for people joining later.
       try {
         localStorage.setItem("omnicore-onboarding-completed", "true");
       } catch {
         // Private mode: the tour simply shows once.
       }
-      await login(form.email.trim(), form.password);
-      onComplete?.();
-
-      // Setup is done either way; an install that stopped is resumed from Settings.
+      // Sign in through Hydra like any later visit (auth-hardening P1). The page
+      // is left as it is: telling the app setup is complete (onComplete) would
+      // re-render it into the sign-in redirect, which then raced this one. Setup is
+      // done either way; an install that stopped is resumed from Settings, and
+      // its error is kept for that page across the sign-in redirects.
       if (result?.bundle?.status === "failed") {
-        navigate("/settings/bundle", { replace: true, state: { setupBundleError: result.bundle.error } });
+        rememberSetupBundleError(result.bundle.error);
+        startSignIn("/settings/bundle");
       } else {
-        navigate("/", { replace: true });
+        startSignIn("/");
       }
     } catch (error) {
       const details = error.details || {};

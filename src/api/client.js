@@ -10,29 +10,109 @@
  */
 const API = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080/api";
 
-const TOKEN_KEY = "omnicore_access_token";
+/*
+ * The session (auth-hardening P1): a 5-minute access token from Ory Hydra,
+ * held in this module's memory only — never in localStorage, where any script
+ * on the page could read it. The refresh token never reaches JavaScript at
+ * all: identity-service keeps it in an httpOnly cookie scoped to /api/auth,
+ * and POST /auth/refresh trades it for a new access token (rotating it).
+ *
+ * Refreshing is shared: concurrent callers (StrictMode's double start, several
+ * 401s at once) wait on one request. Two rotations of the same refresh token
+ * would look like theft to Hydra, which then revokes the whole session.
+ */
+
+// Tokens from before P1 were kept here; nothing reads them any more.
+try {
+  localStorage.removeItem("omnicore_access_token");
+} catch {
+  // Storage unavailable: there is nothing to clean up.
+}
+
+const REFRESH_EARLY_MS = 30 * 1000;
+
+let accessToken = null;
+let refreshTimer = null;
+let refreshing = null;
 
 export function getToken() {
-  return localStorage.getItem(TOKEN_KEY);
+  return accessToken;
 }
 
 export function setToken(token) {
-  if (token) {
-    localStorage.setItem(TOKEN_KEY, token);
-  } else {
-    localStorage.removeItem(TOKEN_KEY);
-  }
+  accessToken = token || null;
 }
 
 export function clearToken() {
-  localStorage.removeItem(TOKEN_KEY);
+  accessToken = null;
+  clearTimeout(refreshTimer);
+  refreshTimer = null;
 }
 
 export function isAuthenticated() {
-  return Boolean(getToken());
+  return Boolean(accessToken);
 }
 
-async function request(url, options = {}) {
+// Told when a session ends on its own (a refresh refused), so the app can
+// return to the sign-in page.
+export const SESSION_ENDED = "omnicore:session-ended";
+
+function sessionEnded() {
+  const hadSession = Boolean(accessToken);
+  clearToken();
+  if (hadSession) window.dispatchEvent(new Event(SESSION_ENDED));
+}
+
+/*
+ * A fresh access token from the refresh cookie, or null when there is no
+ * session. Schedules the next refresh shortly before this token expires.
+ */
+export function refreshSession() {
+  if (!refreshing) {
+    refreshing = (async () => {
+      try {
+        const response = await fetch(`${API}/auth/refresh`, { method: "POST", credentials: "include" });
+
+        if (!response.ok) {
+          sessionEnded();
+          return null;
+        }
+
+        const { accessToken: token, expiresIn } = await response.json();
+        setToken(token);
+
+        clearTimeout(refreshTimer);
+        const delay = Math.max(5 * 1000, (Number(expiresIn) || 300) * 1000 - REFRESH_EARLY_MS);
+        refreshTimer = setTimeout(() => {
+          refreshSession().catch(() => {});
+        }, delay);
+
+        return token;
+      } finally {
+        refreshing = null;
+      }
+    })();
+  }
+
+  return refreshing;
+}
+
+// Ends the session on the server too: the refresh token is revoked.
+export async function endSession() {
+  clearToken();
+
+  try {
+    await fetch(`${API}/auth/logout`, { method: "POST", credentials: "include" });
+  } catch {
+    // Signed out locally either way; the refresh token expires on its own.
+  }
+}
+
+export function apiUrl(path) {
+  return API + path;
+}
+
+async function request(url, options = {}, retried = false) {
   const token = getToken();
 
   const headers = {
@@ -58,7 +138,12 @@ async function request(url, options = {}) {
   }
 
   if (response.status === 401) {
-    clearToken();
+    // An expired access token: refresh once and try again.
+    if (!retried && token && (await refreshSession())) {
+      return request(url, options, true);
+    }
+
+    sessionEnded();
 
     const error = new Error(
       data?.error || "Your session has expired. Please sign in again.",
@@ -93,7 +178,7 @@ async function request(url, options = {}) {
  * upload, a file download. The browser sets the upload's content type
  * (with its boundary); the caller reads the Response itself.
  */
-export async function requestRaw(url, options = {}) {
+export async function requestRaw(url, options = {}, retried = false) {
   const token = getToken();
   const headers = { ...(options.headers || {}) };
 
@@ -102,6 +187,10 @@ export async function requestRaw(url, options = {}) {
   }
 
   const response = await fetch(API + url, { ...options, headers });
+
+  if (response.status === 401 && !retried && token && (await refreshSession())) {
+    return requestRaw(url, options, true);
+  }
 
   if (!response.ok) {
     let data = null;
@@ -112,7 +201,7 @@ export async function requestRaw(url, options = {}) {
       data = null;
     }
 
-    if (response.status === 401) clearToken();
+    if (response.status === 401) sessionEnded();
 
     const error = new Error(data?.error || (response.status === 413 ? "That file is too large." : `Request failed with status ${response.status}`));
     error.status = response.status;

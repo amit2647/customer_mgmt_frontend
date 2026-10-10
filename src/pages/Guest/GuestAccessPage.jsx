@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 
-import { getToken, setToken } from "../../api/client";
-import { redeemAccessInvite } from "../../api/identity";
+import { startSignIn } from "../../api/auth";
+import { rememberPendingInvite } from "../../api/identity";
+import { useAuth } from "../../context/AuthContext";
 
 /*
  * Where an external guest lands from their invite link.
@@ -18,24 +19,15 @@ function GuestAccessPage() {
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  const hasExistingSession = Boolean(getToken());
+  const { isAuthenticated: hasExistingSession } = useAuth();
 
-  async function handleRedeem() {
+  // Into the sign-in flow; the login page redeems the invite with Hydra's
+  // challenge and the guest comes back signed in.
+  function handleRedeem() {
     setError("");
     setSubmitting(true);
-
-    try {
-      const session = await redeemAccessInvite(token);
-
-      setToken(session.token);
-
-      // Full reload rather than a route change: AuthProvider reads the token
-      // once at startup, so the new session has to start a new app instance.
-      window.location.replace("/");
-    } catch (err) {
-      setError(err.message || "This link could not be opened.");
-      setSubmitting(false);
-    }
+    rememberPendingInvite(token);
+    startSignIn("/");
   }
 
   return (

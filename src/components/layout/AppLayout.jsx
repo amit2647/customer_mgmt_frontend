@@ -35,8 +35,9 @@ function AppLayoutInner() {
     setSidebarCollapsed((current) => !current);
   }
 
-  function handleLogout() {
-    logout();
+  async function handleLogout() {
+    // Revokes the session's refresh token before leaving.
+    await logout();
 
     navigate("/login", {
       replace: true,

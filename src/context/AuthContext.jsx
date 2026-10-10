@@ -10,10 +10,11 @@ import { jwtDecode } from "jwt-decode";
 
 import {
   getCurrentUser,
-  hasSession,
-  login as loginRequest,
   logout as logoutRequest,
+  restoreSession,
+  submitLogin,
 } from "../api/auth";
+import { SESSION_ENDED } from "../api/client";
 import { getProfile } from "../api/profile";
 
 const AuthContext = createContext(null);
@@ -45,13 +46,7 @@ async function withProfile(user) {
   }
 }
 
-function getUserFromToken() {
-  const token = localStorage.getItem("omnicore_access_token");
-
-  if (!token) {
-    return null;
-  }
-
+function decode(token) {
   try {
     return jwtDecode(token);
   } catch (error) {
@@ -60,35 +55,30 @@ function getUserFromToken() {
   }
 }
 
+/*
+ * The session starts from the refresh cookie (auth-hardening P1): no token is
+ * kept anywhere the page's scripts could read it between visits. Under
+ * StrictMode this runs twice; restoreSession() shares one refresh between
+ * them, so the refresh token is rotated once.
+ */
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
   const loadSession = useCallback(async () => {
-    if (!hasSession()) {
-      setUser(null);
-      setLoading(false);
-      return;
-    }
-
     try {
-      const tokenUser = getUserFromToken();
+      const token = await restoreSession();
+
+      if (!token) {
+        setUser(null);
+        return;
+      }
 
       const data = await getCurrentUser();
 
-      console.log("Authenticated user:", data);
-      console.log("Authenticated user from token:", tokenUser);
-
-      const resolvedUser = await withProfile({
-        ...tokenUser,
-        ...(data?.user || data),
-      });
-
-      setUser(resolvedUser);
+      setUser(await withProfile({ ...decode(token), ...(data?.user || data) }));
     } catch (error) {
       console.error("Failed to restore authentication session:", error);
-
-      logoutRequest();
       setUser(null);
     } finally {
       setLoading(false);
@@ -99,39 +89,25 @@ export function AuthProvider({ children }) {
     loadSession();
   }, [loadSession]);
 
-  async function login(email, password) {
-    const loginData = await loginRequest(email, password);
+  // A refresh refused mid-session (revoked, expired, deactivated): signed out.
+  useEffect(() => {
+    const ended = () => setUser(null);
+    window.addEventListener(SESSION_ENDED, ended);
+    return () => window.removeEventListener(SESSION_ENDED, ended);
+  }, []);
 
-    console.log("Login response:", loginData);
-
-    try {
-      const tokenUser = getUserFromToken();
-
-      const currentUser = await getCurrentUser();
-
-      console.log("Current authenticated user:", currentUser);
-      console.log("Authenticated user from token:", tokenUser);
-
-      const resolvedUser = await withProfile({
-        ...tokenUser,
-        ...(currentUser?.user || currentUser),
-      });
-
-      setUser(resolvedUser);
-
-      return {
-        ...loginData,
-        user: resolvedUser,
-      };
-    } catch (error) {
-      logoutRequest();
-      setUser(null);
-      throw error;
-    }
+  /*
+   * The password for Hydra's login_challenge. On success the browser leaves
+   * for Hydra's next step (consent, then /auth/callback, then the app), so
+   * nothing is returned here.
+   */
+  async function login(email, password, loginChallenge) {
+    const { redirect_to: next } = await submitLogin(email, password, loginChallenge);
+    window.location.assign(next);
   }
 
-  function logout() {
-    logoutRequest();
+  async function logout() {
+    await logoutRequest();
     setUser(null);
   }
 

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 
 import { getBundles, installBundle, upgradeBundle } from "../../api/bundles";
+import { takeSetupBundleError } from "../../api/setup";
 import BundleCustomized from "./BundleCustomized";
 import { useBundle } from "../../context/BundleContext";
 import DataGrid from "../../components/ui/DataGrid";
@@ -56,7 +57,8 @@ function formatDate(value) {
  */
 function BundlePage() {
   // First-run setup lands here when installing its bundle stopped part-way.
-  const setupBundleError = useLocation().state?.setupBundleError;
+  const routedError = useLocation().state?.setupBundleError;
+  const [setupBundleError] = useState(() => routedError || takeSetupBundleError());
   const { refresh } = useBundle();
 
   const [offered, setOffered] = useState([]);

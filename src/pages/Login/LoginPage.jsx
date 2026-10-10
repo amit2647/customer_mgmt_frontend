@@ -1,37 +1,82 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Navigate, useLocation } from "react-router-dom";
 
+import { startSignIn } from "../../api/auth";
+import { redeemAccessInvite, takePendingInvite } from "../../api/identity";
 import { useAuth } from "../../context/AuthContext";
 
 /*
  * Split layout: an abstract gradient panel on the left, the form on the right.
  * The artwork is pure CSS and built entirely from theme tokens, so it re-tints
  * with the selected theme instead of shipping four static images.
+ *
+ * Sign-in goes through Ory Hydra (auth-hardening P1). Hydra sends the browser
+ * here with a login_challenge; the form posts the password with it and the
+ * browser follows Hydra's next step. Opened without one (a bookmark, a signed-
+ * out redirect), the page starts the flow itself. A guest's invite link enters
+ * the same flow: their pending invite is redeemed with the challenge instead
+ * of a password.
  */
 function LoginPage() {
-  const navigate = useNavigate();
-  const { login } = useAuth();
+  const location = useLocation();
+  const { login, isAuthenticated, loading } = useAuth();
+
+  const params = new URLSearchParams(location.search);
+  const loginChallenge = params.get("login_challenge");
+  const authError = params.get("auth_error");
+  const returnTo = location.state?.from?.pathname ? `${location.state.from.pathname}${location.state.from.search || ""}` : "/";
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [error, setError] = useState(authError || "");
+  const [expired, setExpired] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+
+  const mustStart = !loading && !isAuthenticated && !loginChallenge && !authError;
+
+  useEffect(() => {
+    if (mustStart) startSignIn(returnTo);
+  }, [mustStart, returnTo]);
+
+  // A guest who opened an invite link: redeem it for this challenge.
+  useEffect(() => {
+    if (!loginChallenge) return;
+    const invite = takePendingInvite();
+    if (!invite) return;
+
+    setSubmitting(true);
+    redeemAccessInvite(invite, loginChallenge)
+      .then(({ redirect_to: next }) => window.location.assign(next))
+      .catch((err) => {
+        setError(err.message || "This link could not be opened.");
+        setSubmitting(false);
+      });
+  }, [loginChallenge]);
 
   async function handleSubmit(event) {
     event.preventDefault();
+
+    if (!loginChallenge) {
+      startSignIn(returnTo);
+      return;
+    }
 
     setError("");
     setSubmitting(true);
 
     try {
-      await login(email.trim(), password);
-
-      navigate("/", { replace: true });
+      // Leaves the page on success.
+      await login(email.trim(), password, loginChallenge);
     } catch (err) {
+      // An expired or used challenge cannot be retried: start over.
+      setExpired(err.status === 400 && /expired/i.test(err.message || ""));
       setError(err.message || "Unable to sign in.");
-    } finally {
       setSubmitting(false);
     }
+  }
+
+  if (!loading && isAuthenticated && !loginChallenge) {
+    return <Navigate to={returnTo} replace />;
   }
 
   return (
@@ -113,9 +158,15 @@ function LoginPage() {
               </div>
             )}
 
-            <button type="submit" className="login-submit" disabled={submitting}>
-              {submitting ? "Signing in..." : "Sign in"}
-            </button>
+            {expired || (authError && !loginChallenge) ? (
+              <button type="button" className="login-submit" onClick={() => startSignIn(returnTo)}>
+                Start again
+              </button>
+            ) : (
+              <button type="submit" className="login-submit" disabled={submitting || !loginChallenge}>
+                {submitting ? "Signing in..." : "Sign in"}
+              </button>
+            )}
           </form>
 
           <div className="login-footer">
