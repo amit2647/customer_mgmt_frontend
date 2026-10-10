@@ -64,4 +64,27 @@ describe("AccessGrantsPage screens", () => {
     expect(screen.queryByText("vault.read")).not.toBeInTheDocument();
     expect(screen.queryByText("documents.read")).not.toBeInTheDocument();
   });
+
+  test("tick Clients with a client tab and keep it while one is ticked", async () => {
+    bundle = { key: "ca-practice", capabilities: ["engagements", "obligations", "documents", "vault"] };
+    await openForm();
+
+    const clients = screen.getByRole("checkbox", { name: "Select customers.read" });
+
+    fireEvent.click(screen.getByRole("checkbox", { name: "Select vault.read" }));
+    expect(clients).toBeChecked();
+    expect(clients).toBeDisabled();
+
+    fireEvent.click(screen.getByRole("checkbox", { name: "Select vault.read" }));
+    expect(clients).toBeChecked();
+    expect(clients).toBeEnabled();
+  });
+
+  test("leave Clients alone for a screen of its own", async () => {
+    bundle = { key: "ca-practice", capabilities: ["engagements", "obligations", "documents", "vault"] };
+    await openForm();
+
+    fireEvent.click(screen.getByRole("checkbox", { name: "Select obligations.read" }));
+    expect(screen.getByRole("checkbox", { name: "Select customers.read" })).not.toBeChecked();
+  });
 });

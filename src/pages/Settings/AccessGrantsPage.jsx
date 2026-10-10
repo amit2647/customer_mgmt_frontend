@@ -42,17 +42,19 @@ const SCREENS = [
 /*
  * The screens a profession bundle adds, each shown only when the installed
  * bundle has the capability behind it — the same gates as the sidebar and the
- * client's tabs. The client tabs open from a client, so they need the clients
- * screen as well.
+ * client's tabs. The ones marked `tab` exist only on a client's page, so
+ * picking one also picks the clients screen (CLIENTS_SCREEN).
  */
+const CLIENTS_SCREEN = "customers.read";
+
 const BUNDLE_SCREENS = [
   { permission: "obligations.read", group: "obligations", needs: "obligations", label: (term) => term("obligation", true), description: (term) => `The ${term("obligation", true).toLowerCase()} list, and a ${term("client").toLowerCase()}'s Compliance tab` },
   { permission: "documents.read", group: "documents", needs: "documents", label: (term) => term("document", true), description: (term) => `Letters, and a ${term("client").toLowerCase()}'s Documents tab` },
-  { permission: "engagements.read", group: "engagements", needs: "engagements", label: (term) => term("engagement", true), description: (term) => `A ${term("client").toLowerCase()}'s Engagement tab` },
-  { permission: "fees.read", group: "fees", needs: "engagements", label: () => "Fees", description: (term) => `A ${term("client").toLowerCase()}'s Fees tab and fee amounts` },
-  { permission: "profiles.read", group: "profiles", label: () => "Bank accounts", description: (term) => `A ${term("client").toLowerCase()}'s Bank accounts tab` },
-  { permission: "vault.read", group: "vault", needs: "vault", label: () => "Credentials", description: (term) => `A ${term("client").toLowerCase()}'s portal logins (revealing a password is separate)` },
-  { permission: "files.read", group: "files", needs: "vault", label: () => "Files", description: (term) => `A ${term("client").toLowerCase()}'s Files tab` },
+  { permission: "engagements.read", tab: true, group: "engagements", needs: "engagements", label: (term) => term("engagement", true), description: (term) => `A ${term("client").toLowerCase()}'s Engagement tab` },
+  { permission: "fees.read", tab: true, group: "fees", needs: "engagements", label: () => "Fees", description: (term) => `A ${term("client").toLowerCase()}'s Fees tab and fee amounts` },
+  { permission: "profiles.read", tab: true, group: "profiles", label: () => "Bank accounts", description: (term) => `A ${term("client").toLowerCase()}'s Bank accounts tab` },
+  { permission: "vault.read", tab: true, group: "vault", needs: "vault", label: () => "Credentials", description: (term) => `A ${term("client").toLowerCase()}'s portal logins (revealing a password is separate)` },
+  { permission: "files.read", tab: true, group: "files", needs: "vault", label: () => "Files", description: (term) => `A ${term("client").toLowerCase()}'s Files tab` },
 ];
 
 // Without a bundle this is exactly SCREENS; with one, Leads and Customers take
@@ -79,6 +81,7 @@ function screensFor(bundle, term) {
   const added = BUNDLE_SCREENS.filter((screen) => !screen.needs || capabilities.includes(screen.needs)).map((screen) => ({
     permission: screen.permission,
     group: screen.group,
+    tab: Boolean(screen.tab),
     label: screen.label(term),
     description: screen.description(term),
   }));
@@ -199,7 +202,15 @@ function AccessGrantsPage() {
    * Otherwise they would stay selected while no longer visible, and get granted
    * without the person seeing them.
    */
-  function chooseScreens(next) {
+  function chooseScreens(chosen) {
+    const next = new Set(chosen);
+
+    // A client tab is reached from a client, so it is no use without the
+    // clients screen; ticking one ticks that too.
+    if (screenOptions.some((screen) => screen.tab && next.has(screen.permission))) {
+      next.add(CLIENTS_SCREEN);
+    }
+
     const dropped = screenOptions.filter((screen) => screens.has(screen.permission) && !next.has(screen.permission)).map((screen) => screen.group);
 
     if (dropped.length > 0) {
@@ -208,6 +219,9 @@ function AccessGrantsPage() {
 
     setScreens(next);
   }
+
+  // The clients screen stays ticked while a client tab needs it.
+  const clientsLocked = screenOptions.some((screen) => screen.tab && screens.has(screen.permission));
 
   // A screen is just a permission, so the two selections merge into one deduped
   // list; picking Leads and leads.read separately grants it once.
@@ -387,7 +401,7 @@ function AccessGrantsPage() {
 
       {showForm && (
         <Modal
-          size="lg"
+          size="xl"
           title="Grant access"
           description="One screen or permission for a limited time. It starts and stops working at once — no sign-out needed."
           onClose={() => {
@@ -487,7 +501,11 @@ function AccessGrantsPage() {
               label="Screens"
               rows={screenOptions}
               rowKey={(screen) => screen.permission}
-              selection={{ selected: screens, onChange: chooseScreens, isDisabled: () => saving }}
+              selection={{
+                selected: screens,
+                onChange: chooseScreens,
+                isDisabled: (screen) => saving || (clientsLocked && screen.permission === CLIENTS_SCREEN),
+              }}
               columns={[
                 {
                   key: "label",

@@ -11,7 +11,7 @@ import { X } from "@phosphor-icons/react";
  *   onSubmit                 makes the body a <form> named by the title, so
  *                            Enter submits and the footer buttons belong to it
  *   footer                   the actions (Cancel, Save), pinned to the bottom
- *   size                     "sm" (440px) | "md" (640px) | "lg" (920px)
+ *   size                     "sm" (440px) | "md" (640px) | "lg" (920px) | "xl" (1200px)
  *   busy                     while saving: no closing by Escape or outside click
  *
  * Focus moves into the dialog (an autoFocus field wins), Tab stays inside it,
