@@ -87,7 +87,9 @@ html .number-input input {
     font-family: var(--font-body);
     font-size: 13px;
     font-variant-numeric: tabular-nums;
-    text-align: right;
+    /* Typed left to right like every other field; figures in tables stay
+       right-aligned, but a field being typed into does not. */
+    text-align: left;
 }
 
 html .number-input-prefix + input {
