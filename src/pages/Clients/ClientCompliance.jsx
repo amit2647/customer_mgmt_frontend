@@ -64,14 +64,13 @@ function ClientCompliance({ client, can, readOnly, onEditEngagement }) {
   const rows = groups.flatMap((group) => group.items.map((item) => ({ ...item, serviceName: group.serviceName })));
 
   const chosenServices = filters.serviceName || new Set();
+  // The cards pick one service at a time; the grid's Service chip may still
+  // pick several, and then no card shows as chosen.
+  const chosenCard = chosenServices.size === 1 ? [...chosenServices][0] : null;
 
   function toggleService(name) {
-    const next = new Set(chosenServices);
-    if (next.has(name)) next.delete(name);
-    else next.add(name);
-
     const { serviceName, ...rest } = filters;
-    setFilters(next.size > 0 ? { ...rest, serviceName: next } : rest);
+    setFilters(chosenCard === name ? rest : { ...rest, serviceName: new Set([name]) });
   }
 
   function showAllServices() {
@@ -106,8 +105,8 @@ function ClientCompliance({ client, can, readOnly, onEditEngagement }) {
             <li key={group.serviceKey || "other"}>
               <button
                 type="button"
-                className={`compliance-progress-card${group.overdue > 0 ? " has-overdue" : ""}${chosenServices.has(group.serviceName) ? " selected" : ""}`}
-                aria-pressed={chosenServices.has(group.serviceName)}
+                className={`compliance-progress-card${group.overdue > 0 ? " has-overdue" : ""}${chosenCard === group.serviceName ? " selected" : ""}`}
+                aria-pressed={chosenCard === group.serviceName}
                 onClick={() => toggleService(group.serviceName)}
               >
                 <span className="compliance-progress-name">{group.serviceName}</span>

@@ -68,4 +68,43 @@ describe("ClientCompliance", () => {
     expect(titles()).toHaveLength(3);
     expect(screen.queryByRole("group", { name: "Service filter" })).not.toBeInTheDocument();
   });
+
+  test("one service card at a time: choosing another replaces it, choosing it again clears it", async () => {
+    render(<ClientCompliance client={{ id: 5 }} can={() => true} readOnly={false} />);
+    await screen.findByText("Income tax return · FY 2026-27");
+
+    const gst = screen.getByRole("button", { name: /GST Returns/ });
+    const income = screen.getByRole("button", { name: /Income Tax Return/ });
+
+    fireEvent.click(gst);
+    fireEvent.click(income);
+
+    expect(gst).toHaveAttribute("aria-pressed", "false");
+    expect(income).toHaveAttribute("aria-pressed", "true");
+    expect(titles()).toEqual(["Income tax return · FY 2026-27"]);
+    const chip = screen.getByRole("group", { name: "Service filter" });
+    expect(chip).toHaveTextContent("Income Tax Return");
+    expect(chip).not.toHaveTextContent("GST Returns");
+
+    fireEvent.click(income);
+    expect(income).toHaveAttribute("aria-pressed", "false");
+    expect(titles()).toHaveLength(3);
+    expect(screen.queryByRole("group", { name: "Service filter" })).not.toBeInTheDocument();
+  });
+
+  test("two services picked in the Service chip leave no card chosen", async () => {
+    render(<ClientCompliance client={{ id: 5 }} can={() => true} readOnly={false} />);
+    await screen.findByText("Income tax return · FY 2026-27");
+
+    fireEvent.click(screen.getByRole("button", { name: "Filters" }));
+    fireEvent.click(screen.getByRole("checkbox", { name: "Service" }));
+    const chip = screen.getByRole("group", { name: "Service filter" });
+    fireEvent.click(within(chip).getByRole("button", { name: /^Service/ }));
+    fireEvent.click(within(chip).getByRole("checkbox", { name: "Income Tax Return" }));
+    fireEvent.click(within(chip).getByRole("checkbox", { name: "GST Returns" }));
+
+    expect(titles()).toHaveLength(3);
+    expect(screen.getByRole("button", { name: /GST Returns/, pressed: false })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Income Tax Return/, pressed: false })).toBeInTheDocument();
+  });
 });
