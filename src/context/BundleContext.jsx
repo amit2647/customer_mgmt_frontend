@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 
 import { getInstalledBundle } from "../api/bundles";
 import { useAuth } from "./AuthContext";
@@ -20,26 +20,37 @@ export function BundleProvider({ children }) {
   // Whether the first answer for this sign-in has arrived. Until then "no
   // bundle" is unknown, not false, so a screen that redirects on it waits.
   const [settledFor, setSettledFor] = useState(undefined);
+  // Lookups can overlap (StrictMode signs in twice, so `user` changes while the
+  // first is in flight) and answer out of order. Only the newest may settle
+  // the session; an older answer settling last left `ready` false for good.
+  const latest = useRef(0);
 
   const refresh = useCallback(async () => {
+    const call = ++latest.current;
+
     if (!user) {
       setBundle(null);
       setSettledFor(null);
       return;
     }
 
+    let next = null;
+
     try {
       setLoading(true);
       const data = await getInstalledBundle();
-      setBundle(data?.bundle || null);
+      next = data?.bundle || null;
     } catch {
       // Without it the product works as it does for an organization with no
       // bundle; the bundle screens simply do not appear.
-      setBundle(null);
-    } finally {
-      setLoading(false);
-      setSettledFor(user);
+      next = null;
     }
+
+    if (call !== latest.current) return;
+
+    setBundle(next);
+    setLoading(false);
+    setSettledFor(user);
   }, [user]);
 
   useEffect(() => {
