@@ -9,6 +9,7 @@ import {
   updateRolePermissions,
 } from "../../api/identity";
 import Breadcrumb from "../../components/ui/Breadcrumb";
+import { FormPageSkeleton } from "../../components/ui/PageSkeleton";
 import DataGrid from "../../components/ui/DataGrid";
 import Pill, { toneFor } from "../../components/ui/Pill";
 
@@ -87,11 +88,7 @@ function RoleFormPage() {
   }
 
   if (loading) {
-    return (
-      <main className="page settings-sub-page">
-        <div className="settings-empty">Loading role...</div>
-      </main>
-    );
+    return <FormPageSkeleton className="page settings-sub-page settings-form-page" />;
   }
 
 

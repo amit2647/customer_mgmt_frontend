@@ -10,6 +10,7 @@ import {
   revokeAccessGrant,
 } from "../../api/identity";
 import DataGrid from "../../components/ui/DataGrid";
+import { GridSkeleton } from "../../components/ui/Skeleton";
 import Pill, { toneFor } from "../../components/ui/Pill";
 import Modal from "../../components/ui/Modal";
 
@@ -591,11 +592,11 @@ function AccessGrantsPage() {
       <section className="card">
         <div className="settings-section-head">
           <strong>Active</strong>
-          <span>{active.length}</span>
+          {!loading && <span>{active.length}</span>}
         </div>
 
         {loading ? (
-          <div className="settings-empty">Loading grants...</div>
+          <GridSkeleton embedded label="Active grants" columns={5} rows={3} />
         ) : (
           <DataGrid
             embedded

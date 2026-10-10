@@ -5,9 +5,10 @@ import Pill, { toneFor } from "../ui/Pill";
 
 const isActive = (service) => (service.status || "Active").toLowerCase() === "active";
 
-function ServiceTable({ services, onEdit, onDelete }) {
+function ServiceTable({ services, onEdit, onDelete, loading = false }) {
   return (
     <DataGrid
+      loading={loading}
       id="services"
       label="Services"
       rows={services}

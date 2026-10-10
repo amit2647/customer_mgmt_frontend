@@ -18,7 +18,7 @@ function ServicesPage() {
 
   const [editingService, setEditingService] = useState(null);
 
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   async function loadServices() {
     try {
@@ -123,15 +123,12 @@ function ServicesPage() {
         </button>
       </header>
 
-      {loading ? (
-        <div className="empty">Loading services...</div>
-      ) : (
-        <ServiceTable
-          services={services}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-        />
-      )}
+      <ServiceTable
+        services={services}
+        loading={loading}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+      />
 
       {showForm && (
         <ServiceForm

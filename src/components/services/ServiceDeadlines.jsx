@@ -145,93 +145,92 @@ function ServiceDeadlines({ service, services, canEdit }) {
         </Modal>
       )}
 
-      {rules && (
-        <DataGrid
-          id="service-deadlines"
-          label={`${service.name} deadlines`}
-          rows={rules}
-          rowKey={(rule) => rule.key}
-          empty={canEdit ? "No deadlines yet. Add one to give engaged clients their due dates." : "No deadlines for this service."}
-          columns={[
-            {
-              key: "name",
-              header: "Deadline",
-              render: (rule) => (
-                <>
-                  <span className="grid-cell-title">{rule.name}</span>
-                  <span className="grid-cell-sub">
-                    {rule.bundle_key ? "From the profession bundle" : "Your firm's"}
-                    {rule.update_available_version && ` · bundle ${rule.update_available_version} has a different version`}
+      <DataGrid
+        id="service-deadlines"
+        label={`${service.name} deadlines`}
+        rows={rules || []}
+        loading={!rules}
+        rowKey={(rule) => rule.key}
+        empty={canEdit ? "No deadlines yet. Add one to give engaged clients their due dates." : "No deadlines for this service."}
+        columns={[
+          {
+            key: "name",
+            header: "Deadline",
+            render: (rule) => (
+              <>
+                <span className="grid-cell-title">{rule.name}</span>
+                <span className="grid-cell-sub">
+                  {rule.bundle_key ? "From the profession bundle" : "Your firm's"}
+                  {rule.update_available_version && ` · bundle ${rule.update_available_version} has a different version`}
+                </span>
+              </>
+            ),
+          },
+          { key: "when", header: "When it is due", sortable: false, render: (rule) => <span className="settings-cell-muted">{describeRule(rule, serviceName)}</span> },
+          {
+            key: "extensions",
+            header: "Extensions",
+            sortable: false,
+            render: (rule) => (
+              <>
+                {rule.overrides.map((override) => (
+                  <span key={override.period_key} className="extension">
+                    {override.period_key}: {formatDay(String(override.due_on).slice(0, 10))}
+                    {canEdit && (
+                      <button type="button" className="link delete-link" onClick={() => run(() => removeExtension(rule.key, override.period_key), "Extension removed.")} aria-label={`Remove the ${override.period_key} extension`}>×</button>
+                    )}
                   </span>
-                </>
-              ),
-            },
-            { key: "when", header: "When it is due", sortable: false, render: (rule) => <span className="settings-cell-muted">{describeRule(rule, serviceName)}</span> },
-            {
-              key: "extensions",
-              header: "Extensions",
-              sortable: false,
-              render: (rule) => (
-                <>
-                  {rule.overrides.map((override) => (
-                    <span key={override.period_key} className="extension">
-                      {override.period_key}: {formatDay(String(override.due_on).slice(0, 10))}
-                      {canEdit && (
-                        <button type="button" className="link delete-link" onClick={() => run(() => removeExtension(rule.key, override.period_key), "Extension removed.")} aria-label={`Remove the ${override.period_key} extension`}>×</button>
-                      )}
-                    </span>
-                  ))}
-                  {canEdit && (
-                    <button type="button" className="link" onClick={() => setExtending({ key: rule.key, name: rule.name, frequency: rule.frequency, periodKey: "", dueOn: "", reason: "" })} aria-label={`Extend ${rule.name}`}>
-                      + Extension
+                ))}
+                {canEdit && (
+                  <button type="button" className="link" onClick={() => setExtending({ key: rule.key, name: rule.name, frequency: rule.frequency, periodKey: "", dueOn: "", reason: "" })} aria-label={`Extend ${rule.name}`}>
+                    + Extension
+                  </button>
+                )}
+              </>
+            ),
+          },
+          {
+            key: "active",
+            header: "Active",
+            value: (rule) => (rule.is_active ? "On" : "Off"),
+            render: (rule) => (
+              <label className="client-checkbox">
+                <input type="checkbox" checked={rule.is_active} disabled={!canEdit} onChange={(e) => run(() => setRuleActive(rule.key, e.target.checked), e.target.checked ? "Deadline switched on." : "Deadline switched off — existing deadlines stay.")} aria-label={`${rule.name} active`} />
+              </label>
+            ),
+          },
+          {
+            key: "actions",
+            header: "",
+            sortable: false,
+            hideable: false,
+            render: (rule) => {
+              if (!canEdit) return null;
+              const form = formFromRule(rule);
+
+              return (
+                <div className="table-actions">
+                  {form ? (
+                    <button type="button" className="link" onClick={() => { setFormError(""); setEditing({ key: rule.key, name: rule.name, form }); }} aria-label={`Edit ${rule.name}`}>Edit</button>
+                  ) : (
+                    <Pill tone="neutral" title="This deadline's timing is set by the bundle in a form the editor cannot show">Set by bundle</Pill>
+                  )}
+                  {!rule.bundle_key && (
+                    <button
+                      type="button"
+                      className="link delete-link"
+                      onClick={() => window.confirm(`Delete ${rule.name}? Its open deadlines go too; filed ones stay.`) && run(() => removeRule(rule.key), "Deadline deleted.")}
+                      aria-label={`Delete ${rule.name}`}
+                    >
+                      Delete
                     </button>
                   )}
-                </>
-              ),
+                </div>
+              );
             },
-            {
-              key: "active",
-              header: "Active",
-              value: (rule) => (rule.is_active ? "On" : "Off"),
-              render: (rule) => (
-                <label className="client-checkbox">
-                  <input type="checkbox" checked={rule.is_active} disabled={!canEdit} onChange={(e) => run(() => setRuleActive(rule.key, e.target.checked), e.target.checked ? "Deadline switched on." : "Deadline switched off — existing deadlines stay.")} aria-label={`${rule.name} active`} />
-                </label>
-              ),
-            },
-            {
-              key: "actions",
-              header: "",
-              sortable: false,
-              hideable: false,
-              render: (rule) => {
-                if (!canEdit) return null;
-                const form = formFromRule(rule);
-
-                return (
-                  <div className="table-actions">
-                    {form ? (
-                      <button type="button" className="link" onClick={() => { setFormError(""); setEditing({ key: rule.key, name: rule.name, form }); }} aria-label={`Edit ${rule.name}`}>Edit</button>
-                    ) : (
-                      <Pill tone="neutral" title="This deadline's timing is set by the bundle in a form the editor cannot show">Set by bundle</Pill>
-                    )}
-                    {!rule.bundle_key && (
-                      <button
-                        type="button"
-                        className="link delete-link"
-                        onClick={() => window.confirm(`Delete ${rule.name}? Its open deadlines go too; filed ones stay.`) && run(() => removeRule(rule.key), "Deadline deleted.")}
-                        aria-label={`Delete ${rule.name}`}
-                      >
-                        Delete
-                      </button>
-                    )}
-                  </div>
-                );
-              },
-            },
-          ]}
-        />
-      )}
+          },
+        ]}
+      />
     </section>
   );
 }

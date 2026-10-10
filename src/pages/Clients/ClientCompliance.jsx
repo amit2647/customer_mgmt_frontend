@@ -139,7 +139,8 @@ function ClientCompliance({ client, can, readOnly, onEditEngagement }) {
             <button type="button" className="secondary-button" onClick={onEditEngagement}>Edit engagement</button>
           )
         }
-        empty={data ? `No deadlines for FY ${period}. Engage services for this year on the Engagement tab.` : "Loading…"}
+        loading={!data && !error}
+        empty={`No deadlines for FY ${period}. Engage services for this year on the Engagement tab.`}
         columns={[
           { key: "title", header: "Deadline", render: (item) => <span className="grid-cell-title">{item.title}</span> },
           {

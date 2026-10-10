@@ -5,6 +5,7 @@ import { formatDate } from "../../components/common/Field";
 import DataGrid from "../../components/ui/DataGrid";
 import Modal from "../../components/ui/Modal";
 import Pill from "../../components/ui/Pill";
+import { GridSkeleton } from "../../components/ui/Skeleton";
 
 /*
  * A client's portal credentials (CD-10). The fields that are not secret are
@@ -85,8 +86,8 @@ function ClientCredentials({ client, can, readOnly, onOpenFiles }) {
 
   if (!data) {
     return (
-      <section className="card" role="tabpanel" aria-label="Credentials">
-        <div className="settings-empty">{error || "Loading…"}</div>
+      <section role="tabpanel" aria-label="Credentials">
+        {error ? <div className="card"><div className="settings-empty">{error}</div></div> : <GridSkeleton columns={4} rows={4} />}
       </section>
     );
   }

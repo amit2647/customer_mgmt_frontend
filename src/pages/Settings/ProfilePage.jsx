@@ -4,6 +4,7 @@ import { Buildings, CalendarBlank, EnvelopeSimple, IdentificationBadge, Key, Pen
 import { changePassword, getProfile, updateProfile } from "../../api/profile";
 import { useAuth } from "../../context/AuthContext";
 import { SettingNotice, SettingRow, SettingRows } from "../../components/ui/SettingRow";
+import { SettingRowsSkeleton } from "../../components/ui/Skeleton";
 
 const MIN_PASSWORD_LENGTH = 8;
 
@@ -190,6 +191,8 @@ function ProfilePage() {
           {loadError}
         </div>
       )}
+
+      {loading && <SettingRowsSkeleton label="My profile" rows={4} />}
 
       {!loading && profile && (
         <SettingRows label="My profile">

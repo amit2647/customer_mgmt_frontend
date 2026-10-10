@@ -10,6 +10,7 @@ import {
 
 import CustomerWorkflow from "../../components/customers/CustomerWorkflow";
 import PageState from "../../components/ui/PageState";
+import { FormPageSkeleton } from "../../components/ui/PageSkeleton";
 
 function CustomerWorkflowPage() {
   const navigate = useNavigate();
@@ -98,9 +99,7 @@ function CustomerWorkflowPage() {
    */
 
   if (loading) {
-    return (
-      <PageState title="Loading customer">Preparing the customer workflow...</PageState>
-    );
+    return <FormPageSkeleton as="div" className="customer-workflow-page" />;
   }
 
   /*

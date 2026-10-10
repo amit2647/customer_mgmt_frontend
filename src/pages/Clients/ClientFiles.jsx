@@ -4,6 +4,7 @@ import { deleteFile, downloadFile, getFiles, uploadFile } from "../../api/vault"
 import { formatDate } from "../../components/common/Field";
 import DataGrid from "../../components/ui/DataGrid";
 import Pill from "../../components/ui/Pill";
+import { GridSkeleton } from "../../components/ui/Skeleton";
 
 /*
  * A client's files (CD-13): drop or choose a file, give it a category, and
@@ -98,8 +99,8 @@ function ClientFiles({ client, can, readOnly }) {
 
   if (!data) {
     return (
-      <section className="card" role="tabpanel" aria-label="Files">
-        <div className="settings-empty">{error || "Loading…"}</div>
+      <section role="tabpanel" aria-label="Files">
+        {error ? <div className="card"><div className="settings-empty">{error}</div></div> : <GridSkeleton columns={4} rows={4} />}
       </section>
     );
   }

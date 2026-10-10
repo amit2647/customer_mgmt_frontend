@@ -6,6 +6,7 @@ import { getCustomer } from "../../api/customers";
 import CommunicationPanel from "../../components/communications/CommunicationPanel";
 import Field, { formatDate } from "../../components/common/Field";
 import Breadcrumb from "../../components/ui/Breadcrumb";
+import { DetailPageSkeleton } from "../../components/ui/PageSkeleton";
 
 function CustomerDetailPage() {
   const { id } = useParams();
@@ -37,11 +38,7 @@ function CustomerDetailPage() {
   }, [load]);
 
   if (loading) {
-    return (
-      <main className="page record-detail-page">
-        <div className="communication-empty">Loading customer...</div>
-      </main>
-    );
+    return <DetailPageSkeleton tabs={0} />;
   }
 
   if (error || !customer) {

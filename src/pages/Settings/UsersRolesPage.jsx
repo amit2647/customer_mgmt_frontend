@@ -157,7 +157,7 @@ function UsersRolesPage() {
           >
             {item.label}
 
-            <span>{item.id === "users" ? users.length : roles.length}</span>
+            {!loading && <span>{item.id === "users" ? users.length : roles.length}</span>}
           </button>
         ))}
       </nav>
@@ -165,15 +165,12 @@ function UsersRolesPage() {
       {success && <div className="alert alert-success">{success}</div>}
       {error && <div className="alert alert-error" role="alert">{error}</div>}
 
-      {loading ? (
-        <section className="card">
-          <div className="settings-empty">Loading...</div>
-        </section>
-      ) : tab === "users" ? (
+      {tab === "users" ? (
         <DataGrid
           id="users"
           label="Users"
           rows={users}
+          loading={loading}
           search={{ placeholder: "Search users", label: "Search users", text: (item) => [item.name, item.email].join(" ") }}
           columns={[
             {
@@ -228,6 +225,7 @@ function UsersRolesPage() {
           id="roles"
           label="Roles"
           rows={roles}
+          loading={loading}
           search={{ placeholder: "Search roles", label: "Search roles", text: (role) => [role.name, role.code].join(" ") }}
           columns={[
             {

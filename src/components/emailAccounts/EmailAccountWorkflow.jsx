@@ -7,6 +7,7 @@ import {
 } from "../../api/emailAccounts";
 import WizardSteps, { goToStep } from "../ui/WizardSteps";
 import NumberInput from "../ui/NumberInput";
+import { CardSkeleton } from "../ui/Skeleton";
 
 const STEPS = [
   {
@@ -272,10 +273,7 @@ function EmailAccountWorkflow({ accountId = null, onComplete, onCancel }) {
 
   if (loading) {
     return (
-      <div className="workflow-loading">
-        <div className="loading-spinner" />
-        <span>Loading email account...</span>
-      </div>
+      <CardSkeleton label="Email account" fields={6} />
     );
   }
 

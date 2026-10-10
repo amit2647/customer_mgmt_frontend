@@ -43,15 +43,12 @@ function DocumentsPage() {
 
       {error && <div className="alert alert-error" role="alert">{error}</div>}
 
-      {!templates ? (
-        <section className="card" aria-label="Templates">
-          <div className="settings-empty">Loading…</div>
-        </section>
-      ) : (
+      {!templates && error ? null : (
         <DataGrid
           id="documents"
           label="Templates"
-          rows={templates}
+          rows={templates || []}
+          loading={!templates}
           rowKey={(template) => template.key}
           search={{ placeholder: "Search letters", label: "Search letters" }}
           columns={[

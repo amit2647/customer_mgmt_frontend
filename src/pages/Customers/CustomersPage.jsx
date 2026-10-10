@@ -10,7 +10,7 @@ function CustomersPage() {
   const navigate = useNavigate();
 
   const [customers, setCustomers] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   /*
    * =========================================================
@@ -113,16 +113,13 @@ function CustomersPage() {
           CONTENT
           ===================================================== */}
 
-      {loading ? (
-        <div className="empty">Loading customers...</div>
-      ) : (
-        <CustomerTable
-          customers={customers}
-          onView={handleView}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-        />
-      )}
+      <CustomerTable
+        customers={customers}
+        loading={loading}
+        onView={handleView}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+      />
     </div>
   );
 }

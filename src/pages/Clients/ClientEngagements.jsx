@@ -8,6 +8,7 @@ import DataGrid from "../../components/ui/DataGrid";
 import Modal from "../../components/ui/Modal";
 import Pill, { toneFor } from "../../components/ui/Pill";
 import NumberInput from "../../components/ui/NumberInput";
+import { CardSkeleton } from "../../components/ui/Skeleton";
 
 /*
  * A client's engagements (CD-06, CD-09) and fees (CD-08), one card per
@@ -137,7 +138,7 @@ function ClientEngagements({ view, client, bundle, services, can, readOnly }) {
     }, "Payment recorded.");
   }
 
-  if (loading) return <section className="card"><div className="settings-empty">Loading…</div></section>;
+  if (loading) return <CardSkeleton fields={6} />;
 
   // Adding or editing an engagement happens in a dialog over the tab.
   const form = editing && type && (

@@ -143,4 +143,33 @@ describe("DataGrid", () => {
     render(<Pill tone="success" dot>Open</Pill>);
     expect(screen.getByText("Open")).toHaveClass("grid-pill", "tone-success", "with-dot");
   });
+
+  test("while loading: the real toolbar and headers over shimmer rows, no empty message", () => {
+    const { container, rerender } = render(<DataGrid label="Stores" rows={[]} columns={COLUMNS} search loading empty="No stores yet." />);
+
+    const grid = screen.getByRole("region", { name: "Stores" });
+    expect(grid).toHaveAttribute("aria-busy", "true");
+    expect(within(grid).getByRole("status")).toHaveTextContent("Loading…");
+    expect(screen.getByRole("searchbox")).toBeInTheDocument();
+    expect(screen.getByRole("columnheader", { name: /City/ })).toBeInTheDocument();
+    expect(screen.queryByText("No stores yet.")).not.toBeInTheDocument();
+
+    const shimmer = container.querySelectorAll("tbody tr.grid-skeleton-row");
+    expect(shimmer).toHaveLength(6);
+    expect(shimmer[0].querySelectorAll("td")).toHaveLength(COLUMNS.length);
+
+    rerender(<DataGrid label="Stores" rows={STORES.slice(0, 2)} columns={COLUMNS} search empty="No stores yet." />);
+    expect(grid).not.toHaveAttribute("aria-busy");
+    expect(screen.queryByRole("status")).not.toBeInTheDocument();
+    expect(names()).toEqual(["Store 01", "Store 02"]);
+  });
+
+  test("while loading, a selectable grid keeps its checkbox column", () => {
+    const { container } = render(
+      <DataGrid label="Stores" rows={[]} columns={COLUMNS} loading selection={{ selected: new Set(), onChange: () => {} }} />,
+    );
+
+    expect(container.querySelector("tbody tr.grid-skeleton-row").querySelectorAll("td")).toHaveLength(COLUMNS.length + 1);
+    expect(screen.queryByText("Total")).not.toBeInTheDocument();
+  });
 });

@@ -4,6 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { createUser, getRoles, getUser, updateUser } from "../../api/identity";
 import Breadcrumb from "../../components/ui/Breadcrumb";
+import { FormPageSkeleton } from "../../components/ui/PageSkeleton";
 
 const EMPTY = {
   name: "",
@@ -111,11 +112,7 @@ function UserFormPage() {
   }
 
   if (loading) {
-    return (
-      <main className="page settings-sub-page">
-        <div className="settings-empty">Loading user...</div>
-      </main>
-    );
+    return <FormPageSkeleton className="page settings-sub-page settings-form-page" />;
   }
 
   return (

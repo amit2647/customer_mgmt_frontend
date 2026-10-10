@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { getServices } from "../../api/services";
 import WizardSteps, { goToStep } from "../ui/WizardSteps";
 import ServicePicker from "../ui/ServicePicker";
+import { Skeleton, SkeletonRegion } from "../ui/Skeleton";
 
 const STEPS = [
   {
@@ -351,9 +352,9 @@ function LeadWorkflow({ lead = null, onSubmit, onClose }) {
             </div>
 
             {loadingServices ? (
-              <div className="workflow-loading">
-                Loading available services...
-              </div>
+              <SkeletonRegion className="skeleton-page-actions">
+                {[0, 1, 2, 3].map((index) => <Skeleton key={index} width={150} height={44} radius={10} />)}
+              </SkeletonRegion>
             ) : activeServices.length === 0 ? (
               <div className="workflow-empty">
                 <strong>No active services</strong>

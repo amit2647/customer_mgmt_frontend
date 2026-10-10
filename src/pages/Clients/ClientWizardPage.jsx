@@ -12,8 +12,8 @@ import { useAuth } from "../../context/AuthContext";
 import { useBundle } from "../../context/BundleContext";
 import WizardSteps, { goToStep } from "../../components/ui/WizardSteps";
 import ServicePicker from "../../components/ui/ServicePicker";
-import PageState from "../../components/ui/PageState";
 import Breadcrumb from "../../components/ui/Breadcrumb";
+import { FormPageSkeleton } from "../../components/ui/PageSkeleton";
 
 /*
  * The client wizard (WIZ-01–15): entity, management, services, bank
@@ -316,9 +316,7 @@ function ClientWizardPage() {
 
 
   if (loading) {
-    return (
-      <PageState title={`Loading ${term("client").toLowerCase()}`} />
-    );
+    return <FormPageSkeleton as="div" className="customer-workflow-page client-wizard" steps={STEPS.length} />;
   }
 
   return (

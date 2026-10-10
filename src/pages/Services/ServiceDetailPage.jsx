@@ -7,6 +7,7 @@ import { getDocumentTemplates } from "../../api/documents";
 import { useAuth } from "../../context/AuthContext";
 import { useBundle } from "../../context/BundleContext";
 import Breadcrumb from "../../components/ui/Breadcrumb";
+import { DetailPageSkeleton } from "../../components/ui/PageSkeleton";
 import DataGrid from "../../components/ui/DataGrid";
 import PageState from "../../components/ui/PageState";
 import Pill from "../../components/ui/Pill";
@@ -68,7 +69,7 @@ function ServiceDetailPage() {
     );
   }
 
-  if (!service) return <main className="page record-detail-page"><div className="communication-empty">Loading…</div></main>;
+  if (!service) return <DetailPageSkeleton className="page record-detail-page service-detail" tabs={3} cards={1} />;
 
   const active = (service.status || "Active").toLowerCase() === "active";
   const tabs = [
@@ -142,39 +143,38 @@ function ServiceDetailPage() {
               <p>Letters offered only to clients engaged for {service.name}. All letters are under Documents.</p>
             </div>
           </header>
-          {letters && (
-            <DataGrid
-              label={`${service.name} letters`}
-              rows={letters}
-              rowKey={(template) => template.key}
-              empty="No letters depend on this service."
-              columns={[
-                {
-                  key: "name",
-                  header: "Letter",
-                  render: (template) => (
-                    <>
-                      <span className="grid-cell-title">{template.name}</span>
-                      {template.badge && <span className="grid-cell-sub">{template.badge}</span>}
-                    </>
+          <DataGrid
+            label={`${service.name} letters`}
+            rows={letters || []}
+            loading={!letters && Boolean(service.key)}
+            rowKey={(template) => template.key}
+            empty="No letters depend on this service."
+            columns={[
+              {
+                key: "name",
+                header: "Letter",
+                render: (template) => (
+                  <>
+                    <span className="grid-cell-title">{template.name}</span>
+                    {template.badge && <span className="grid-cell-sub">{template.badge}</span>}
+                  </>
+                ),
+              },
+              { key: "version", header: "Text", render: (template) => <Pill tone={template.customized ? "info" : "neutral"}>{template.customized ? "Your wording" : "As shipped"}</Pill> },
+              {
+                key: "actions",
+                header: "",
+                sortable: false,
+                hideable: false,
+                render: (template) =>
+                  can("system.settings") && (
+                    <div className="table-actions">
+                      <button type="button" className="link" onClick={() => navigate(`/documents/templates/${template.key}`)} aria-label={`Edit ${template.name}`}>Edit text</button>
+                    </div>
                   ),
-                },
-                { key: "version", header: "Text", render: (template) => <Pill tone={template.customized ? "info" : "neutral"}>{template.customized ? "Your wording" : "As shipped"}</Pill> },
-                {
-                  key: "actions",
-                  header: "",
-                  sortable: false,
-                  hideable: false,
-                  render: (template) =>
-                    can("system.settings") && (
-                      <div className="table-actions">
-                        <button type="button" className="link" onClick={() => navigate(`/documents/templates/${template.key}`)} aria-label={`Edit ${template.name}`}>Edit text</button>
-                      </div>
-                    ),
-                },
-              ]}
-            />
-          )}
+              },
+            ]}
+          />
         </section>
       )}
 

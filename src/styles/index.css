@@ -31,6 +31,7 @@
 @import "./pages/loading.css";
 @import "./utilities/accessibility.css";
 @import "./utilities/mobile.css";
+@import "./components/skeleton.css";
 @import "./dashboard/dashboard-skeleton.css";
 @import "./pages/onboarding.css";
 @import "./pages/login.css";

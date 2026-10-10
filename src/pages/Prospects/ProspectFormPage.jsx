@@ -7,6 +7,7 @@ import { enumLabel, formatDay, formatMoney } from "../../components/bundle/bundl
 import { useBundle } from "../../context/BundleContext";
 import WizardSteps, { goToStep } from "../../components/ui/WizardSteps";
 import Breadcrumb from "../../components/ui/Breadcrumb";
+import { FormPageSkeleton } from "../../components/ui/PageSkeleton";
 import ServicePicker from "../../components/ui/ServicePicker";
 import PageState from "../../components/ui/PageState";
 import NumberInput from "../../components/ui/NumberInput";
@@ -176,9 +177,7 @@ function ProspectFormPage() {
   }
 
   if (loading) {
-    return (
-      <PageState title="Loading prospect" />
-    );
+    return <FormPageSkeleton as="div" className="customer-workflow-page client-wizard" steps={STEPS.length} />;
   }
 
   if (converted) {

@@ -134,11 +134,7 @@ function ClientsPage() {
 
       {error && <div className="alert alert-error" role="alert">{error}</div>}
 
-      {loading ? (
-        <section className="card">
-          <div className="settings-empty">Loading…</div>
-        </section>
-      ) : clients.length === 0 && !archived && permissions.includes("customers.create") ? (
+      {!loading && clients.length === 0 && !archived && permissions.includes("customers.create") ? (
         <section className="card">
           <div className="settings-empty">
             No {term("client", true).toLowerCase()} yet.
@@ -155,6 +151,7 @@ function ClientsPage() {
           label={term("client", true)}
           rows={clients}
           columns={columns}
+          loading={loading}
           initialSort={{ key: "name", dir: "asc" }}
           search={{
             placeholder: "Search by name, PAN or CIN",

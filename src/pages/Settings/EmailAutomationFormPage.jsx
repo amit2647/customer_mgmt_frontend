@@ -10,6 +10,7 @@ import {
 import { getEmailTemplates } from "../../api/emailTemplates";
 import ToggleField from "../../components/common/ToggleField";
 import Breadcrumb from "../../components/ui/Breadcrumb";
+import { FormPageSkeleton } from "../../components/ui/PageSkeleton";
 
 const EMPTY = {
   name: "",
@@ -140,11 +141,7 @@ function EmailAutomationFormPage() {
   }
 
   if (loading) {
-    return (
-      <main className="page settings-sub-page settings-form-page">
-        <div className="settings-empty">Loading automation...</div>
-      </main>
-    );
+    return <FormPageSkeleton className="page settings-sub-page settings-form-page" />;
   }
 
   return (

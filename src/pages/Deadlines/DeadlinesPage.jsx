@@ -117,6 +117,7 @@ function DeadlinesPage() {
               label={item.label}
               icon={<Icon size={20} weight="regular" />}
               value={data?.counts?.[item.key] ?? "—"}
+              loading={!data && !error}
               hint={STATE_HINT[item.key]}
               linkLabel={active ? "Show all" : "Show"}
               active={active}
@@ -128,15 +129,12 @@ function DeadlinesPage() {
 
       {error && <div className="alert alert-error" role="alert">{error}</div>}
 
-      {!data ? (
-        <section className="card" aria-label="Deadlines">
-          <div className="settings-empty">Loading…</div>
-        </section>
-      ) : (
+      {!data && error ? null : (
         <DataGrid
           id="deadlines"
           label="Deadlines"
           rows={items}
+          loading={!data}
           search={{ placeholder: `Search by deadline, ${term("client").toLowerCase()} or service`, label: "Search deadlines", text: (item) => [item.title, item.customer_name, item.service_name].join(" ") }}
           controls={
             <select className="clients-select" value={period} onChange={(e) => setPeriod(e.target.value)} aria-label="Financial year">

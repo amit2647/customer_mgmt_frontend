@@ -38,6 +38,7 @@ import ClientDocuments from "./ClientDocuments";
 import ClientFiles from "./ClientFiles";
 import ClientOrigin from "./ClientOrigin";
 import Breadcrumb from "../../components/ui/Breadcrumb";
+import { DetailPageSkeleton } from "../../components/ui/PageSkeleton";
 import DataGrid from "../../components/ui/DataGrid";
 import Modal from "../../components/ui/Modal";
 import Pill, { toneFor } from "../../components/ui/Pill";
@@ -142,7 +143,7 @@ function ClientDetailPage() {
   }
 
   if (loading) {
-    return <main className="page record-detail-page"><div className="communication-empty">Loading…</div></main>;
+    return <DetailPageSkeleton className="page record-detail-page client-detail" tabs={6} />;
   }
 
   if (!client) {

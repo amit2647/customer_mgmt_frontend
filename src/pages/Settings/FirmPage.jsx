@@ -7,6 +7,7 @@ import { useAuth } from "../../context/AuthContext";
 import { useBundle } from "../../context/BundleContext";
 import { enumLabel } from "../../components/bundle/bundleLabels";
 import { SettingRow, SettingRows } from "../../components/ui/SettingRow";
+import { SettingRowsSkeleton } from "../../components/ui/Skeleton";
 import DataGrid from "../../components/ui/DataGrid";
 import Modal from "../../components/ui/Modal";
 import Pill from "../../components/ui/Pill";
@@ -133,7 +134,7 @@ function FirmPage() {
       {error && <div className="alert alert-error" role="alert">{error}</div>}
 
       {!firm ? (
-        <section className="card"><div className="settings-empty">Loading firm…</div></section>
+        error ? null : <SettingRowsSkeleton label="Firm details" rows={DETAILS.length} />
       ) : !editingFirm ? (
         <SettingRows label="Firm details">
           {DETAILS.map(([key, title, description, icon]) => (

@@ -4,6 +4,7 @@ import { Buildings, Hash, LinkSimple, PencilSimple, Power } from "@phosphor-icon
 import { useAuth } from "../../context/AuthContext";
 import { getOrganization, updateOrganization } from "../../api/identity";
 import { SettingNotice, SettingRow, SettingRows } from "../../components/ui/SettingRow";
+import { SettingRowsSkeleton } from "../../components/ui/Skeleton";
 
 const FIELDS = {
   name: { title: "Organization name", description: "Shown across the workspace and on what it sends", icon: <Buildings size={16} /> },
@@ -129,7 +130,7 @@ function OrganizationPage() {
 
       {loadError && <div className="alert alert-error" role="alert">{loadError}</div>}
 
-      {loading && <section className="card"><div className="settings-empty">Loading organization...</div></section>}
+      {loading && <SettingRowsSkeleton label="Organization" rows={5} />}
 
       {!loading && organization && (
         <SettingRows label="Organization">

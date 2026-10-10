@@ -5,6 +5,7 @@ import { deleteDocument, getDocuments, getDocumentTemplates } from "../../api/do
 import { getEngagementTypes, getPeriods } from "../../api/engagements";
 import { formatDate } from "../../components/common/Field";
 import DataGrid from "../../components/ui/DataGrid";
+import { Skeleton } from "../../components/ui/Skeleton";
 import Pill from "../../components/ui/Pill";
 
 /*
@@ -63,6 +64,8 @@ function ClientDocuments({ client, can, readOnly }) {
     }
   }
 
+  const loading = tiles === null && !error;
+
   return (
     <section className="client-documents" role="tabpanel" aria-label="Documents">
       <div className="compliance-toolbar">
@@ -76,7 +79,14 @@ function ClientDocuments({ client, can, readOnly }) {
 
       {error && <div className="alert alert-error" role="alert">{error}</div>}
 
-      <div className="document-tiles" role="group" aria-label="Letters">
+      <div className="document-tiles" role="group" aria-label="Letters" aria-busy={loading || undefined}>
+        {loading && [0, 1, 2].map((index) => (
+          <div key={index} className="document-tile" aria-hidden="true">
+            <Skeleton width={28} height={28} radius={8} />
+            <Skeleton width="70%" height={13} />
+            <Skeleton width="40%" height={10} />
+          </div>
+        ))}
         {(tiles || []).map((tile) => (
           <button
             key={tile.key}
@@ -100,6 +110,7 @@ function ClientDocuments({ client, can, readOnly }) {
       <DataGrid
         label="Documents made"
         rows={documents}
+        loading={loading}
         initialSort={{ key: "updated_at", dir: "desc" }}
         columns={[
           {

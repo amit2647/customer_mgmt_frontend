@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { GridSkeleton } from "../ui/Skeleton";
 
 function EmailAccountTable({
   accounts = [],
@@ -47,10 +48,7 @@ function EmailAccountTable({
   if (loading) {
     return (
       <div className="email-account-list">
-        <div className="email-account-loading">
-          <div className="loading-spinner" />
-          <span>Loading email accounts...</span>
-        </div>
+        <GridSkeleton label="Email accounts" columns={4} rows={3} />
       </div>
     );
   }

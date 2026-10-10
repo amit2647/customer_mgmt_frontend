@@ -8,6 +8,7 @@ import {
 } from "../../api/emailTemplates";
 import ToggleField from "../../components/common/ToggleField";
 import Breadcrumb from "../../components/ui/Breadcrumb";
+import { FormPageSkeleton } from "../../components/ui/PageSkeleton";
 
 const EMPTY = { name: "", subject: "", body: "", description: "", is_active: true };
 
@@ -77,11 +78,7 @@ function EmailTemplateFormPage() {
   }
 
   if (loading) {
-    return (
-      <main className="page settings-sub-page settings-form-page">
-        <div className="settings-empty">Loading template...</div>
-      </main>
-    );
+    return <FormPageSkeleton className="page settings-sub-page settings-form-page" />;
   }
 
   return (

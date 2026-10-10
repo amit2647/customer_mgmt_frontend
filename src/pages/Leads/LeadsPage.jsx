@@ -9,7 +9,7 @@ function LeadsPage() {
   const navigate = useNavigate();
 
   const [leads, setLeads] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   /*
    * =========================================================
@@ -134,17 +134,14 @@ function LeadsPage() {
           CONTENT
           ===================================================== */}
 
-      {loading ? (
-        <div className="empty">Loading leads...</div>
-      ) : (
-        <LeadTable
-          leads={leads}
-          onView={handleView}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-          onConvert={handleConvert}
-        />
-      )}
+      <LeadTable
+        leads={leads}
+        loading={loading}
+        onView={handleView}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+        onConvert={handleConvert}
+      />
     </div>
   );
 }

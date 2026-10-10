@@ -8,6 +8,7 @@ import StatusBadge from "../../components/common/StatusBadge";
 import CommunicationPanel from "../../components/communications/CommunicationPanel";
 import Field, { formatDate } from "../../components/common/Field";
 import Breadcrumb from "../../components/ui/Breadcrumb";
+import { DetailPageSkeleton } from "../../components/ui/PageSkeleton";
 
 function LeadDetailPage() {
   const { id } = useParams();
@@ -39,11 +40,7 @@ function LeadDetailPage() {
   }, [load]);
 
   if (loading) {
-    return (
-      <main className="page record-detail-page">
-        <div className="communication-empty">Loading lead...</div>
-      </main>
-    );
+    return <DetailPageSkeleton tabs={0} />;
   }
 
   if (error || !lead) {

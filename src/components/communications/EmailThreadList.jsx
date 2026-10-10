@@ -1,3 +1,5 @@
+import { CardSkeleton } from "../ui/Skeleton";
+
 /*
  * A list of threads only — an inbox. Opening one is the modal's job; nothing
  * expands in place.
@@ -52,7 +54,7 @@ export function counterpartyOf(message) {
 
 function EmailThreadList({ communications, loading, onOpen }) {
   if (loading) {
-    return <div className="communication-empty">Loading conversations...</div>;
+    return <CardSkeleton label="Conversations" lines={4} />;
   }
 
   if (communications.length === 0) {

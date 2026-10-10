@@ -5,6 +5,7 @@ import { getBundles, installBundle, upgradeBundle } from "../../api/bundles";
 import BundleCustomized from "./BundleCustomized";
 import { useBundle } from "../../context/BundleContext";
 import DataGrid from "../../components/ui/DataGrid";
+import { CardSkeleton } from "../../components/ui/Skeleton";
 import Pill from "../../components/ui/Pill";
 
 const STEP_LABELS = {
@@ -170,9 +171,7 @@ function BundlePage() {
       {error && <div className="alert alert-error" role="alert">{error}</div>}
 
       {loading ? (
-        <section className="card">
-          <div className="settings-empty">Loading bundles...</div>
-        </section>
+        <CardSkeleton label="Profession bundle" lines={3} />
       ) : installed ? (
         <section className="card bundle-installed" aria-label="Installed bundle">
           <div className="bundle-summary">

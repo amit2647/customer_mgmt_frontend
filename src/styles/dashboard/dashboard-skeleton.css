@@ -1,5 +1,6 @@
 /* =========================================================
    OMNICORE — DASHBOARD SKELETON
+   The shared .skeleton shimmer is in components/skeleton.css.
    ========================================================= */
 
 .dashboard-skeleton-page {
@@ -9,29 +10,6 @@
 .dashboard-skeleton-page .dashboard-card,
 .dashboard-skeleton-page .dashboard-stat-card {
     cursor: default;
-}
-
-
-/* =========================================================
-   BASE SKELETON
-   ========================================================= */
-
-.skeleton {
-    display: block;
-
-    border-radius: 6px;
-
-    /* Mixed from --color-text so the shimmer inverts with the theme: a dark
-       sweep on light surfaces, a light one on dark. */
-    background:
-        linear-gradient(90deg,
-            color-mix(in srgb, var(--color-text) 6%, transparent) 0%,
-            color-mix(in srgb, var(--color-text) 11%, transparent) 45%,
-            color-mix(in srgb, var(--color-text) 6%, transparent) 100%);
-
-    background-size: 200% 100%;
-
-    animation: skeleton-shimmer 1.45s ease-in-out infinite;
 }
 
 
@@ -612,16 +590,6 @@
    ANIMATION
    ========================================================= */
 
-@keyframes skeleton-shimmer {
-    0% {
-        background-position: 200% 0;
-    }
-
-    100% {
-        background-position: -200% 0;
-    }
-}
-
 @keyframes dashboard-skeleton-enter {
     from {
         opacity: 0.7;
@@ -682,10 +650,6 @@
 
 
 @media (prefers-reduced-motion: reduce) {
-    .skeleton {
-        animation: none;
-    }
-
     .dashboard-skeleton-page {
         animation: none;
     }

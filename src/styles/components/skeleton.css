@@ -1,0 +1,168 @@
+/* =========================================================
+   OMNICORE — SKELETONS
+   The shimmer a page shows while its data loads, in the shape of
+   what will arrive (components/ui/Skeleton.jsx, PageSkeleton.jsx).
+   Imported before dashboard/dashboard-skeleton.css, whose sizes
+   override the base.
+   ========================================================= */
+
+.skeleton {
+    display: block;
+
+    border-radius: 6px;
+
+    /* Mixed from --color-text so the shimmer inverts with the theme: a dark
+       sweep on light surfaces, a light one on dark. */
+    background:
+        linear-gradient(90deg,
+            color-mix(in srgb, var(--color-text) 6%, transparent) 0%,
+            color-mix(in srgb, var(--color-text) 11%, transparent) 45%,
+            color-mix(in srgb, var(--color-text) 6%, transparent) 100%);
+
+    background-size: 200% 100%;
+
+    animation: skeleton-shimmer 1.45s ease-in-out infinite;
+}
+
+@keyframes skeleton-shimmer {
+    0% {
+        background-position: 200% 0;
+    }
+
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+/* "Loading…" for screen readers; the shimmer is aria-hidden. */
+.skeleton-sr {
+    position: absolute;
+
+    width: 1px;
+    height: 1px;
+
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+}
+
+.skeleton-region {
+    position: relative;
+}
+
+.skeleton-text {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+
+/* =========================================================
+   PAGE PARTS
+   ========================================================= */
+
+.skeleton-page-copy {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* Wizard pages leave the header's spacing to their form; the skeleton has none. */
+.skeleton-page-header {
+    margin-bottom: 24px;
+}
+
+.skeleton-page-actions {
+    display: flex;
+    gap: 10px;
+}
+
+/* The first stat card is brand-coloured in every theme, so its shimmer is
+   mixed from --color-on-accent (its ink) rather than the page text. The
+   Dashboard's own skeleton is left as it was. */
+.dashboard-stat-card:first-child:not(.dashboard-skeleton-stat) .skeleton {
+    background:
+        linear-gradient(90deg,
+            color-mix(in srgb, var(--color-on-accent) 10%, transparent) 0%,
+            color-mix(in srgb, var(--color-on-accent) 18%, transparent) 45%,
+            color-mix(in srgb, var(--color-on-accent) 10%, transparent) 100%);
+    background-size: 200% 100%;
+}
+
+.skeleton-tabs {
+    display: flex;
+    gap: 8px;
+
+    margin-bottom: 18px;
+}
+
+.skeleton-hero {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+
+    margin-bottom: 18px;
+    padding: 20px 24px;
+}
+
+.skeleton-card {
+    padding: 20px 24px;
+}
+
+.skeleton-card > .skeleton-text {
+    margin-top: 18px;
+}
+
+.skeleton-card + .skeleton-card {
+    margin-top: 24px;
+}
+
+.skeleton-fields {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px 24px;
+
+    margin-top: 18px;
+}
+
+.skeleton-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.skeleton-grid-toolbar {
+    display: flex;
+    justify-content: flex-end;
+
+    margin-bottom: 16px;
+}
+
+/* A grid's loading rows are as tall as its real ones. */
+.grid-skeleton-row td {
+    height: 52px;
+}
+
+.grid-skeleton-row td.numeric .skeleton {
+    margin-left: auto;
+}
+
+.setting-row .skeleton-text {
+    flex: 1;
+}
+
+.prospect-card .skeleton + .skeleton {
+    margin-top: 10px;
+}
+
+@media (max-width: 768px) {
+    .skeleton-fields {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .skeleton {
+        animation: none;
+    }
+}

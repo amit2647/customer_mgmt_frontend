@@ -117,84 +117,79 @@ function EmailAutomationsPage() {
       {success && <div className="alert alert-success">{success}</div>}
       {error && <div className="alert alert-error" role="alert">{error}</div>}
 
-      {loading ? (
-        <section className="card">
-          <div className="settings-empty">Loading automations...</div>
-        </section>
-      ) : (
-        <DataGrid
-          id="email-automations"
-          label="Email automations"
-          rows={automations}
-          search={{ placeholder: "Search automations", label: "Search automations", text: (automation) => [automation.name, automation.description, automation.template_name].join(" ") }}
-          columns={[
-            {
-              key: "name",
-              header: "Automation",
-              render: (automation) => (
-                <>
-                  <span className="grid-cell-title">{automation.name}</span>
-                  {automation.description && <span className="grid-cell-sub">{automation.description}</span>}
-                </>
-              ),
+      <DataGrid
+        id="email-automations"
+        label="Email automations"
+        rows={automations}
+        loading={loading}
+        search={{ placeholder: "Search automations", label: "Search automations", text: (automation) => [automation.name, automation.description, automation.template_name].join(" ") }}
+        columns={[
+          {
+            key: "name",
+            header: "Automation",
+            render: (automation) => (
+              <>
+                <span className="grid-cell-title">{automation.name}</span>
+                {automation.description && <span className="grid-cell-sub">{automation.description}</span>}
+              </>
+            ),
+          },
+          {
+            key: "trigger",
+            header: "Trigger",
+            value: (automation) => EVENT_LABELS[automation.trigger_event] || automation.trigger_event,
+            filter: { tone: toneFor },
+            render: (automation) => {
+              const label = EVENT_LABELS[automation.trigger_event] || automation.trigger_event;
+              return <Pill tone={toneFor(label)}>{label}</Pill>;
             },
-            {
-              key: "trigger",
-              header: "Trigger",
-              value: (automation) => EVENT_LABELS[automation.trigger_event] || automation.trigger_event,
-              filter: { tone: toneFor },
-              render: (automation) => {
-                const label = EVENT_LABELS[automation.trigger_event] || automation.trigger_event;
-                return <Pill tone={toneFor(label)}>{label}</Pill>;
-              },
-            },
-            { key: "template_name", header: "Template", render: (automation) => <span className="settings-cell-muted">{automation.template_name || "—"}</span> },
-            {
-              key: "account",
-              header: "Sends from",
-              sortable: false,
-              // The default only resolves while exactly one account is
-              // connected; flag the rows that would fail to send.
-              render: (automation) => (
-                <span className="settings-cell-muted">
-                  {automation.email_account_id
-                    ? automation.email_account_address || "Inactive account"
-                    : accountCount === 1
-                      ? "Default account"
-                      : <span className="settings-cell-warning">Choose an account</span>}
-                </span>
-              ),
-            },
-            {
-              key: "status",
-              header: "Status",
-              value: (automation) => (automation.is_active ? "On" : "Off"),
-              filter: { tone: (value) => (value === "On" ? "success" : "neutral") },
-              render: (automation) => <Pill dot tone={automation.is_active ? "success" : "neutral"}>{automation.is_active ? "On" : "Off"}</Pill>,
-            },
-            {
-              key: "actions",
-              header: "",
-              sortable: false,
-              hideable: false,
-              render: (automation) => (
-                <div className="table-actions">
-                  {canUpdate && (
-                    <button type="button" className="link" onClick={() => handleToggle(automation)}>{automation.is_active ? "Disable" : "Enable"}</button>
-                  )}
-                  {canUpdate && (
-                    <button type="button" className="link" onClick={() => navigate(`/settings/email-automations/${automation.id}/edit`)}>Edit</button>
-                  )}
-                  {canDelete && (
-                    <button type="button" className="link delete-link" onClick={() => handleDelete(automation)}>Delete</button>
-                  )}
-                </div>
-              ),
-            },
-          ]}
-          empty="No automations yet."
-        />
-      )}
+          },
+          { key: "template_name", header: "Template", render: (automation) => <span className="settings-cell-muted">{automation.template_name || "—"}</span> },
+          {
+            key: "account",
+            header: "Sends from",
+            sortable: false,
+            // The default only resolves while exactly one account is
+            // connected; flag the rows that would fail to send.
+            render: (automation) => (
+              <span className="settings-cell-muted">
+                {automation.email_account_id
+                  ? automation.email_account_address || "Inactive account"
+                  : accountCount === 1
+                    ? "Default account"
+                    : <span className="settings-cell-warning">Choose an account</span>}
+              </span>
+            ),
+          },
+          {
+            key: "status",
+            header: "Status",
+            value: (automation) => (automation.is_active ? "On" : "Off"),
+            filter: { tone: (value) => (value === "On" ? "success" : "neutral") },
+            render: (automation) => <Pill dot tone={automation.is_active ? "success" : "neutral"}>{automation.is_active ? "On" : "Off"}</Pill>,
+          },
+          {
+            key: "actions",
+            header: "",
+            sortable: false,
+            hideable: false,
+            render: (automation) => (
+              <div className="table-actions">
+                {canUpdate && (
+                  <button type="button" className="link" onClick={() => handleToggle(automation)}>{automation.is_active ? "Disable" : "Enable"}</button>
+                )}
+                {canUpdate && (
+                  <button type="button" className="link" onClick={() => navigate(`/settings/email-automations/${automation.id}/edit`)}>Edit</button>
+                )}
+                {canDelete && (
+                  <button type="button" className="link delete-link" onClick={() => handleDelete(automation)}>Delete</button>
+                )}
+              </div>
+            ),
+          },
+        ]}
+        empty="No automations yet."
+      />
 
     </div>
   );

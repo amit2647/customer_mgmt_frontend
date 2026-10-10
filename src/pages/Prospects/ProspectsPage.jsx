@@ -9,6 +9,7 @@ import { useBundle } from "../../context/BundleContext";
 import StatCard from "../../components/ui/StatCard";
 import DataGrid from "../../components/ui/DataGrid";
 import Pill, { toneFor } from "../../components/ui/Pill";
+import { Skeleton } from "../../components/ui/Skeleton";
 
 /*
  * The prospect board (PROS-01–05): the bundle's pipeline as columns. Cards
@@ -186,7 +187,7 @@ function ProspectsPage() {
         <StatCard
           label="Open prospects"
           icon={<Kanban size={20} weight="regular" />}
-          value={loading ? "—" : leads.length}
+          loading={loading} value={loading ? "—" : leads.length}
           hint={`Not yet ${term("client", true).toLowerCase()}`}
           linkLabel="View list"
           active={view === "list" && stage === "all"}
@@ -201,7 +202,7 @@ function ProspectsPage() {
               key={column.key}
               label={column.label}
               icon={<UserCircle size={20} weight="regular" />}
-              value={loading ? "—" : here.length}
+              loading={loading} value={loading ? "—" : here.length}
               hint={quoted(here) > 0 ? `${formatMoney(quoted(here))} quoted` : "Nothing quoted"}
               linkLabel="Show"
               active={view === "list" && stage === column.key}
@@ -213,7 +214,7 @@ function ProspectsPage() {
         <StatCard
           label="Quoted value"
           icon={<CurrencyInr size={20} weight="regular" />}
-          value={loading ? "—" : formatMoney(quoted(leads))}
+          loading={loading} value={loading ? "—" : formatMoney(quoted(leads))}
           hint="Across open prospects"
         />
       </section>
@@ -235,13 +236,12 @@ function ProspectsPage() {
 
       {error && <div className="alert alert-error" role="alert">{error}</div>}
 
-      {loading ? (
-        <section className="card"><div className="settings-empty">Loading…</div></section>
-      ) : view === "list" ? (
+      {view === "list" ? (
         <DataGrid
           id="prospects"
           label="Prospect list"
           rows={listed}
+          loading={loading}
           search={{ placeholder: "Search by name, email or phone", label: "Search prospects", text: (lead) => [lead.name, lead.email, lead.phone].join(" ") }}
           controls={
             <label className="client-checkbox">
@@ -296,7 +296,8 @@ function ProspectsPage() {
           emptyFiltered="No prospects match."
         />
       ) : (
-        <div className="prospect-board">
+        <div className="prospect-board" aria-busy={loading || undefined}>
+          {loading && <span className="skeleton-sr" role="status">Loading…</span>}
           {columns.map((column, columnIndex) => {
             const cards = leads.filter((lead) => columnOf(lead) === columnIndex).filter(matches);
 
@@ -304,8 +305,16 @@ function ProspectsPage() {
               <section key={column.key} className="prospect-column" aria-label={column.label}>
                 <header>
                   <h2>{column.label}</h2>
-                  <span className="prospect-count">{cards.length}</span>
+                  {!loading && <span className="prospect-count">{cards.length}</span>}
                 </header>
+
+                {loading && [0, 1].map((index) => (
+                  <article key={index} className="prospect-card" aria-hidden="true">
+                    <Skeleton width={index ? "64%" : "78%"} height={13} />
+                    <Skeleton width={72} height={11} />
+                    <Skeleton width="52%" height={10} />
+                  </article>
+                ))}
 
                 {cards.map((lead) => (
                   <article key={lead.id} className="prospect-card">
@@ -322,7 +331,7 @@ function ProspectsPage() {
                   </article>
                 ))}
 
-                {cards.length === 0 && <div className="prospect-empty">No prospects</div>}
+                {!loading && cards.length === 0 && <div className="prospect-empty">No prospects</div>}
               </section>
             );
           })}

@@ -5,6 +5,7 @@ import { createDocument, deleteDocument, finalizeDocument, getDocument, previewD
 import SchemaForm from "../../components/bundle/SchemaForm";
 import LetterFrame from "../../components/documents/LetterFrame";
 import Breadcrumb from "../../components/ui/Breadcrumb";
+import { FormPageSkeleton } from "../../components/ui/PageSkeleton";
 import PageState from "../../components/ui/PageState";
 import { useAuth } from "../../context/AuthContext";
 import { useBundle } from "../../context/BundleContext";
@@ -132,7 +133,7 @@ function DocumentEditorPage() {
 
   const backToClient = () => navigate(`/clients/${doc?.customer_id || clientId}`, { state: { tab: "documents" } });
 
-  if (loading) return <PageState title="Loading the letter" />;
+  if (loading) return <FormPageSkeleton className="page record-detail-page document-editor-page" actions={2} />;
 
   if (!doc) {
     return (

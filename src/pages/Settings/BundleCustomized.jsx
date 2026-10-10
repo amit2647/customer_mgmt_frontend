@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import { chooseCustomizedItem, getCustomizedItems } from "../../api/bundles";
 import DataGrid from "../../components/ui/DataGrid";
+import { GridSkeleton } from "../../components/ui/Skeleton";
 import Pill, { toneFor } from "../../components/ui/Pill";
 
 /*
@@ -90,7 +91,7 @@ function BundleCustomized({ version }) {
       {error && <div className="alert alert-error" role="alert">{error}</div>}
 
       {items === null ? (
-        <div className="settings-empty">Checking for customized items...</div>
+        error ? null : <GridSkeleton embedded label="Customized items" columns={4} rows={3} />
       ) : items.length === 0 ? (
         <div className="settings-empty">Nothing customized: everything matches the installed version.</div>
       ) : (

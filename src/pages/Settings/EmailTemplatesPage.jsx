@@ -85,55 +85,50 @@ function EmailTemplatesPage() {
       {success && <div className="alert alert-success">{success}</div>}
       {error && <div className="alert alert-error" role="alert">{error}</div>}
 
-      {loading ? (
-        <section className="card">
-          <div className="settings-empty">Loading templates...</div>
-        </section>
-      ) : (
-        <DataGrid
-          id="email-templates"
-          label="Email templates"
-          rows={templates}
-          search={{ placeholder: "Search templates", label: "Search templates", text: (template) => [template.name, template.subject, template.description].join(" ") }}
-          columns={[
-            {
-              key: "name",
-              header: "Name",
-              render: (template) => (
-                <>
-                  <span className="grid-cell-title">{template.name}</span>
-                  {template.description && <span className="grid-cell-sub">{template.description}</span>}
-                </>
-              ),
-            },
-            { key: "subject", header: "Subject", render: (template) => <span className="settings-cell-muted">{template.subject}</span> },
-            {
-              key: "status",
-              header: "Status",
-              value: (template) => (template.is_active ? "Active" : "Inactive"),
-              filter: { tone: (value) => (value === "Active" ? "success" : "neutral") },
-              render: (template) => <Pill dot tone={template.is_active ? "success" : "neutral"}>{template.is_active ? "Active" : "Inactive"}</Pill>,
-            },
-            {
-              key: "actions",
-              header: "",
-              sortable: false,
-              hideable: false,
-              render: (template) => (
-                <div className="table-actions">
-                  {canUpdate && (
-                    <button type="button" className="link" onClick={() => navigate(`/settings/email-templates/${template.id}/edit`)}>Edit</button>
-                  )}
-                  {canDelete && (
-                    <button type="button" className="link delete-link" onClick={() => handleDelete(template)}>Delete</button>
-                  )}
-                </div>
-              ),
-            },
-          ]}
-          empty="No templates yet."
-        />
-      )}
+      <DataGrid
+        id="email-templates"
+        label="Email templates"
+        rows={templates}
+        loading={loading}
+        search={{ placeholder: "Search templates", label: "Search templates", text: (template) => [template.name, template.subject, template.description].join(" ") }}
+        columns={[
+          {
+            key: "name",
+            header: "Name",
+            render: (template) => (
+              <>
+                <span className="grid-cell-title">{template.name}</span>
+                {template.description && <span className="grid-cell-sub">{template.description}</span>}
+              </>
+            ),
+          },
+          { key: "subject", header: "Subject", render: (template) => <span className="settings-cell-muted">{template.subject}</span> },
+          {
+            key: "status",
+            header: "Status",
+            value: (template) => (template.is_active ? "Active" : "Inactive"),
+            filter: { tone: (value) => (value === "Active" ? "success" : "neutral") },
+            render: (template) => <Pill dot tone={template.is_active ? "success" : "neutral"}>{template.is_active ? "Active" : "Inactive"}</Pill>,
+          },
+          {
+            key: "actions",
+            header: "",
+            sortable: false,
+            hideable: false,
+            render: (template) => (
+              <div className="table-actions">
+                {canUpdate && (
+                  <button type="button" className="link" onClick={() => navigate(`/settings/email-templates/${template.id}/edit`)}>Edit</button>
+                )}
+                {canDelete && (
+                  <button type="button" className="link delete-link" onClick={() => handleDelete(template)}>Delete</button>
+                )}
+              </div>
+            ),
+          },
+        ]}
+        empty="No templates yet."
+      />
 
     </div>
   );

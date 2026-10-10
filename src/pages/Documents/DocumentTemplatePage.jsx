@@ -6,6 +6,7 @@ import { getDocumentTemplate, previewDocument, restoreDocumentTemplate, saveDocu
 import { formatDate } from "../../components/common/Field";
 import LetterFrame from "../../components/documents/LetterFrame";
 import Breadcrumb from "../../components/ui/Breadcrumb";
+import { FormPageSkeleton } from "../../components/ui/PageSkeleton";
 import PageState from "../../components/ui/PageState";
 
 /*
@@ -85,7 +86,7 @@ function DocumentTemplatePage() {
         {error}
       </PageState>
     ) : (
-      <PageState title="Loading the template" />
+      <FormPageSkeleton className="page settings-sub-page document-template-page" actions={1} />
     );
   }
 

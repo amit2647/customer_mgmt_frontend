@@ -13,6 +13,7 @@ import {
 } from "@phosphor-icons/react";
 
 import Pill from "./Pill";
+import { SkeletonRows } from "./Skeleton";
 
 /*
  * The product's one table: an interactive data grid. Every list in the app
@@ -35,6 +36,8 @@ import Pill from "./Pill";
  *   rowClassName(row)        extra classes per row
  *   id                       remembers hidden columns and page size per viewer
  *   embedded                 no frame of its own, for a table inside a card
+ *   loading                  shimmer rows in place of the rows (the toolbar
+ *                            and headers are real), while the list loads
  *   filters, onFiltersChange the chosen filter values ({ key: Set }) held by
  *                            the page, so controls outside the grid (stat
  *                            cards) and the chips are one filter; omit both
@@ -197,6 +200,7 @@ function DataGrid({
   expandedRow,
   rowClassName,
   embedded = false,
+  loading = false,
   empty = "Nothing here yet.",
   emptyFiltered = "Nothing matches the search and filters.",
   filters: chosenFilters,
@@ -295,7 +299,8 @@ function DataGrid({
   const columnCount = shown.length + (selection ? 1 : 0);
 
   return (
-    <section className={`data-grid${embedded ? " embedded" : ""}`} aria-label={label}>
+    <section className={`data-grid${embedded ? " embedded" : ""}`} aria-label={label} aria-busy={loading || undefined}>
+      {loading && <span className="skeleton-sr" role="status">Loading…</span>}
       {hasToolbar && (
         <div className="grid-toolbar">
           <div className="grid-toolbar-start">{controls}</div>
@@ -446,12 +451,13 @@ function DataGrid({
             </thead>
 
             <tbody>
-              {visible.length === 0 && (
+              {loading && <SkeletonRows columns={selection ? [{ key: "check", check: true }, ...shown] : shown} />}
+              {!loading && visible.length === 0 && (
                 <tr className="grid-empty-row">
                   <td colSpan={columnCount}>{narrowed ? emptyFiltered : empty}</td>
                 </tr>
               )}
-              {visible.map((row) => {
+              {!loading && visible.map((row) => {
                 const key = rowKey(row);
                 const extra = expandedRow?.(row);
                 const isSelected = selection?.selected.has(key);
@@ -487,7 +493,7 @@ function DataGrid({
           </table>
         </div>
 
-        {(paginated || selection) && (
+        {!loading && (paginated || selection) && (
           <div className="grid-footer">
             <span className="grid-total">
               Total <strong>{sorted.length}</strong>

@@ -1,9 +1,10 @@
 import DataGrid from "../ui/DataGrid";
 import Pill, { toneFor } from "../ui/Pill";
 
-function CustomerTable({ customers, onEdit, onDelete, onView }) {
+function CustomerTable({ customers, onEdit, onDelete, onView, loading = false }) {
   return (
     <DataGrid
+      loading={loading}
       id="customers"
       label="Customers"
       rows={customers}

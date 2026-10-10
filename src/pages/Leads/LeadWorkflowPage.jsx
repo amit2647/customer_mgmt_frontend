@@ -10,6 +10,7 @@ import {
 
 import LeadWorkflow from "../../components/leads/LeadWorkflow";
 import PageState from "../../components/ui/PageState";
+import { FormPageSkeleton } from "../../components/ui/PageSkeleton";
 
 function LeadWorkflowPage() {
   const navigate = useNavigate();
@@ -95,9 +96,7 @@ function LeadWorkflowPage() {
    */
 
   if (loading) {
-    return (
-      <PageState title="Loading lead">Preparing the lead workflow...</PageState>
-    );
+    return <FormPageSkeleton as="div" className="lead-workflow-page" />;
   }
 
   /*

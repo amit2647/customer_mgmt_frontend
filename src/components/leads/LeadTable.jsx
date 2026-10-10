@@ -4,9 +4,10 @@ import Pill, { toneFor } from "../ui/Pill";
 // Each lead status's pill colour.
 const STATUS_TONE = { New: "info", Contacted: "violet", Qualified: "success", Converted: "success", Lost: "danger" };
 
-function LeadTable({ leads, onConvert, onEdit, onDelete, onView }) {
+function LeadTable({ leads, onConvert, onEdit, onDelete, onView, loading = false }) {
   return (
     <DataGrid
+      loading={loading}
       id="leads"
       label="Leads"
       rows={leads}
