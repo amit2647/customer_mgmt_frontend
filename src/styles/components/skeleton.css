@@ -67,6 +67,18 @@
     gap: 12px;
 }
 
+/* "← Back to …" left, where you are right, as a row above the header: pages
+   without their own .workflow-breadcrumb rule (the lead and customer
+   workflows) would otherwise stack the two bars. */
+.workflow-breadcrumb.skeleton-breadcrumb {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+
+    margin-bottom: 18px;
+}
+
 /* Wizard pages leave the header's spacing to their form; the skeleton has none. */
 .skeleton-page-header {
     margin-bottom: 24px;

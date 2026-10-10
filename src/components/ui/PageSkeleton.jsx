@@ -12,7 +12,7 @@ import { CardSkeleton, Skeleton, SkeletonRegion, SkeletonText } from "./Skeleton
 
 function BreadcrumbSkeleton() {
   return (
-    <div className="workflow-breadcrumb" aria-hidden="true">
+    <div className="workflow-breadcrumb skeleton-breadcrumb" aria-hidden="true">
       <Skeleton width={132} height={12} />
       <Skeleton width={150} height={12} />
     </div>
