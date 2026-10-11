@@ -1,8 +1,10 @@
+import { Suspense } from "react";
 import { Link, Outlet, useLocation } from "react-router-dom";
 
 import { useAuth } from "../../context/AuthContext";
 import { useBundle } from "../../context/BundleContext";
 import { visibleTabs } from "./settingsSections";
+import { SettingRowsSkeleton } from "../../components/ui/Skeleton";
 
 /*
  * The Settings page: one header, a row of tabs (a group of settings each),
@@ -54,7 +56,10 @@ function SettingsLayout() {
         </nav>
       )}
 
-      <Outlet />
+      {/* A section loads on first visit; the tabs stay while it does. */}
+      <Suspense fallback={<SettingRowsSkeleton label="Loading section" />}>
+        <Outlet />
+      </Suspense>
     </main>
   );
 }

@@ -8,13 +8,19 @@ Parent-repo context (gateway, auth, bundles) is in `../CLAUDE.md`.
   features/pages — no CSS framework/CSS-in-JS).
 - `src/api/client.js` is the single fetch wrapper: base URL from
   `import.meta.env.VITE_API_BASE_URL` (Kong), falling back to `http://localhost:8080/api`. It
-  attaches `Authorization: Bearer <token>` from `localStorage` (`omnicore_access_token`). All
+  attaches `Authorization: Bearer <token>` from module memory (never `localStorage`; see the
+  parent's **Auth model**). All
   other `src/api/*.js` files are thin per-resource wrappers around it. `VITE_` is the only prefix
-  Vite exposes to browser code, and the value is read when the dev server starts — changing it
-  needs the frontend container restarted, it is not read per request.
-- The container runs the Vite **dev server** (`npm start`); `npm run build` is `vite build`, a
-  production bundle used only to check the code compiles (it was plain `vite` until 2026-10-06,
-  which started a dev server and never exited).
+  Vite exposes to browser code, and the value is written into the bundle when the image is built
+  (a compose build argument) — changing it needs `docker compose up -d --build frontend`.
+- The container serves the **production build** (`npm run build` in the Dockerfile, then
+  nginx on 3000, `nginx.conf`: hashed `/assets/` cached for good, every other path falls back to
+  `index.html`). It ran the Vite dev server until 2026-10-11: unbundled, that was 149 files and
+  24 MB per page load (16.8 MB of it every Phosphor icon), about 3 s, paid twice per sign-in
+  through Hydra. `npm run dev` / `npm start` outside Docker still reload live.
+- Pages are **split by route** (`React.lazy` in `App.jsx`): the login, setup and invite pages
+  load eagerly, every other page is fetched when first visited, behind a `Suspense` fallback.
+  Import a new page the same way, or the login page grows with it.
 - `src/archieve/` exists in the tree (that's the actual directory name, not a typo to fix
   incidentally) — check whether code there is still referenced before assuming it's dead.
 - Routes are permission-gated with `components/auth/RequirePermission.jsx` inside `ProtectedRoute`,

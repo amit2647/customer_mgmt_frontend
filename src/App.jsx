@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { Navigate, Route, Routes, useLocation, useNavigate, useParams } from "react-router-dom";
 
 import SplashScreen from "./components/common/SplashScreen";
@@ -9,53 +9,55 @@ import WithoutBundle from "./components/auth/WithoutBundle";
 
 import { useAuth } from "./context/AuthContext";
 
-import AppLayout from "./components/layout/AppLayout";
-
 import LoginPage from "./pages/Login/LoginPage";
 import SetupPage from "./pages/Setup/SetupPage";
 import { getSetupStatus } from "./api/setup";
 import GuestAccessPage from "./pages/Guest/GuestAccessPage";
-import AssistantPage from "./pages/Assistant/AssistantPage";
 
-import DashboardPage from "./pages/Dashboard/DashboardPage";
-
-import LeadsPage from "./pages/Leads/LeadsPage";
-import LeadDetailPage from "./pages/Leads/LeadDetailPage";
-import LeadWorkflowPage from "./pages/Leads/LeadWorkflowPage";
-
-import CustomersPage from "./pages/Customers/CustomersPage";
-import CustomerDetailPage from "./pages/Customers/CustomerDetailPage";
-import CustomerWorkflowPage from "./pages/Customers/CustomerWorkflowPage";
-
-import ServicesPage from "./pages/Services/ServicesPage";
-import ServiceDetailPage from "./pages/Services/ServiceDetailPage";
-
-import SettingsPage from "./pages/Settings/SettingsPage";
-import SettingsLayout from "./pages/Settings/SettingsLayout";
-import EmailAccountsPage from "./pages/Settings/EmailAccountsPage";
-import AppearancePage from "./pages/Settings/AppearancePage";
-import ProfilePage from "./pages/Settings/ProfilePage";
-import EmailTemplatesPage from "./pages/Settings/EmailTemplatesPage";
-import EmailAutomationsPage from "./pages/Settings/EmailAutomationsPage";
-import EmailTemplateFormPage from "./pages/Settings/EmailTemplateFormPage";
-import EmailAutomationFormPage from "./pages/Settings/EmailAutomationFormPage";
-import UsersRolesPage from "./pages/Settings/UsersRolesPage";
-import UserFormPage from "./pages/Settings/UserFormPage";
-import OrganizationPage from "./pages/Settings/OrganizationPage";
-import BundlePage from "./pages/Settings/BundlePage";
-import FirmPage from "./pages/Settings/FirmPage";
-import ClientsPage from "./pages/Clients/ClientsPage";
-import ClientDetailPage from "./pages/Clients/ClientDetailPage";
-import ClientWizardPage from "./pages/Clients/ClientWizardPage";
-import ClientsImportPage from "./pages/Clients/ClientsImportPage";
-import ProspectsPage from "./pages/Prospects/ProspectsPage";
-import ProspectFormPage from "./pages/Prospects/ProspectFormPage";
-import DeadlinesPage from "./pages/Deadlines/DeadlinesPage";
-import DocumentEditorPage from "./pages/Documents/DocumentEditorPage";
-import DocumentsPage from "./pages/Documents/DocumentsPage";
-import DocumentTemplatePage from "./pages/Documents/DocumentTemplatePage";
-import RoleFormPage from "./pages/Settings/RoleFormPage";
-import AccessGrantsPage from "./pages/Settings/AccessGrantsPage";
+/*
+ * Pages are fetched the first time they are visited (React.lazy), so the
+ * login page, which a Hydra sign-in loads twice, carries only itself. The
+ * login, setup and invite pages stay in the main bundle: they are the first
+ * thing someone signed out sees. A page still loading shows its frame (the
+ * sidebar, the Settings tabs) and a skeleton: see AppLayout and SettingsLayout.
+ */
+const AppLayout = lazy(() => import("./components/layout/AppLayout"));
+const AssistantPage = lazy(() => import("./pages/Assistant/AssistantPage"));
+const DashboardPage = lazy(() => import("./pages/Dashboard/DashboardPage"));
+const LeadsPage = lazy(() => import("./pages/Leads/LeadsPage"));
+const LeadDetailPage = lazy(() => import("./pages/Leads/LeadDetailPage"));
+const LeadWorkflowPage = lazy(() => import("./pages/Leads/LeadWorkflowPage"));
+const CustomersPage = lazy(() => import("./pages/Customers/CustomersPage"));
+const CustomerDetailPage = lazy(() => import("./pages/Customers/CustomerDetailPage"));
+const CustomerWorkflowPage = lazy(() => import("./pages/Customers/CustomerWorkflowPage"));
+const ServicesPage = lazy(() => import("./pages/Services/ServicesPage"));
+const ServiceDetailPage = lazy(() => import("./pages/Services/ServiceDetailPage"));
+const SettingsPage = lazy(() => import("./pages/Settings/SettingsPage"));
+const SettingsLayout = lazy(() => import("./pages/Settings/SettingsLayout"));
+const EmailAccountsPage = lazy(() => import("./pages/Settings/EmailAccountsPage"));
+const AppearancePage = lazy(() => import("./pages/Settings/AppearancePage"));
+const ProfilePage = lazy(() => import("./pages/Settings/ProfilePage"));
+const EmailTemplatesPage = lazy(() => import("./pages/Settings/EmailTemplatesPage"));
+const EmailAutomationsPage = lazy(() => import("./pages/Settings/EmailAutomationsPage"));
+const EmailTemplateFormPage = lazy(() => import("./pages/Settings/EmailTemplateFormPage"));
+const EmailAutomationFormPage = lazy(() => import("./pages/Settings/EmailAutomationFormPage"));
+const UsersRolesPage = lazy(() => import("./pages/Settings/UsersRolesPage"));
+const UserFormPage = lazy(() => import("./pages/Settings/UserFormPage"));
+const OrganizationPage = lazy(() => import("./pages/Settings/OrganizationPage"));
+const BundlePage = lazy(() => import("./pages/Settings/BundlePage"));
+const FirmPage = lazy(() => import("./pages/Settings/FirmPage"));
+const ClientsPage = lazy(() => import("./pages/Clients/ClientsPage"));
+const ClientDetailPage = lazy(() => import("./pages/Clients/ClientDetailPage"));
+const ClientWizardPage = lazy(() => import("./pages/Clients/ClientWizardPage"));
+const ClientsImportPage = lazy(() => import("./pages/Clients/ClientsImportPage"));
+const ProspectsPage = lazy(() => import("./pages/Prospects/ProspectsPage"));
+const ProspectFormPage = lazy(() => import("./pages/Prospects/ProspectFormPage"));
+const DeadlinesPage = lazy(() => import("./pages/Deadlines/DeadlinesPage"));
+const DocumentEditorPage = lazy(() => import("./pages/Documents/DocumentEditorPage"));
+const DocumentsPage = lazy(() => import("./pages/Documents/DocumentsPage"));
+const DocumentTemplatePage = lazy(() => import("./pages/Documents/DocumentTemplatePage"));
+const RoleFormPage = lazy(() => import("./pages/Settings/RoleFormPage"));
+const AccessGrantsPage = lazy(() => import("./pages/Settings/AccessGrantsPage"));
 
 // The old Settings addresses of a template's editor land on its new one.
 function TemplateRedirect() {
@@ -222,7 +224,10 @@ function App() {
    * ---------------------------------------------------------
    */
 
+  // Only the app's frame (AppLayout) can still be loading here, and only for
+  // a moment after sign-in; each page's own wait is shown inside the frame.
   return (
+    <Suspense fallback={null}>
     <Routes>
       {/* =====================================================
           PUBLIC
@@ -407,6 +412,7 @@ function App() {
 
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
+    </Suspense>
   );
 }
 

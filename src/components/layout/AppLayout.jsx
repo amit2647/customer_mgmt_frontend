@@ -1,9 +1,10 @@
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 
 import Sidebar from "./Sidebar";
 import UserMenu from "./UserMenu";
 import AssistantPanel from "../assistant/AssistantPanel";
+import { CardSkeleton } from "../ui/Skeleton";
 import { AssistantProvider } from "../../context/AssistantContext";
 import { useAuth } from "../../context/AuthContext";
 
@@ -151,7 +152,11 @@ function AppLayoutInner() {
         </header>
 
         <main className="app-content">
-          <Outlet />
+          {/* Pages load on first visit (React.lazy in App.jsx); the frame
+              stays while one does. */}
+          <Suspense fallback={<CardSkeleton label="Loading page" lines={4} />}>
+            <Outlet />
+          </Suspense>
         </main>
 
         <AssistantPanel
