@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Navigate, useLocation } from "react-router-dom";
+import { Navigate, useLocation, useNavigate } from "react-router-dom";
 
 import { startSignIn } from "../../api/auth";
 import { redeemAccessInvite, takePendingInvite } from "../../api/identity";
@@ -17,13 +17,52 @@ import { useAuth } from "../../context/AuthContext";
  * the same flow: their pending invite is redeemed with the challenge instead
  * of a password.
  */
+/*
+ * Hydra's login_challenge is a long opaque string nobody needs to see. The
+ * page takes it (and any auth_error) from the address once, keeps the
+ * challenge in sessionStorage so a reload still signs in, and shows plain
+ * /login. Hydra's own lifetime for it is 30 minutes; after 10 the page simply
+ * starts a fresh sign-in instead of offering a form that may fail.
+ */
+const CHALLENGE_KEY = "omnicore_login_challenge";
+const CHALLENGE_TTL_MS = 10 * 60 * 1000;
+
+function keepChallenge(fromAddress) {
+  try {
+    if (fromAddress) {
+      sessionStorage.setItem(CHALLENGE_KEY, JSON.stringify({ value: fromAddress, at: Date.now() }));
+      return fromAddress;
+    }
+
+    const saved = JSON.parse(sessionStorage.getItem(CHALLENGE_KEY) || "null");
+    return saved && Date.now() - saved.at < CHALLENGE_TTL_MS ? saved.value : null;
+  } catch {
+    return fromAddress || null;
+  }
+}
+
+function forgetChallenge() {
+  try {
+    sessionStorage.removeItem(CHALLENGE_KEY);
+  } catch {
+    // Nothing was kept.
+  }
+}
+
 function LoginPage() {
   const location = useLocation();
+  const navigate = useNavigate();
   const { login, isAuthenticated, loading } = useAuth();
 
-  const params = new URLSearchParams(location.search);
-  const loginChallenge = params.get("login_challenge");
+  const [params] = useState(() => new URLSearchParams(location.search));
+  const [loginChallenge] = useState(() => keepChallenge(params.get("login_challenge")));
   const authError = params.get("auth_error");
+
+  // Read once above; now take them out of the address bar (replace, so Back
+  // does not return to the long address).
+  useEffect(() => {
+    if (location.search) navigate({ pathname: location.pathname }, { replace: true, state: location.state });
+  }, [location.search, location.pathname, location.state, navigate]);
   const returnTo = location.state?.from?.pathname ? `${location.state.from.pathname}${location.state.from.search || ""}` : "/";
 
   const [email, setEmail] = useState("");
@@ -46,7 +85,10 @@ function LoginPage() {
 
     setSubmitting(true);
     redeemAccessInvite(invite, loginChallenge)
-      .then(({ redirect_to: next }) => window.location.assign(next))
+      .then(({ redirect_to: next }) => {
+        forgetChallenge();
+        window.location.assign(next);
+      })
       .catch((err) => {
         setError(err.message || "This link could not be opened.");
         setSubmitting(false);
@@ -65,11 +107,15 @@ function LoginPage() {
     setSubmitting(true);
 
     try {
-      // Leaves the page on success.
+      // Leaves the page on success; the challenge is used up.
       await login(email.trim(), password, loginChallenge);
+      forgetChallenge();
     } catch (err) {
-      // An expired or used challenge cannot be retried: start over.
-      setExpired(err.status === 400 && /expired/i.test(err.message || ""));
+      // An expired or used challenge cannot be retried: start over. A wrong
+      // password keeps it, so the person can simply try again.
+      const isExpired = err.status === 400 && /expired/i.test(err.message || "");
+      if (isExpired) forgetChallenge();
+      setExpired(isExpired);
       setError(err.message || "Unable to sign in.");
       setSubmitting(false);
     }
