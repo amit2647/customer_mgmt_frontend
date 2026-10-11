@@ -5,14 +5,16 @@ import ProfilePage from "./ProfilePage";
 import * as api from "../../api/profile";
 
 const applyProfile = vi.fn();
+const signOutEverywhere = vi.fn();
 
 vi.mock("../../api/profile", () => ({ getProfile: vi.fn(), updateProfile: vi.fn(), changePassword: vi.fn() }));
-vi.mock("../../context/AuthContext", () => ({ useAuth: () => ({ applyProfile }) }));
+vi.mock("../../context/AuthContext", () => ({ useAuth: () => ({ applyProfile, signOutEverywhere }) }));
 
 const PROFILE = { name: "Asha Rao", email: "asha@example.com", role: "Partner", organization: "Rao & Co", createdAt: "2026-01-05T00:00:00Z" };
 
 beforeEach(() => {
   vi.clearAllMocks();
+  vi.spyOn(window, "confirm").mockReturnValue(true);
   api.getProfile.mockResolvedValue(PROFILE);
 });
 
@@ -64,5 +66,27 @@ describe("ProfilePage", () => {
 
     expect(await screen.findByRole("alert")).toHaveTextContent("do not match");
     expect(api.changePassword).not.toHaveBeenCalled();
+  });
+
+  test("signs out everywhere after a confirmation", async () => {
+    signOutEverywhere.mockResolvedValue();
+    render(<ProfilePage />);
+
+    window.confirm.mockReturnValueOnce(false);
+    fireEvent.click(await screen.findByRole("button", { name: "Sign out everywhere" }));
+    expect(signOutEverywhere).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByRole("button", { name: "Sign out everywhere" }));
+    expect(signOutEverywhere).toHaveBeenCalledTimes(1);
+  });
+
+  test("says so in its row when the sessions could not be ended", async () => {
+    signOutEverywhere.mockRejectedValue(new Error("Sign-in is unavailable right now"));
+    render(<ProfilePage />);
+
+    fireEvent.click(await screen.findByRole("button", { name: "Sign out everywhere" }));
+
+    expect(await screen.findByText("Sign-in is unavailable right now")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Sign out everywhere" })).toBeEnabled();
   });
 });

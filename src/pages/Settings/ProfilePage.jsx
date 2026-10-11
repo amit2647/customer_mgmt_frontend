@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Buildings, CalendarBlank, EnvelopeSimple, IdentificationBadge, Key, PencilSimple, User } from "@phosphor-icons/react";
+import { Buildings, CalendarBlank, EnvelopeSimple, IdentificationBadge, Key, PencilSimple, SignOut, User } from "@phosphor-icons/react";
 
 import { changePassword, getProfile, updateProfile } from "../../api/profile";
 import { useAuth } from "../../context/AuthContext";
@@ -30,7 +30,7 @@ function formatDate(value) {
  * this page has no id to get wrong. A row opens its own editor in place.
  */
 function ProfilePage() {
-  const { applyProfile } = useAuth();
+  const { applyProfile, signOutEverywhere } = useAuth();
 
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -162,6 +162,23 @@ function ProfilePage() {
         {message.text}
       </SettingNotice>
     );
+  }
+
+  // Ends every session, this one included, so it ends on the sign-in page.
+  async function endAllSessions() {
+    if (!window.confirm("Sign out on every device, this one included?")) {
+      return;
+    }
+
+    setSaving(true);
+    setMessage(null);
+
+    try {
+      await signOutEverywhere();
+    } catch (error) {
+      setMessage({ row: "sessions", type: "error", text: error.message || "Could not sign you out everywhere. Please try again." });
+      setSaving(false);
+    }
   }
 
   function formActions(label) {
@@ -367,6 +384,19 @@ function ProfilePage() {
             description="When your account was created"
             action={<span className="setting-value">{formatDate(profile.createdAt)}</span>}
           />
+
+          <SettingRow
+            icon={<SignOut size={16} />}
+            title="Sessions"
+            description="Signed in on another computer or phone you no longer use? End every session at once."
+            action={
+              <button type="button" className="secondary-button" onClick={endAllSessions} disabled={saving}>
+                Sign out everywhere
+              </button>
+            }
+          >
+            {rowMessage("sessions")}
+          </SettingRow>
         </SettingRows>
       )}
     </div>

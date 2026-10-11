@@ -39,6 +39,14 @@ export function logout() {
   return endSession();
 }
 
+// Every session of the signed-in user, on every device, this one included
+// (auth-hardening P3). Throws if the server could not end them, so the person
+// is never told their other devices are signed out when they are not.
+export async function signOutEverywhere() {
+  await request("/auth/sessions/revoke", { method: "POST" });
+  await endSession();
+}
+
 export function getCurrentUser() {
   return request("/auth/me");
 }

@@ -12,6 +12,7 @@ import {
   getCurrentUser,
   logout as logoutRequest,
   restoreSession,
+  signOutEverywhere as signOutEverywhereRequest,
   submitLogin,
 } from "../api/auth";
 import { SESSION_ENDED } from "../api/client";
@@ -111,6 +112,11 @@ export function AuthProvider({ children }) {
     setUser(null);
   }
 
+  async function signOutEverywhere() {
+    await signOutEverywhereRequest();
+    setUser(null);
+  }
+
   // Called after the profile page saves, so the header follows at once.
   const applyProfile = useCallback((profile) => {
     setUser((current) => (current ? overlayProfile(current, profile) : current));
@@ -122,6 +128,7 @@ export function AuthProvider({ children }) {
     isAuthenticated: Boolean(user),
     login,
     logout,
+    signOutEverywhere,
     applyProfile,
   };
 
