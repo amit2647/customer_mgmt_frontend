@@ -13,8 +13,13 @@ import request, { apiUrl, endSession, refreshSession } from "./client";
  */
 
 // Leaves the app for the sign-in flow; `returnTo` is where it ends up after.
+// replace(), not assign(): Back must not return to a page that only redirected.
+let leaving = false;
+
 export function startSignIn(returnTo = "/") {
-  window.location.assign(apiUrl(`/auth/start?returnTo=${encodeURIComponent(returnTo)}`));
+  if (leaving) return;
+  leaving = true;
+  window.location.replace(apiUrl(`/auth/start?returnTo=${encodeURIComponent(returnTo)}`));
 }
 
 // The password for Hydra's login_challenge: { redirect_to } to follow.

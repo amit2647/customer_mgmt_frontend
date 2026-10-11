@@ -63,6 +63,24 @@ function TemplateRedirect() {
   return <Navigate to={`/documents/templates/${key}`} replace />;
 }
 
+const SPLASH_SEEN = "omnicore-splash-seen";
+
+function splashSeen() {
+  try {
+    return sessionStorage.getItem(SPLASH_SEEN) === "true";
+  } catch {
+    return false;
+  }
+}
+
+function markSplashSeen() {
+  try {
+    sessionStorage.setItem(SPLASH_SEEN, "true");
+  } catch {
+    // Without storage the splash shows on each load, as it always did.
+  }
+}
+
 // Checked in order when a user cannot open the dashboard.
 const LANDING_FALLBACKS = [
   ["leads.read", "/leads"],
@@ -101,7 +119,16 @@ function App() {
    */
   const isInviteLink = location.pathname.startsWith("/access/");
 
-  const [showSplash, setShowSplash] = useState(true);
+  /*
+   * The splash is the app opening, once per tab. Signing in through Hydra
+   * reloads the app twice more (the login page with its challenge, then the
+   * page asked for), and holding each of those for the splash's 1.8 s made a
+   * sign-in take ten. It is skipped there, and when there is no session the
+   * app goes straight on to the sign-in flow instead of waiting it out.
+   */
+  const { loading: authLoading, isAuthenticated } = useAuth();
+  const inSignInFlow = location.pathname === "/login";
+  const [showSplash, setShowSplash] = useState(() => !inSignInFlow && !splashSeen());
 
   // A new installation is set up before anything else (SetupPage). Asked once,
   // during the splash; if the question fails, the app carries on as set up —
@@ -125,8 +152,16 @@ function App() {
   });
 
   function handleSplashComplete() {
+    markSplashSeen();
     setShowSplash(false);
   }
+
+  // Skipped (signed out, or inside the sign-in flow) counts as seen, so the
+  // reload that ends the sign-in does not show it either.
+  const skipSplash = inSignInFlow || (!authLoading && !isAuthenticated);
+  useEffect(() => {
+    if (showSplash && skipSplash) handleSplashComplete();
+  }, [showSplash, skipSplash]);
 
   function handleOnboardingComplete() {
     localStorage.setItem("omnicore-onboarding-completed", "true");
@@ -144,7 +179,7 @@ function App() {
    * ---------------------------------------------------------
    */
 
-  if (showSplash && !isInviteLink) {
+  if (showSplash && !isInviteLink && !skipSplash) {
     return <SplashScreen onComplete={handleSplashComplete} />;
   }
 
