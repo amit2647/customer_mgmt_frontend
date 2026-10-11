@@ -264,6 +264,36 @@
     line-height: 1.45;
 }
 
+/* A quieter note than an error: a resent link, a confirmed address. */
+.login-notice {
+    padding: 10px 12px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-info-bg);
+    color: var(--color-text-secondary);
+    font-size: 12px;
+    line-height: 1.45;
+}
+
+/* "Send the link again" under an unconfirmed-address error. */
+.login-resend {
+    align-self: flex-start;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--color-text);
+    font-family: var(--font-body);
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.login-resend:disabled {
+    cursor: not-allowed;
+    opacity: 0.65;
+}
+
 .login-submit {
     height: 44px;
     margin-top: 6px;

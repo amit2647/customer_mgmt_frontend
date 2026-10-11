@@ -47,6 +47,17 @@ export async function signOutEverywhere() {
   await endSession();
 }
 
+// Email verification (auth-hardening P4). The token comes from the link's
+// fragment; nothing here ever puts it in a URL.
+export function verifyEmail(token) {
+  return request("/auth/verify-email", { method: "POST", body: JSON.stringify({ token }) });
+}
+
+// Always answers the same, whether or not the address needs confirming.
+export function resendVerification(email) {
+  return request("/auth/verify-email/resend", { method: "POST", body: JSON.stringify({ email }) });
+}
+
 export function getCurrentUser() {
   return request("/auth/me");
 }

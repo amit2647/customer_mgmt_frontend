@@ -940,6 +940,16 @@
     word-break: break-all;
 }
 
+/* Users → a member's verification link when it could not be mailed (P4). */
+.verification-notice p {
+    margin: 0 0 10px;
+    line-height: 1.45;
+}
+
+.verification-notice .invite-link-row {
+    margin-bottom: 6px;
+}
+
 /* A one-line explanation under a field, e.g. which account an automation
    will send from. */
 .settings-field-hint {

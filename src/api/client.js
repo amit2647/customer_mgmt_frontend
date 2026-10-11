@@ -161,6 +161,12 @@ async function request(url, options = {}, retried = false) {
 
     error.status = response.status;
 
+    // A machine-readable reason where the server gives one (e.g.
+    // "email_unverified"), so a page can act on it rather than on wording.
+    if (data?.code) {
+      error.code = data.code;
+    }
+
     // Field-by-field reasons (e.g. { "identifiers.cin": "CIN is required" }),
     // so a form can mark the fields themselves.
     if (data?.details) {

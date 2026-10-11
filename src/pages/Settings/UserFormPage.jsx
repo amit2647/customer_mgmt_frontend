@@ -81,11 +81,13 @@ function UserFormPage() {
       setSaving(true);
       setError("");
 
+      let saved;
+
       if (isEditing) {
         // Password is still not editable here. roleCode is omitted rather than
         // sent unchanged when the field is locked, so a no-op edit never trips
         // the server's role-change permission check.
-        await updateUser(id, {
+        saved = await updateUser(id, {
           name: form.name,
           email: form.email,
           status: form.status,
@@ -94,7 +96,7 @@ function UserFormPage() {
       } else {
         // organizationId is taken from the caller's token by identity-service,
         // never sent from here.
-        await createUser({
+        saved = await createUser({
           name: form.name,
           email: form.email,
           password: form.password,
@@ -103,7 +105,9 @@ function UserFormPage() {
         });
       }
 
-      navigate("/settings/users");
+      // A new member, or a changed address, must be confirmed before they sign
+      // in (P4): the list says whether the link was mailed, or shows it.
+      navigate("/settings/users", saved?.verification ? { state: { verification: saved.verification, email: saved.email } } : undefined);
     } catch (requestError) {
       setError(requestError.message || "Failed to save the user.");
     } finally {
@@ -126,7 +130,7 @@ function UserFormPage() {
           <p>
             {isEditing
               ? "Changing a role takes effect the next time this person signs in, because permissions are carried in their session. Passwords cannot be changed here."
-              : "The user is added to your organization and can sign in immediately with the password you set."}
+              : "The user is added to your organization. We email them a link to confirm their address; they can sign in with the password you set once they open it."}
           </p>
         </div>
       </div>

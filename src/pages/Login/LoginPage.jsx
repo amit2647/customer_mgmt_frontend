@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
 
-import { startSignIn } from "../../api/auth";
+import { resendVerification, startSignIn } from "../../api/auth";
 import { redeemAccessInvite, takePendingInvite } from "../../api/identity";
 import { useAuth } from "../../context/AuthContext";
 
@@ -69,6 +69,9 @@ function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState(authError || "");
   const [expired, setExpired] = useState(false);
+  // The password was right but the address is not confirmed yet (P4).
+  const [unverified, setUnverified] = useState(false);
+  const [resent, setResent] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
   const mustStart = !loading && !isAuthenticated && !loginChallenge && !authError;
@@ -104,6 +107,8 @@ function LoginPage() {
     }
 
     setError("");
+    setUnverified(false);
+    setResent("");
     setSubmitting(true);
 
     try {
@@ -116,7 +121,22 @@ function LoginPage() {
       const isExpired = err.status === 400 && /expired/i.test(err.message || "");
       if (isExpired) forgetChallenge();
       setExpired(isExpired);
+      setUnverified(err.code === "email_unverified");
       setError(err.message || "Unable to sign in.");
+      setSubmitting(false);
+    }
+  }
+
+  async function sendLinkAgain() {
+    setResent("");
+    setSubmitting(true);
+
+    try {
+      const { message } = await resendVerification(email.trim());
+      setResent(message || "A new link is on its way.");
+    } catch (err) {
+      setResent(err.message || "The link could not be sent. Please try again.");
+    } finally {
       setSubmitting(false);
     }
   }
@@ -201,6 +221,18 @@ function LoginPage() {
             {error && (
               <div className="login-error" role="alert">
                 {error}
+              </div>
+            )}
+
+            {unverified && !resent && (
+              <button type="button" className="login-resend" onClick={sendLinkAgain} disabled={submitting}>
+                Send the link again
+              </button>
+            )}
+
+            {resent && (
+              <div className="login-notice" role="status">
+                {resent}
               </div>
             )}
 

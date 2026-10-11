@@ -24,6 +24,11 @@ export function updateUser(id, data) {
   return request(`/users/${id}`, { method: "PUT", body: JSON.stringify(data) });
 }
 
+// A new verification link for a member who has not confirmed yet (P4).
+export function resendUserVerification(id) {
+  return request(`/users/${id}/verification`, { method: "POST" });
+}
+
 export function deleteUser(id) {
   return request(`/users/${id}`, { method: "DELETE" });
 }

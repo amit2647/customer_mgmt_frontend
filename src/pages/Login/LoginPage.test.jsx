@@ -6,9 +6,13 @@ import LoginPage from "./LoginPage";
 
 const login = vi.fn();
 const startSignIn = vi.fn();
+const resendVerification = vi.fn();
 
 vi.mock("../../context/AuthContext", () => ({ useAuth: () => ({ login, isAuthenticated: false, loading: false }) }));
-vi.mock("../../api/auth", () => ({ startSignIn: (...args) => startSignIn(...args) }));
+vi.mock("../../api/auth", () => ({
+  startSignIn: (...args) => startSignIn(...args),
+  resendVerification: (...args) => resendVerification(...args),
+}));
 vi.mock("../../api/identity", () => ({ redeemAccessInvite: vi.fn(), takePendingInvite: () => null }));
 
 let address;
@@ -82,5 +86,17 @@ describe("LoginPage and Hydra's challenge", () => {
     expect(await screen.findByText("The sign-in expired")).toBeInTheDocument();
     await waitFor(() => expect(address).toBe("/login"));
     expect(startSignIn).not.toHaveBeenCalled();
+  });
+
+  test("an unconfirmed address offers to send the link again", async () => {
+    login.mockRejectedValue(Object.assign(new Error("Please confirm your email address first: open the link we sent you."), { status: 403, code: "email_unverified" }));
+    resendVerification.mockResolvedValue({ message: "If that address needs confirming, a new link is on its way." });
+    renderAt("/login?login_challenge=abc123");
+
+    signIn();
+    fireEvent.click(await screen.findByRole("button", { name: "Send the link again" }));
+
+    expect(await screen.findByText("If that address needs confirming, a new link is on its way.")).toBeInTheDocument();
+    expect(resendVerification).toHaveBeenCalledWith("asha@firm.example");
   });
 });

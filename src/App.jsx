@@ -13,11 +13,12 @@ import LoginPage from "./pages/Login/LoginPage";
 import SetupPage from "./pages/Setup/SetupPage";
 import { getSetupStatus } from "./api/setup";
 import GuestAccessPage from "./pages/Guest/GuestAccessPage";
+import VerifyEmailPage from "./pages/VerifyEmail/VerifyEmailPage";
 
 /*
  * Pages are fetched the first time they are visited (React.lazy), so the
  * login page, which a Hydra sign-in loads twice, carries only itself. The
- * login, setup and invite pages stay in the main bundle: they are the first
+ * login, setup, invite and email-confirmation pages stay in the main bundle: they are the first
  * thing someone signed out sees. A page still loading shows its frame (the
  * sidebar, the Settings tabs) and a skeleton: see AppLayout and SettingsLayout.
  */
@@ -119,7 +120,9 @@ function App() {
    * onboarding ends by sending the visitor to /login, which is exactly where
    * someone without an account must not be sent.
    */
-  const isInviteLink = location.pathname.startsWith("/access/");
+  // Links people open from an email (a guest invite, an email confirmation)
+  // go straight to their page: no splash, setup or tour in front of them.
+  const isEmailedLink = location.pathname.startsWith("/access/") || location.pathname === "/verify-email";
 
   /*
    * The splash is the app opening, once per tab. Signing in through Hydra
@@ -181,7 +184,7 @@ function App() {
    * ---------------------------------------------------------
    */
 
-  if (showSplash && !isInviteLink && !skipSplash) {
+  if (showSplash && !isEmailedLink && !skipSplash) {
     return <SplashScreen onComplete={handleSplashComplete} />;
   }
 
@@ -191,11 +194,11 @@ function App() {
    * ---------------------------------------------------------
    */
 
-  if (!isInviteLink && setup === null) {
+  if (!isEmailedLink && setup === null) {
     return null;
   }
 
-  if (!isInviteLink && setup.required) {
+  if (!isEmailedLink && setup.required) {
     return (
       <SetupPage
         status={setup}
@@ -214,7 +217,7 @@ function App() {
    * ---------------------------------------------------------
    */
 
-  if (showOnboarding && !isInviteLink) {
+  if (showOnboarding && !isEmailedLink) {
     return <OnboardingScreen onComplete={handleOnboardingComplete} />;
   }
 
@@ -237,6 +240,7 @@ function App() {
 
       {/* Invite links for external guests — no session required to open it. */}
       <Route path="/access/:token" element={<GuestAccessPage />} />
+      <Route path="/verify-email" element={<VerifyEmailPage />} />
 
       {/* =====================================================
           PROTECTED APPLICATION

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 
 import { useAuth } from "../../context/AuthContext";
 import {
@@ -7,9 +7,11 @@ import {
   deleteUser,
   getOrganizationUsers,
   getRoles,
+  resendUserVerification,
 } from "../../api/identity";
 import DataGrid from "../../components/ui/DataGrid";
 import Pill, { toneFor } from "../../components/ui/Pill";
+import VerificationNotice from "./VerificationNotice";
 
 const TABS = [
   { id: "users", label: "Users" },
@@ -18,6 +20,7 @@ const TABS = [
 
 function UsersRolesPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useAuth();
 
   // The tab lives in the URL so returning from a role form can restore it.
@@ -38,6 +41,8 @@ function UsersRolesPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  // What happened to a verification link: from the user form, or a resend.
+  const [verification, setVerification] = useState(location.state?.verification ? location.state : null);
 
   const load = useCallback(async () => {
     try {
@@ -66,6 +71,18 @@ function UsersRolesPage() {
     setSearchParams(next === "users" ? {} : { tab: next });
     setError("");
     setSuccess("");
+  }
+
+  async function handleResendVerification(target) {
+    setError("");
+    setSuccess("");
+
+    try {
+      const { verification: result } = await resendUserVerification(target.id);
+      setVerification({ verification: result, email: target.email });
+    } catch (requestError) {
+      setError(requestError.message || "Could not send the link.");
+    }
   }
 
   async function handleDeleteUser(target) {
@@ -163,6 +180,9 @@ function UsersRolesPage() {
       </nav>
 
       {success && <div className="alert alert-success">{success}</div>}
+      {verification && (
+        <VerificationNotice verification={verification.verification} email={verification.email} onClose={() => setVerification(null)} />
+      )}
       {error && <div className="alert alert-error" role="alert">{error}</div>}
 
       {tab === "users" ? (
@@ -179,7 +199,15 @@ function UsersRolesPage() {
               render: (item) => (
                 <>
                   <span className="grid-cell-title">{item.name}</span>
-                  <span className="grid-cell-sub">{item.email}</span>
+                  <span className="grid-cell-sub">
+                    {item.email}
+                    {!item.email_verified_at && (
+                      <>
+                        {" "}
+                        <Pill tone="warning">Unconfirmed</Pill>
+                      </>
+                    )}
+                  </span>
                 </>
               ),
             },
@@ -207,6 +235,11 @@ function UsersRolesPage() {
                   {canUpdateUser && (
                     <button type="button" className="link" onClick={() => navigate(`/settings/users/${item.id}/edit`)}>
                       Edit
+                    </button>
+                  )}
+                  {canUpdateUser && !item.email_verified_at && (
+                    <button type="button" className="link" onClick={() => handleResendVerification(item)}>
+                      Send link again
                     </button>
                   )}
                   {canDeleteUser && item.id !== user?.userId && (

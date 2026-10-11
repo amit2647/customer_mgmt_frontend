@@ -98,11 +98,21 @@ function ProfilePage() {
       applyProfile(updated);
 
       setEditing(null);
-      setMessage({
-        row,
-        type: "success",
-        text: row === "email" ? `Saved. Sign in with ${updated.email} from now on.` : "Your name has been saved.",
-      });
+
+      // A new address takes effect only once its link is opened (P4).
+      const verification = updated.verification;
+      setMessage(
+        row === "email" && verification && !verification.sent
+          ? { row, type: "error", text: `${verification.reason || "The confirmation email could not be sent"}. Your email address has not changed.` }
+          : {
+              row,
+              type: "success",
+              text:
+                row === "email"
+                  ? `We sent a link to ${updated.pendingEmail || draft.email.trim()}. Your email changes when you open it; until then you sign in with ${updated.email}.`
+                  : "Your name has been saved.",
+            },
+      );
     } catch (error) {
       setMessage({ row, type: "error", text: error.message || "Could not save your details." });
     } finally {
@@ -256,7 +266,11 @@ function ProfilePage() {
           <SettingRow
             icon={<EnvelopeSimple size={16} />}
             title="Email"
-            description="The address you sign in with"
+            description={
+              profile.pendingEmail
+                ? `The address you sign in with. Waiting for you to confirm ${profile.pendingEmail}: open the link we sent there.`
+                : "The address you sign in with"
+            }
             action={
               <>
                 {editing !== "email" && <span className="setting-value">{profile.email}</span>}
