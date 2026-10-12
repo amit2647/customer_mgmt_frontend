@@ -1,6 +1,7 @@
 import { forwardRef, useImperativeHandle, useMemo, useRef } from "react";
 import Form, { getDefaultRegistry } from "@rjsf/core";
-import validator from "@rjsf/validator-ajv8";
+// Interprets the schema rather than compiling it: the CSP forbids eval (P6).
+import validator from "./schemaValidator";
 
 import NumberInput from "../ui/NumberInput";
 

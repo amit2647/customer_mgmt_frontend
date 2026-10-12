@@ -28,6 +28,9 @@ RUN npm run build
 
 # nginx as an unprivileged user; 3000 is kept so every port mapping stays.
 FROM nginxinc/nginx-unprivileged:1.29.8-alpine
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# The server block is a template (API_ORIGIN, filled at start-up by nginx's
+# entrypoint); the security headers are a fixed snippet it includes.
+COPY nginx.conf.template /etc/nginx/templates/default.conf.template
+COPY security-headers.conf /etc/nginx/snippets/security-headers.conf
 COPY --from=build /app/dist /usr/share/nginx/html
 EXPOSE 3000

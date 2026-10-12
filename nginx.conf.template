@@ -1,12 +1,19 @@
+# A template: nginx's entrypoint fills ${API_ORIGIN} from the environment
+# (docker-compose.yml) when the container starts, and writes default.conf.
 server {
     listen 3000;
     root /usr/share/nginx/html;
+
+    # Where the app's API calls go (Kong), for the Content-Security-Policy's
+    # connect-src: the same origin as VITE_API_BASE_URL.
+    set $api_origin "${API_ORIGIN}";
 
     # Built assets carry a content hash in their names, so they never change
     # under the same URL and can be cached for good.
     location /assets/ {
         try_files $uri =404;
         add_header Cache-Control "public, max-age=31536000, immutable";
+        include /etc/nginx/snippets/security-headers.conf;
     }
 
     # Every other path is a route of the app: serve index.html, and always
@@ -14,6 +21,7 @@ server {
     location / {
         try_files $uri /index.html;
         add_header Cache-Control "no-cache";
+        include /etc/nginx/snippets/security-headers.conf;
     }
 
     gzip on;

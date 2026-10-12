@@ -6,6 +6,7 @@ import { useAuth } from "../../context/AuthContext";
 import { SettingNotice, SettingRow, SettingRows } from "../../components/ui/SettingRow";
 import { SettingRowsSkeleton } from "../../components/ui/Skeleton";
 import TwoFactorSetting from "./TwoFactorSetting";
+import SignInActivity from "./SignInActivity";
 import { PASSWORD_MIN_LENGTH } from "../../config";
 
 const MIN_PASSWORD_LENGTH = PASSWORD_MIN_LENGTH;
@@ -382,6 +383,8 @@ function ProfilePage() {
 
           {/* Guests sign in with their invite, not a password: no second step. */}
           {editable && <TwoFactorSetting />}
+
+          {editable && <SignInActivity />}
 
           <SettingRow
             icon={<IdentificationBadge size={16} />}

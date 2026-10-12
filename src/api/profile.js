@@ -49,3 +49,8 @@ export function disableTwoFactor(code) {
 export function newRecoveryCodes(code) {
   return request("/profile/mfa/recovery-codes", { method: "POST", body: JSON.stringify({ code }) });
 }
+
+// The caller's own sign-in and security history (auth-hardening P6).
+export function getActivity() {
+  return request("/profile/activity");
+}

@@ -9,10 +9,13 @@ import {
   getRoles,
   resendUserVerification,
   resetUserTwoFactor,
+  getUserActivity,
 } from "../../api/identity";
 import DataGrid from "../../components/ui/DataGrid";
 import Pill, { toneFor } from "../../components/ui/Pill";
 import VerificationNotice from "./VerificationNotice";
+import Modal from "../../components/ui/Modal";
+import ActivityList from "../../components/auth/ActivityList";
 
 const TABS = [
   { id: "users", label: "Users" },
@@ -42,6 +45,8 @@ function UsersRolesPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  // A member's sign-in history, open in a dialog (P6).
+  const [activity, setActivity] = useState(null);
   // What happened to a verification link: from the user form, or a resend.
   const [verification, setVerification] = useState(location.state?.verification ? location.state : null);
 
@@ -102,6 +107,18 @@ function UsersRolesPage() {
       await load();
     } catch (requestError) {
       setError(requestError.message || "Could not reset two-factor sign-in.");
+    }
+  }
+
+  async function openActivity(target) {
+    setActivity({ user: target, events: [], loading: true });
+
+    try {
+      const { events } = await getUserActivity(target.id);
+      setActivity({ user: target, events: events || [], loading: false });
+    } catch (requestError) {
+      setActivity(null);
+      setError(requestError.message || "Could not load sign-in activity.");
     }
   }
 
@@ -268,6 +285,11 @@ function UsersRolesPage() {
                       Send link again
                     </button>
                   )}
+                  {canManageRoles && (
+                    <button type="button" className="link" onClick={() => openActivity(item)}>
+                      Activity
+                    </button>
+                  )}
                   {canManageRoles && item.mfa_enabled_at && item.id !== user?.userId && (
                     <button type="button" className="link" onClick={() => handleResetTwoFactor(item)}>
                       Reset two-factor
@@ -346,6 +368,11 @@ function UsersRolesPage() {
           ]}
           empty="No roles yet."
         />
+      )}
+      {activity && (
+        <Modal size="lg" title={`Sign-in activity: ${activity.user.name}`} description={activity.user.email} onClose={() => setActivity(null)}>
+          <ActivityList events={activity.events} loading={activity.loading} label={`Sign-in activity for ${activity.user.name}`} />
+        </Modal>
       )}
     </div>
   );

@@ -34,6 +34,11 @@ export function resetUserTwoFactor(id) {
   return request(`/users/${id}/mfa/reset`, { method: "POST" });
 }
 
+// A member's sign-in and security history (P6, system.settings).
+export function getUserActivity(id) {
+  return request(`/users/${id}/activity`);
+}
+
 // The organization's "require two-factor sign-in" policy (system.settings).
 export function getSecurityPolicy() {
   return request("/organizations/current/security");

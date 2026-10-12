@@ -8,6 +8,7 @@
         "coverage": "vitest run --coverage"
     },
     "dependencies": {
+        "@cfworker/json-schema": "4.1.1",
         "@phosphor-icons/core": "^2.1.1",
         "@phosphor-icons/react": "^2.1.10",
         "@rjsf/core": "^6.11.0",

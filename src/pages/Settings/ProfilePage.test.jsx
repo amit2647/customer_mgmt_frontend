@@ -13,6 +13,8 @@ vi.mock("../../api/profile", () => ({
   changePassword: vi.fn(),
   // The two-factor row (TwoFactorSetting) loads its own status.
   getTwoFactor: vi.fn().mockResolvedValue({ enabled: false, required: false, recoveryCodesLeft: 0 }),
+  // The sign-in activity row (SignInActivity) loads when opened.
+  getActivity: vi.fn().mockResolvedValue({ events: [] }),
 }));
 vi.mock("../../context/AuthContext", () => ({ useAuth: () => ({ applyProfile, signOutEverywhere }) }));
 
