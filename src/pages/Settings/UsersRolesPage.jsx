@@ -8,6 +8,7 @@ import {
   getOrganizationUsers,
   getRoles,
   resendUserVerification,
+  resetUserTwoFactor,
 } from "../../api/identity";
 import DataGrid from "../../components/ui/DataGrid";
 import Pill, { toneFor } from "../../components/ui/Pill";
@@ -82,6 +83,25 @@ function UsersRolesPage() {
       setVerification({ verification: result, email: target.email });
     } catch (requestError) {
       setError(requestError.message || "Could not send the link.");
+    }
+  }
+
+  // For someone who lost their phone and their recovery codes (P5). It signs
+  // them out everywhere; they set it up again if the organization requires it.
+  async function handleResetTwoFactor(target) {
+    if (!window.confirm(`Reset two-factor sign-in for ${target.name}? They will be signed out everywhere.`)) {
+      return;
+    }
+
+    setError("");
+    setSuccess("");
+
+    try {
+      await resetUserTwoFactor(target.id);
+      setSuccess(`Two-factor sign-in reset for ${target.name}.`);
+      await load();
+    } catch (requestError) {
+      setError(requestError.message || "Could not reset two-factor sign-in.");
     }
   }
 
@@ -207,6 +227,12 @@ function UsersRolesPage() {
                         <Pill tone="warning">Unconfirmed</Pill>
                       </>
                     )}
+                    {item.mfa_enabled_at && (
+                      <>
+                        {" "}
+                        <Pill tone="success">Two-factor</Pill>
+                      </>
+                    )}
                   </span>
                 </>
               ),
@@ -240,6 +266,11 @@ function UsersRolesPage() {
                   {canUpdateUser && !item.email_verified_at && (
                     <button type="button" className="link" onClick={() => handleResendVerification(item)}>
                       Send link again
+                    </button>
+                  )}
+                  {canManageRoles && item.mfa_enabled_at && item.id !== user?.userId && (
+                    <button type="button" className="link" onClick={() => handleResetTwoFactor(item)}>
+                      Reset two-factor
                     </button>
                   )}
                   {canDeleteUser && item.id !== user?.userId && (

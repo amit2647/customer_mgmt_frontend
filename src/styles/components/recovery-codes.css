@@ -1,0 +1,64 @@
+/* =========================================================
+   Two-factor recovery codes (P5): shown once, at sign-in or on Profile.
+   ========================================================= */
+
+.recovery-codes {
+    display: grid;
+    gap: 12px;
+}
+
+.recovery-codes ol {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px 16px;
+    margin: 0;
+    padding: 14px 16px 14px 34px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-info-bg);
+}
+
+.recovery-codes code {
+    color: var(--color-text);
+    font-size: 13px;
+    letter-spacing: 0.04em;
+}
+
+.recovery-codes-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.recovery-codes-actions a {
+    text-decoration: none;
+}
+
+/* The QR code and manual key when setting up an authenticator app. */
+.mfa-setup {
+    display: grid;
+    justify-items: start;
+    gap: 8px;
+}
+
+.mfa-setup img {
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: #fff;
+}
+
+.mfa-setup p {
+    margin: 0;
+    color: var(--color-text-secondary);
+    font-size: 12px;
+    line-height: 1.45;
+}
+
+.mfa-setup code {
+    word-break: break-all;
+}
+
+@media (max-width: 480px) {
+    .recovery-codes ol {
+        grid-template-columns: 1fr;
+    }
+}

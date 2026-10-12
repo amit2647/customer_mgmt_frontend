@@ -4,6 +4,7 @@ import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { resendVerification, startSignIn } from "../../api/auth";
 import { redeemAccessInvite, takePendingInvite } from "../../api/identity";
 import { useAuth } from "../../context/AuthContext";
+import TwoFactorStep from "./TwoFactorStep";
 
 /*
  * Split layout: an abstract gradient panel on the left, the form on the right.
@@ -72,6 +73,8 @@ function LoginPage() {
   // The password was right but the address is not confirmed yet (P4).
   const [unverified, setUnverified] = useState(false);
   const [resent, setResent] = useState("");
+  // The step after a right password when two-factor applies (P5).
+  const [step, setStep] = useState(null);
   const [submitting, setSubmitting] = useState(false);
 
   const mustStart = !loading && !isAuthenticated && !loginChallenge && !authError;
@@ -112,8 +115,14 @@ function LoginPage() {
     setSubmitting(true);
 
     try {
-      // Leaves the page on success; the challenge is used up.
-      await login(email.trim(), password, loginChallenge);
+      // Leaves the page on success (the challenge is used up), unless a
+      // two-factor code comes next.
+      const next = await login(email.trim(), password, loginChallenge);
+      if (next) {
+        setStep(next);
+        setSubmitting(false);
+        return;
+      }
       forgetChallenge();
     } catch (err) {
       // An expired or used challenge cannot be retried: start over. A wrong
@@ -183,69 +192,83 @@ function LoginPage() {
             <span className="login-brand-name">OmniCore</span>
           </div>
 
-          <div className="login-heading">
-            <span className="login-eyebrow">Secure access</span>
+          {step ? (
+            <TwoFactorStep
+              step={step}
+              loginChallenge={loginChallenge}
+              onDone={forgetChallenge}
+              onRestart={() => {
+                forgetChallenge();
+                startSignIn(returnTo);
+              }}
+            />
+          ) : (
+            <>
+              <div className="login-heading">
+                <span className="login-eyebrow">Secure access</span>
 
-            <h1>Welcome back</h1>
+                <h1>Welcome back</h1>
 
-            <p>Sign in to your customer management workspace.</p>
-          </div>
-
-          <form className="login-form" onSubmit={handleSubmit}>
-            <label>
-              <span>Email address</span>
-
-              <input
-                type="email"
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
-                placeholder="you@company.com"
-                autoComplete="email"
-                required
-              />
-            </label>
-
-            <label>
-              <span>Password</span>
-
-              <input
-                type="password"
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                placeholder="Enter your password"
-                autoComplete="current-password"
-                required
-              />
-            </label>
-
-            {error && (
-              <div className="login-error" role="alert">
-                {error}
+                <p>Sign in to your customer management workspace.</p>
               </div>
-            )}
 
-            {unverified && !resent && (
-              <button type="button" className="login-resend" onClick={sendLinkAgain} disabled={submitting}>
-                Send the link again
-              </button>
-            )}
+              <form className="login-form" onSubmit={handleSubmit}>
+                <label>
+                  <span>Email address</span>
 
-            {resent && (
-              <div className="login-notice" role="status">
-                {resent}
-              </div>
-            )}
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(event) => setEmail(event.target.value)}
+                    placeholder="you@company.com"
+                    autoComplete="email"
+                    required
+                  />
+                </label>
 
-            {expired || (authError && !loginChallenge) ? (
-              <button type="button" className="login-submit" onClick={() => startSignIn(returnTo)}>
-                Start again
-              </button>
-            ) : (
-              <button type="submit" className="login-submit" disabled={submitting || !loginChallenge}>
-                {submitting ? "Signing in..." : "Sign in"}
-              </button>
-            )}
-          </form>
+                <label>
+                  <span>Password</span>
+
+                  <input
+                    type="password"
+                    value={password}
+                    onChange={(event) => setPassword(event.target.value)}
+                    placeholder="Enter your password"
+                    autoComplete="current-password"
+                    required
+                  />
+                </label>
+
+                {error && (
+                  <div className="login-error" role="alert">
+                    {error}
+                  </div>
+                )}
+
+                {unverified && !resent && (
+                  <button type="button" className="login-resend" onClick={sendLinkAgain} disabled={submitting}>
+                    Send the link again
+                  </button>
+                )}
+
+                {resent && (
+                  <div className="login-notice" role="status">
+                    {resent}
+                  </div>
+                )}
+
+                {expired || (authError && !loginChallenge) ? (
+                  <button type="button" className="login-submit" onClick={() => startSignIn(returnTo)}>
+                    Start again
+                  </button>
+                ) : (
+                  <button type="submit" className="login-submit" disabled={submitting || !loginChallenge}>
+                    {submitting ? "Signing in..." : "Sign in"}
+                  </button>
+                )}
+              </form>
+            </>
+          )}
 
           <div className="login-footer">
             <span>OmniCore Customer Platform</span>

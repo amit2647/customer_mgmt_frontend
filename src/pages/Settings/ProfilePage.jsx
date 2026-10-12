@@ -5,6 +5,7 @@ import { changePassword, getProfile, updateProfile } from "../../api/profile";
 import { useAuth } from "../../context/AuthContext";
 import { SettingNotice, SettingRow, SettingRows } from "../../components/ui/SettingRow";
 import { SettingRowsSkeleton } from "../../components/ui/Skeleton";
+import TwoFactorSetting from "./TwoFactorSetting";
 
 const MIN_PASSWORD_LENGTH = 8;
 
@@ -377,6 +378,9 @@ function ProfilePage() {
               {editing !== "password" && rowMessage("password")}
             </SettingRow>
           )}
+
+          {/* Guests sign in with their invite, not a password: no second step. */}
+          {editable && <TwoFactorSetting />}
 
           <SettingRow
             icon={<IdentificationBadge size={16} />}

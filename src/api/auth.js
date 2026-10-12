@@ -30,6 +30,16 @@ export function submitLogin(email, password, loginChallenge) {
   });
 }
 
+// The code after the password when two-factor applies (P5): from the app, a
+// recovery code, or the first code from an app being set up. Answers
+// { redirect_to } and, after a setup, the recovery codes to show once.
+export function submitLoginCode(mfaToken, code, loginChallenge) {
+  return request("/auth/login/mfa", {
+    method: "POST",
+    body: JSON.stringify({ mfa_token: mfaToken, code, login_challenge: loginChallenge }),
+  });
+}
+
 // An access token from the refresh cookie, or null when not signed in.
 export function restoreSession() {
   return refreshSession();

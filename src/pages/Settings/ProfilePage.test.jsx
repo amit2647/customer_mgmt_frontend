@@ -7,7 +7,13 @@ import * as api from "../../api/profile";
 const applyProfile = vi.fn();
 const signOutEverywhere = vi.fn();
 
-vi.mock("../../api/profile", () => ({ getProfile: vi.fn(), updateProfile: vi.fn(), changePassword: vi.fn() }));
+vi.mock("../../api/profile", () => ({
+  getProfile: vi.fn(),
+  updateProfile: vi.fn(),
+  changePassword: vi.fn(),
+  // The two-factor row (TwoFactorSetting) loads its own status.
+  getTwoFactor: vi.fn().mockResolvedValue({ enabled: false, required: false, recoveryCodesLeft: 0 }),
+}));
 vi.mock("../../context/AuthContext", () => ({ useAuth: () => ({ applyProfile, signOutEverywhere }) }));
 
 const PROFILE = { name: "Asha Rao", email: "asha@example.com", role: "Partner", organization: "Rao & Co", createdAt: "2026-01-05T00:00:00Z" };

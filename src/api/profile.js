@@ -23,3 +23,29 @@ export function changePassword({ currentPassword, newPassword }) {
     body: JSON.stringify({ currentPassword, newPassword }),
   });
 }
+
+/*
+ * Two-factor sign-in (auth-hardening P5). Setting up returns a secret to
+ * scan; it is switched on by the first code from it, which returns the
+ * recovery codes, shown once. Switching off and new recovery codes need a
+ * current code.
+ */
+export function getTwoFactor() {
+  return request("/profile/mfa");
+}
+
+export function startTwoFactorSetup() {
+  return request("/profile/mfa/setup", { method: "POST" });
+}
+
+export function enableTwoFactor(code) {
+  return request("/profile/mfa/enable", { method: "POST", body: JSON.stringify({ code }) });
+}
+
+export function disableTwoFactor(code) {
+  return request("/profile/mfa/disable", { method: "POST", body: JSON.stringify({ code }) });
+}
+
+export function newRecoveryCodes(code) {
+  return request("/profile/mfa/recovery-codes", { method: "POST", body: JSON.stringify({ code }) });
+}

@@ -14,6 +14,7 @@ import {
   restoreSession,
   signOutEverywhere as signOutEverywhereRequest,
   submitLogin,
+  submitLoginCode,
 } from "../api/auth";
 import { SESSION_ENDED } from "../api/client";
 import { getProfile } from "../api/profile";
@@ -99,12 +100,24 @@ export function AuthProvider({ children }) {
 
   /*
    * The password for Hydra's login_challenge. On success the browser leaves
-   * for Hydra's next step (consent, then /auth/callback, then the app), so
-   * nothing is returned here.
+   * for Hydra's next step (consent, then /auth/callback, then the app), and
+   * nothing is returned. With two-factor (P5) the answer is instead the next
+   * step for the page to show: { mfa: "verify" | "enrol", mfaToken, … }.
    */
   async function login(email, password, loginChallenge) {
-    const { redirect_to: next } = await submitLogin(email, password, loginChallenge);
-    window.location.assign(next);
+    const result = await submitLogin(email, password, loginChallenge);
+    if (result?.mfa) return result;
+    window.location.assign(result.redirect_to);
+    return null;
+  }
+
+  // The code for that step. After a setup the recovery codes come back for
+  // the page to show before it leaves (continueSignIn); otherwise it leaves.
+  async function loginCode(mfaToken, code, loginChallenge) {
+    const result = await submitLoginCode(mfaToken, code, loginChallenge);
+    if (result.recoveryCodes) return result;
+    window.location.assign(result.redirect_to);
+    return null;
   }
 
   async function logout() {
@@ -127,6 +140,7 @@ export function AuthProvider({ children }) {
     loading,
     isAuthenticated: Boolean(user),
     login,
+    loginCode,
     logout,
     signOutEverywhere,
     applyProfile,

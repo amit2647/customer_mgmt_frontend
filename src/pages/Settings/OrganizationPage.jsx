@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
-import { Buildings, Hash, LinkSimple, PencilSimple, Power } from "@phosphor-icons/react";
+import { Buildings, Hash, LinkSimple, PencilSimple, Power, ShieldCheck } from "@phosphor-icons/react";
 
 import { useAuth } from "../../context/AuthContext";
-import { getOrganization, updateOrganization } from "../../api/identity";
+import { getOrganization, getSecurityPolicy, setSecurityPolicy, updateOrganization } from "../../api/identity";
 import { SettingNotice, SettingRow, SettingRows } from "../../components/ui/SettingRow";
 import { SettingRowsSkeleton } from "../../components/ui/Skeleton";
 
@@ -16,6 +16,8 @@ function OrganizationPage() {
 
   const permissions = Array.isArray(user?.permissions) ? user.permissions : [];
   const canUpdate = permissions.includes("organization.update");
+  // Requiring two-factor sign-in is security policy: system.settings (P5).
+  const canSetSecurity = permissions.includes("system.settings");
 
   // Always the caller's own organization, from the token. The list endpoint
   // returns every organization on the platform, which is not what this screen is.
@@ -29,6 +31,7 @@ function OrganizationPage() {
   const [value, setValue] = useState("");
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState(null);
+  const [requireMfa, setRequireMfa] = useState(null);
 
   const load = useCallback(async () => {
     if (!organizationId) {
@@ -52,6 +55,33 @@ function OrganizationPage() {
   useEffect(() => {
     load();
   }, [load]);
+
+  useEffect(() => {
+    if (!canSetSecurity) return;
+    getSecurityPolicy()
+      .then((policy) => setRequireMfa(Boolean(policy.requireMfa)))
+      .catch(() => setRequireMfa(null));
+  }, [canSetSecurity]);
+
+  async function saveRequireMfa(next) {
+    try {
+      setSaving(true);
+      setMessage(null);
+      const policy = await setSecurityPolicy(next);
+      setRequireMfa(Boolean(policy.requireMfa));
+      setMessage({
+        row: "mfa",
+        type: "success",
+        text: policy.requireMfa
+          ? "Two-factor sign-in is now required. Anyone without it sets it up at their next sign-in."
+          : "Two-factor sign-in is now optional.",
+      });
+    } catch (requestError) {
+      setMessage({ row: "mfa", type: "error", text: requestError.message || "Could not change the policy." });
+    } finally {
+      setSaving(false);
+    }
+  }
 
   // The endpoint takes the whole record, so every save sends all three.
   async function save(field, next) {
@@ -156,6 +186,28 @@ function OrganizationPage() {
           >
             {rowMessage("status")}
           </SettingRow>
+
+          {canSetSecurity && requireMfa !== null && (
+            <SettingRow
+              icon={<ShieldCheck size={16} />}
+              title="Two-factor sign-in"
+              description="Require a code from an authenticator app at every sign-in, for everyone in this organization"
+              action={
+                <select
+                  className="setting-select"
+                  aria-label="Two-factor sign-in"
+                  value={requireMfa ? "required" : "optional"}
+                  onChange={(event) => saveRequireMfa(event.target.value === "required")}
+                  disabled={saving}
+                >
+                  <option value="optional">Optional</option>
+                  <option value="required">Required</option>
+                </select>
+              }
+            >
+              {rowMessage("mfa")}
+            </SettingRow>
+          )}
 
           <SettingRow
             icon={<Hash size={16} />}

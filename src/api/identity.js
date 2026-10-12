@@ -29,6 +29,20 @@ export function resendUserVerification(id) {
   return request(`/users/${id}/verification`, { method: "POST" });
 }
 
+// Two-factor (P5): an admin's reset for someone who lost their phone.
+export function resetUserTwoFactor(id) {
+  return request(`/users/${id}/mfa/reset`, { method: "POST" });
+}
+
+// The organization's "require two-factor sign-in" policy (system.settings).
+export function getSecurityPolicy() {
+  return request("/organizations/current/security");
+}
+
+export function setSecurityPolicy(requireMfa) {
+  return request("/organizations/current/security", { method: "PUT", body: JSON.stringify({ requireMfa }) });
+}
+
 export function deleteUser(id) {
   return request(`/users/${id}`, { method: "DELETE" });
 }
