@@ -5,6 +5,7 @@ import { formatDate } from "../../components/common/Field";
 import DataGrid from "../../components/ui/DataGrid";
 import Pill from "../../components/ui/Pill";
 import { GridSkeleton } from "../../components/ui/Skeleton";
+import { MAX_UPLOAD_MB } from "../../config";
 
 /*
  * A client's files (CD-13): drop or choose a file, give it a category, and
@@ -13,7 +14,7 @@ import { GridSkeleton } from "../../components/ui/Skeleton";
  * Files always download; nothing uploaded is opened in the browser.
  */
 
-const MAX_MB = 25;
+const MAX_MB = MAX_UPLOAD_MB;
 
 const sizeOf = (bytes) => {
   const value = Number(bytes);

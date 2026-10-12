@@ -3,6 +3,7 @@ import { useMemo, useState } from "react";
 import { startSignIn } from "../../api/auth";
 import { completeSetup, rememberSetupBundleError } from "../../api/setup";
 import WizardSteps, { goToStep } from "../../components/ui/WizardSteps";
+import { ADMIN_PASSWORD_MIN_LENGTH } from "../../config";
 
 /*
  * First-run setup of a new installation: name the organization, choose the
@@ -24,7 +25,7 @@ function stepsFor(bundle) {
 }
 
 const CURRENCIES = ["INR", "USD", "EUR", "GBP", "AED", "SGD", "AUD", "CAD"];
-const MIN_PASSWORD = 12;
+const MIN_PASSWORD = ADMIN_PASSWORD_MIN_LENGTH;
 
 
 function timeZones(current) {

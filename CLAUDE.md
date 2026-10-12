@@ -13,6 +13,9 @@ Parent-repo context (gateway, auth, bundles) is in `../CLAUDE.md`.
   other `src/api/*.js` files are thin per-resource wrappers around it. `VITE_` is the only prefix
   Vite exposes to browser code, and the value is written into the bundle when the image is built
   (a compose build argument) — changing it needs `docker compose up -d --build frontend`.
+  `src/config.js` holds the other build-time values: the password minimums and the upload limit
+  the services enforce, from the same `.env` settings (see the parent's **Configuration**). Use
+  them instead of writing the number into a page.
 - The container serves the **production build** (`npm run build` in the Dockerfile, then
   nginx on 3000, `nginx.conf`: hashed `/assets/` cached for good, every other path falls back to
   `index.html`). It ran the Vite dev server until 2026-10-11: unbundled, that was 149 files and

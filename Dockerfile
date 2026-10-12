@@ -17,6 +17,13 @@ COPY . .
 # build argument).
 ARG VITE_API_BASE_URL=http://localhost:8080/api
 ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
+# Rules the server enforces, so forms can state them (src/config.js).
+ARG VITE_PASSWORD_MIN_LENGTH=8
+ARG VITE_ADMIN_PASSWORD_MIN_LENGTH=12
+ARG VITE_MAX_UPLOAD_MB=25
+ENV VITE_PASSWORD_MIN_LENGTH=$VITE_PASSWORD_MIN_LENGTH \
+    VITE_ADMIN_PASSWORD_MIN_LENGTH=$VITE_ADMIN_PASSWORD_MIN_LENGTH \
+    VITE_MAX_UPLOAD_MB=$VITE_MAX_UPLOAD_MB
 RUN npm run build
 
 # nginx as an unprivileged user; 3000 is kept so every port mapping stays.

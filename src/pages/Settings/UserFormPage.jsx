@@ -5,6 +5,7 @@ import { useAuth } from "../../context/AuthContext";
 import { createUser, getRoles, getUser, updateUser } from "../../api/identity";
 import Breadcrumb from "../../components/ui/Breadcrumb";
 import { FormPageSkeleton } from "../../components/ui/PageSkeleton";
+import { PASSWORD_MIN_LENGTH } from "../../config";
 
 const EMPTY = {
   name: "",
@@ -171,7 +172,7 @@ function UserFormPage() {
               onChange={(e) => update("password", e.target.value)}
               placeholder="At least 8 characters"
               autoComplete="new-password"
-              minLength={8}
+              minLength={PASSWORD_MIN_LENGTH}
               disabled={saving}
               required
             />
