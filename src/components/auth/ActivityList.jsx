@@ -1,5 +1,6 @@
 import DataGrid from "../ui/DataGrid";
 import Pill from "../ui/Pill";
+import { formatDateTime } from "../../utils/dates";
 
 /*
  * Sign-in and account-security history (auth-hardening P6): Profile shows the
@@ -10,7 +11,7 @@ import Pill from "../ui/Pill";
 const WARNINGS = new Set(["login.failed", "login.locked", "login.blocked", "login.refused", "mfa.failed", "mfa.locked"]);
 
 function when(value) {
-  return new Date(value).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" });
+  return formatDateTime(value);
 }
 
 // "Firefox on Linux"-ish, enough to tell devices apart without a library.

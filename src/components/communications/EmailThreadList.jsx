@@ -1,4 +1,5 @@
 import { CardSkeleton } from "../ui/Skeleton";
+import { formatDate, formatTime } from "../../utils/dates";
 
 /*
  * A list of threads only — an inbox. Opening one is the modal's job; nothing
@@ -41,9 +42,8 @@ export function formatWhen(value) {
   const date = new Date(value);
   const sameDay = new Date().toDateString() === date.toDateString();
 
-  return sameDay
-    ? date.toLocaleTimeString(undefined, { timeStyle: "short" })
-    : date.toLocaleDateString(undefined, { dateStyle: "medium" });
+  // Today's messages show the time; older ones the date (dd/mm/yyyy).
+  return sameDay ? formatTime(value) : formatDate(value);
 }
 
 export function counterpartyOf(message) {

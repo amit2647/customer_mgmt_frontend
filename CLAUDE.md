@@ -16,6 +16,11 @@ Parent-repo context (gateway, auth, bundles) is in `../CLAUDE.md`.
   `src/config.js` holds the other build-time values: the password minimums and the upload limit
   the services enforce, from the same `.env` settings (see the parent's **Configuration**). Use
   them instead of writing the number into a page.
+- **Dates are dd/mm/yyyy everywhere**, whatever the browser's language: format through
+  `src/utils/dates.js` (`formatDay` for a date-only value such as a deadline — never shifted by a
+  time zone; `formatDate` / `formatDateTime` for a moment). Never `toLocaleDateString` in a page.
+  Letters (bundle-sdk's `date` helper) and reminder emails (obligation-service) follow the same
+  format. Date pickers (`<input type="date">`) stay native and show the browser's own format.
 - The container serves the **production build** (`npm run build` in the Dockerfile, then
   nginx on 3000, `nginx.conf`: hashed `/assets/` cached for good, every other path falls back to
   `index.html`). It ran the Vite dev server until 2026-10-11: unbundled, that was 149 files and

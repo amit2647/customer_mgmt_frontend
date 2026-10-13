@@ -1,14 +1,12 @@
 import { counterpartyOf } from "./EmailThreadList";
+import { formatDateTime } from "../../utils/dates";
 
 function formatFull(value) {
   if (!value) {
     return "";
   }
 
-  return new Date(value).toLocaleString(undefined, {
-    dateStyle: "medium",
-    timeStyle: "short",
-  });
+  return formatDateTime(value);
 }
 
 /*

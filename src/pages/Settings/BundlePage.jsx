@@ -8,6 +8,7 @@ import { useBundle } from "../../context/BundleContext";
 import DataGrid from "../../components/ui/DataGrid";
 import { CardSkeleton } from "../../components/ui/Skeleton";
 import Pill from "../../components/ui/Pill";
+import { formatDate as formatDateValue } from "../../utils/dates";
 
 const STEP_LABELS = {
   permissions: "Permissions",
@@ -43,9 +44,7 @@ function isNewer(a, b) {
 }
 
 function formatDate(value) {
-  return value
-    ? new Date(value).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" })
-    : "";
+  return formatDateValue(value);
 }
 
 /*

@@ -10,6 +10,7 @@ import {
 
 import { searchConversations } from "../../api/assistant";
 import { useAssistant } from "../../context/AssistantContext";
+import { formatDate } from "../../utils/dates";
 
 // Long enough that typing a word is one request, short enough to feel live.
 const SEARCH_DELAY_MS = 300;
@@ -72,10 +73,7 @@ function relativeTime(value) {
 
   if (days < 7) return `${days}d ago`;
 
-  return new Date(value).toLocaleDateString(undefined, {
-    month: "short",
-    day: "numeric",
-  });
+  return formatDate(value);
 }
 
 /*

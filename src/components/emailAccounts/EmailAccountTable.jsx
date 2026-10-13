@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { GridSkeleton } from "../ui/Skeleton";
+import { formatDateTime } from "../../utils/dates";
 
 function EmailAccountTable({
   accounts = [],
@@ -146,7 +147,7 @@ function EmailAccountTable({
             <div className="email-account-card-footer">
               <span className="email-account-updated">
                 {account.updated_at
-                  ? `Updated ${new Date(account.updated_at).toLocaleString()}`
+                  ? `Updated ${formatDateTime(account.updated_at)}`
                   : "Configuration available"}
               </span>
 

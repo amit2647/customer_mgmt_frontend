@@ -1,5 +1,6 @@
 import { evaluate } from "bundle-sdk/src/conditions";
 import { forClient } from "bundle-sdk/src/identifiers";
+import { formatDay as formatDayValue } from "../../utils/dates";
 
 /*
  * Reading a bundle for display. The rules themselves (which identifiers a
@@ -57,8 +58,6 @@ export function formatDay(value) {
     return "";
   }
 
-  // Date-only values are formatted as the date they are, in UTC.
-  const [year, month, day] = String(value).slice(0, 10).split("-").map(Number);
-
-  return new Intl.DateTimeFormat("en-IN", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" }).format(new Date(Date.UTC(year, month - 1, day)));
+  // Date-only values are the date they are: dd/mm/yyyy, never shifted.
+  return formatDayValue(value);
 }

@@ -8,6 +8,7 @@ import { SettingRowsSkeleton } from "../../components/ui/Skeleton";
 import TwoFactorSetting from "./TwoFactorSetting";
 import SignInActivity from "./SignInActivity";
 import { PASSWORD_MIN_LENGTH } from "../../config";
+import { formatDate as formatDateValue } from "../../utils/dates";
 
 const MIN_PASSWORD_LENGTH = PASSWORD_MIN_LENGTH;
 
@@ -18,11 +19,7 @@ function formatDate(value) {
     return "—";
   }
 
-  return new Date(value).toLocaleDateString(undefined, {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
+  return formatDateValue(value);
 }
 
 /*

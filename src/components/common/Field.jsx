@@ -1,3 +1,5 @@
+import { formatDate as formatDateValue } from "../../utils/dates";
+
 /*
  * A labelled record field. Children win over `value` so a field can hold a badge
  * instead of text; an absent value renders a muted placeholder rather than a gap,
@@ -22,9 +24,7 @@ export function formatDate(value) {
     return "";
   }
 
-  return new Date(value).toLocaleDateString(undefined, {
-    dateStyle: "medium",
-  });
+  return formatDateValue(value);
 }
 
 export default Field;

@@ -13,6 +13,7 @@ import DataGrid from "../../components/ui/DataGrid";
 import { GridSkeleton } from "../../components/ui/Skeleton";
 import Pill, { toneFor } from "../../components/ui/Pill";
 import Modal from "../../components/ui/Modal";
+import { formatDateTime } from "../../utils/dates";
 
 /*
  * Screens people actually ask for, mapped to the permission that unlocks them.
@@ -127,10 +128,7 @@ function formatWhen(value) {
     return "—";
   }
 
-  return new Date(value).toLocaleString(undefined, {
-    dateStyle: "medium",
-    timeStyle: "short",
-  });
+  return formatDateTime(value);
 }
 
 function remaining(expiresAt) {
