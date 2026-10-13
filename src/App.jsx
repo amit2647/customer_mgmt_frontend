@@ -323,6 +323,7 @@ function App() {
           </Route>
 
           <Route element={<RequirePermission permission="system.settings" />}>
+            <Route path="/documents/templates/new" element={<DocumentTemplatePage />} />
             <Route path="/documents/templates/:key" element={<DocumentTemplatePage />} />
           </Route>
 

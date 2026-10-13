@@ -21,9 +21,20 @@ export function getDocumentTemplate(key) {
   return request(`/documents/templates/${key}`);
 }
 
-// A firm's own revision of the template text (needs system.settings).
-export function saveDocumentTemplate(key, body) {
-  return request(`/documents/templates/${key}`, json("PUT", { body }));
+// A firm's own letter: { name, service, fields, body } (needs system.settings).
+export function createDocumentTemplate(data) {
+  return request("/documents/templates", json("POST", data));
+}
+
+// A firm's own revision of the template text (needs system.settings). For the
+// firm's own letter, `data` may also carry its name, service and fields.
+export function saveDocumentTemplate(key, data) {
+  return request(`/documents/templates/${key}`, json("PUT", typeof data === "string" ? { body: data } : data));
+}
+
+// Only the firm's own letters can be removed; documents made from them stay.
+export function removeDocumentTemplate(key) {
+  return request(`/documents/templates/${key}`, { method: "DELETE" });
 }
 
 export function restoreDocumentTemplate(key) {

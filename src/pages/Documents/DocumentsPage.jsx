@@ -12,8 +12,10 @@ import Pill, { toneFor } from "../../components/ui/Pill";
  * has its own text, and whether the bundle has newer text. A letter's own
  * service also lists it (Services → a service → Letters). Editing the text
  * needs system.settings; documents already made keep the text they used.
+ * With it, "New letter" adds the firm's own letter beside the bundle's.
  */
 const EVERY_CLIENT = "Every client";
+const textOf = (template) => (template.firmMade ? "Firm's letter" : template.customized ? "Firm's own" : "From the bundle");
 
 function DocumentsPage() {
   const navigate = useNavigate();
@@ -39,6 +41,9 @@ function DocumentsPage() {
           <h1>Documents</h1>
           <p>The letters your firm issues and when each is offered. Edit a letter's text as your own version; letters already made keep the text they were made from.</p>
         </div>
+        {canEdit && (
+          <button type="button" className="primary" onClick={() => navigate("/documents/templates/new")}>+ New letter</button>
+        )}
       </header>
 
       {error && <div className="alert alert-error" role="alert">{error}</div>}
@@ -76,11 +81,11 @@ function DocumentsPage() {
             {
               key: "text",
               header: "Text",
-              value: (template) => (template.customized ? "Firm's own" : "From the bundle"),
-              filter: { tone: (value) => (value === "Firm's own" ? "violet" : "neutral") },
+              value: textOf,
+              filter: { tone: (value) => (value === "From the bundle" ? "neutral" : "violet") },
               render: (template) => (
                 <div className="grid-pills">
-                  <Pill tone={template.customized ? "violet" : "neutral"}>{template.customized ? "Firm's own" : "From the bundle"}</Pill>
+                  <Pill tone={template.customized ? "violet" : "neutral"}>{textOf(template)}</Pill>
                   {template.updateAvailable && <Pill tone="warning">Bundle {template.updateAvailable} available</Pill>}
                 </div>
               ),
@@ -99,7 +104,7 @@ function DocumentsPage() {
                 ),
             },
           ]}
-          empty="No letters. Install a profession bundle that ships them."
+          empty={canEdit ? "No letters yet. Add your firm's own with New letter." : "No letters yet."}
         />
       )}
     </main>
