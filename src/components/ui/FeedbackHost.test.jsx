@@ -1,7 +1,7 @@
 import { act, fireEvent, screen, waitFor } from "@testing-library/react";
 import { describe, expect, test, vi } from "vitest";
 
-import { confirmAction, toast } from "./feedback";
+import { EXIT_MS, confirmAction, toast } from "./feedback";
 import { answerConfirm } from "../../test/feedback";
 
 /*
@@ -20,7 +20,8 @@ describe("toasts", () => {
     expect(screen.getByRole("alert")).toHaveTextContent("The server refused.");
 
     fireEvent.click(screen.getAllByRole("button", { name: "Dismiss message" })[0]);
-    expect(screen.queryByText("Saved.")).not.toBeInTheDocument();
+    // It slides away first, then leaves.
+    await waitFor(() => expect(screen.queryByText("Saved.")).not.toBeInTheDocument());
   });
 
   test("leave on their own, and the same message twice shows once", () => {
@@ -33,6 +34,9 @@ describe("toasts", () => {
       expect(screen.getAllByText("Saved.")).toHaveLength(1);
 
       act(() => vi.advanceTimersByTime(4100));
+      expect(document.querySelector(".toast-slot.leaving")).toHaveTextContent("Saved.");
+
+      act(() => vi.advanceTimersByTime(EXIT_MS));
       expect(screen.queryByText("Saved.")).not.toBeInTheDocument();
     } finally {
       vi.useRealTimers();

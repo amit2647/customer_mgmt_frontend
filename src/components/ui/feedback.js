@@ -18,6 +18,8 @@
  */
 
 const DURATION_MS = { success: 4000, info: 5000, error: 8000 };
+// How long a toast takes to slide away (toast.css's toast-out) before it is removed.
+export const EXIT_MS = 220;
 const MAX_TOASTS = 5;
 
 let toasts = [];
@@ -43,14 +45,20 @@ function show(tone, message) {
   const text = typeof message === "string" ? message : message.message || String(message);
 
   // The same message twice in a row restarts the first rather than stacking.
-  toasts = [...toasts.filter((item) => !(item.tone === tone && item.text === text)), { id, tone, text, duration: DURATION_MS[tone] }].slice(-MAX_TOASTS);
+  toasts = [...toasts.filter((item) => !(item.tone === tone && item.text === text && !item.leaving)), { id, tone, text, duration: DURATION_MS[tone] }].slice(-MAX_TOASTS);
   emit();
   return id;
 }
 
+// A dismissed toast first plays its exit, then leaves the list.
 export function dismiss(id) {
-  toasts = toasts.filter((item) => item.id !== id);
+  if (!toasts.some((item) => item.id === id && !item.leaving)) return;
+  toasts = toasts.map((item) => (item.id === id ? { ...item, leaving: true } : item));
   emit();
+  setTimeout(() => {
+    toasts = toasts.filter((item) => item.id !== id);
+    emit();
+  }, EXIT_MS);
 }
 
 export const toast = {

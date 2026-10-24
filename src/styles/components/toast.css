@@ -2,16 +2,44 @@
    TOASTS AND THE CONFIRM DIALOG (components/ui/FeedbackHost.jsx)
    ========================================================= */
 
-/* Top-right, above the header and any open dialog. */
+/*
+ * Top-right, just under the header bar and lined up with the page's right
+ * edge, so it never covers the user menu; above any open dialog.
+ */
 .toast-stack {
     position: fixed;
-    top: 16px;
-    right: 16px;
+    top: calc(var(--header-height, 64px) + 14px);
+    right: 34px;
     z-index: 1100;
     display: grid;
-    gap: 10px;
     width: min(380px, calc(100vw - 32px));
     pointer-events: none;
+}
+
+/*
+ * Each toast sits in a slot that folds to nothing when it leaves (a grid row
+ * going from 1fr to 0fr), so the toasts below glide up instead of jumping.
+ * The inner padding keeps most of the shadow while it folds.
+ */
+.toast-slot {
+    display: grid;
+    grid-template-rows: 1fr;
+    transition: grid-template-rows 0.2s ease;
+}
+
+.toast-slot.leaving {
+    grid-template-rows: 0fr;
+}
+
+.toast-slot-inner {
+    min-height: 0;
+    margin: 0 -14px;
+    padding: 0 14px 10px;
+}
+
+/* Clipped only while folding: at rest a clip would cut the shadow into a box. */
+.toast-slot.leaving .toast-slot-inner {
+    overflow: hidden;
 }
 
 .toast {
@@ -27,7 +55,12 @@
     color: var(--color-text);
     box-shadow: var(--shadow-floating);
     pointer-events: auto;
-    animation: toast-in 0.18s ease-out;
+    animation: toast-in 0.22s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.toast-slot.leaving .toast {
+    animation: toast-out 0.22s ease-in forwards;
+    pointer-events: none;
 }
 
 .toast-success {
@@ -83,10 +116,11 @@
     color: var(--color-text);
 }
 
+/* In from the right edge, out the same way. */
 @keyframes toast-in {
     from {
         opacity: 0;
-        transform: translateY(-6px);
+        transform: translateX(32px);
     }
 
     to {
@@ -95,9 +129,35 @@
     }
 }
 
+@keyframes toast-out {
+    from {
+        opacity: 1;
+        transform: none;
+    }
+
+    to {
+        opacity: 0;
+        transform: translateX(48px);
+    }
+}
+
 @media (prefers-reduced-motion: reduce) {
-    .toast {
+    .toast,
+    .toast-slot.leaving .toast {
         animation: none;
+    }
+
+    .toast-slot {
+        transition: none;
+    }
+}
+
+/* Phones: full width under the header. */
+@media (max-width: 640px) {
+    .toast-stack {
+        right: 16px;
+        left: 16px;
+        width: auto;
     }
 }
 

@@ -9,7 +9,8 @@ import { dismiss, snapshot, subscribe } from "./feedback";
  * Draws what feedback.js holds: the toasts, stacked in the top-right corner,
  * and the confirmation dialog. Mounted once, in App (and in the tests' setup).
  * A toast leaves on its own after a few seconds — errors stay longest — and
- * waits while the pointer is over it.
+ * waits while the pointer is over it. Leaving, it slides out to the right and
+ * its slot folds away, so the ones below move up smoothly.
  */
 
 const ICONS = { success: CheckCircle, error: WarningCircle, info: Info };
@@ -39,12 +40,16 @@ function Toast({ item }) {
   }, []);
 
   return (
-    <div className={`toast toast-${item.tone}`} role={item.tone === "error" ? "alert" : "status"} onMouseEnter={pause} onMouseLeave={start}>
-      <Icon className="toast-icon" size={20} weight="fill" aria-hidden="true" />
-      <p className="toast-text">{item.text}</p>
-      <button type="button" className="toast-close" onClick={() => dismiss(item.id)} aria-label="Dismiss message">
-        <X size={14} aria-hidden="true" />
-      </button>
+    <div className={`toast-slot${item.leaving ? " leaving" : ""}`}>
+      <div className="toast-slot-inner">
+        <div className={`toast toast-${item.tone}`} role={item.tone === "error" ? "alert" : "status"} onMouseEnter={pause} onMouseLeave={() => !item.leaving && start()}>
+          <Icon className="toast-icon" size={20} weight="fill" aria-hidden="true" />
+          <p className="toast-text">{item.text}</p>
+          <button type="button" className="toast-close" onClick={() => dismiss(item.id)} aria-label="Dismiss message">
+            <X size={14} aria-hidden="true" />
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
