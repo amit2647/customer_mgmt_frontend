@@ -12,6 +12,7 @@ import Breadcrumb from "../../components/ui/Breadcrumb";
 import { FormPageSkeleton } from "../../components/ui/PageSkeleton";
 import DataGrid from "../../components/ui/DataGrid";
 import Pill, { toneFor } from "../../components/ui/Pill";
+import { toast } from "../../components/ui/feedback";
 
 function RoleFormPage() {
   const { id } = useParams();
@@ -25,7 +26,6 @@ function RoleFormPage() {
   const [readOnly, setReadOnly] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState("");
 
   const load = useCallback(async () => {
     try {
@@ -53,7 +53,7 @@ function RoleFormPage() {
         setReadOnly(Boolean(role.is_system_role) || role.organization_id === null);
       }
     } catch (requestError) {
-      setError(requestError.message || "Failed to load the role.");
+      toast.error(requestError.message || "Failed to load the role.");
     } finally {
       setLoading(false);
     }
@@ -70,7 +70,6 @@ function RoleFormPage() {
 
     try {
       setSaving(true);
-      setError("");
 
       if (isEditing) {
         await updateRole(id, { name: form.name, description: form.description });
@@ -81,7 +80,7 @@ function RoleFormPage() {
 
       navigate("/settings/users?tab=roles");
     } catch (requestError) {
-      setError(requestError.message || "Failed to save the role.");
+      toast.error(requestError.message || "Failed to save the role.");
     } finally {
       setSaving(false);
     }
@@ -107,8 +106,6 @@ function RoleFormPage() {
           </p>
         </div>
       </div>
-
-      {error && <div className="alert alert-error" role="alert">{error}</div>}
 
       <form className="settings-form-card" onSubmit={handleSubmit}>
         <label>

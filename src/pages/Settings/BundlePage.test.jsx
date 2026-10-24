@@ -3,6 +3,7 @@ import { MemoryRouter } from "react-router-dom";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
 import BundlePage from "./BundlePage";
+import { answerConfirm } from "../../test/feedback";
 
 const api = vi.hoisted(() => ({ getBundles: vi.fn(), installBundle: vi.fn(), upgradeBundle: vi.fn() }));
 
@@ -28,7 +29,6 @@ beforeEach(() => {
   api.getBundles.mockReset();
   api.installBundle.mockReset();
   api.upgradeBundle.mockReset();
-  vi.spyOn(window, "confirm").mockReturnValue(true);
 });
 
 /*
@@ -60,6 +60,7 @@ describe("BundlePage", () => {
     renderPage();
 
     fireEvent.click(await screen.findByRole("button", { name: "Install CA Practice" }));
+    expect(await answerConfirm(true)).toBe("Install CA Practice 0.1.0?");
 
     await waitFor(() => expect(api.installBundle).toHaveBeenCalledWith("ca-practice"));
     expect(await screen.findByText("Role templates")).toBeInTheDocument();
@@ -67,11 +68,11 @@ describe("BundlePage", () => {
   });
 
   test("does nothing when the confirmation is declined", async () => {
-    window.confirm.mockReturnValue(false);
     api.getBundles.mockResolvedValue({ bundles: [CA], installed: null });
     renderPage();
 
     fireEvent.click(await screen.findByRole("button", { name: "Install CA Practice" }));
+    await answerConfirm(false);
 
     expect(api.installBundle).not.toHaveBeenCalled();
   });
@@ -105,6 +106,7 @@ describe("BundlePage", () => {
     renderPage();
 
     fireEvent.click(await screen.findByRole("button", { name: "Upgrade to 0.5.0" }));
+    await answerConfirm(true);
 
     await waitFor(() => expect(api.upgradeBundle).toHaveBeenCalledWith("ca-practice"));
     expect(await screen.findByText("CA Practice is upgraded to 0.5.0.")).toBeInTheDocument();

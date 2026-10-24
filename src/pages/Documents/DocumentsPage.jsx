@@ -5,6 +5,7 @@ import { getDocumentTemplates } from "../../api/documents";
 import { useAuth } from "../../context/AuthContext";
 import DataGrid from "../../components/ui/DataGrid";
 import Pill, { toneFor } from "../../components/ui/Pill";
+import { toast } from "../../components/ui/feedback";
 
 /*
  * Documents: every letter the firm issues — what each depends on (a service
@@ -23,12 +24,15 @@ function DocumentsPage() {
   const canEdit = (user?.permissions || []).includes("system.settings");
 
   const [templates, setTemplates] = useState(null);
-  const [error, setError] = useState("");
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     getDocumentTemplates()
       .then(setTemplates)
-      .catch((requestError) => setError(requestError.message || "Could not load the letters."));
+      .catch((requestError) => {
+        setError(true);
+        toast.error(requestError.message || "Could not load the letters.");
+      });
   }, []);
 
   const open = (template) => navigate(`/documents/templates/${template.key}`);
@@ -46,7 +50,6 @@ function DocumentsPage() {
         )}
       </header>
 
-      {error && <div className="alert alert-error" role="alert">{error}</div>}
 
       {!templates && error ? null : (
         <DataGrid

@@ -11,6 +11,7 @@ import { getEmailTemplates } from "../../api/emailTemplates";
 import ToggleField from "../../components/common/ToggleField";
 import Breadcrumb from "../../components/ui/Breadcrumb";
 import { FormPageSkeleton } from "../../components/ui/PageSkeleton";
+import { toast } from "../../components/ui/feedback";
 
 const EMPTY = {
   name: "",
@@ -44,7 +45,6 @@ function EmailAutomationFormPage() {
   const [events, setEvents] = useState(Object.keys(EVENT_LABELS));
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState("");
 
   const load = useCallback(async () => {
     try {
@@ -78,7 +78,7 @@ function EmailAutomationFormPage() {
         });
       }
     } catch (requestError) {
-      setError(requestError.message || "Failed to load the automation.");
+      toast.error(requestError.message || "Failed to load the automation.");
     } finally {
       setLoading(false);
     }
@@ -97,7 +97,6 @@ function EmailAutomationFormPage() {
 
     try {
       setSaving(true);
-      setError("");
 
       const payload = {
         ...form,
@@ -113,7 +112,7 @@ function EmailAutomationFormPage() {
 
       navigate("/settings/email-automations");
     } catch (requestError) {
-      setError(requestError.message || "Failed to save the automation.");
+      toast.error(requestError.message || "Failed to save the automation.");
     } finally {
       setSaving(false);
     }
@@ -158,8 +157,6 @@ function EmailAutomationFormPage() {
           </p>
         </div>
       </div>
-
-      {error && <div className="alert alert-error" role="alert">{error}</div>}
 
       {templates.length === 0 && (
         <div className="alert alert-error">

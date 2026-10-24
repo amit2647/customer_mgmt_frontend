@@ -8,6 +8,7 @@ import Breadcrumb from "../../components/ui/Breadcrumb";
 import { FormPageSkeleton } from "../../components/ui/PageSkeleton";
 import Modal from "../../components/ui/Modal";
 import PageState from "../../components/ui/PageState";
+import { toast } from "../../components/ui/feedback";
 
 /*
  * Add or edit one service, as a wizard on its own page: the service, then a
@@ -61,7 +62,6 @@ function ServiceFormPage() {
   const [loading, setLoading] = useState(Boolean(id));
   const [loadError, setLoadError] = useState("");
   const [saving, setSaving] = useState(false);
-  const [message, setMessage] = useState("");
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
@@ -145,7 +145,6 @@ function ServiceFormPage() {
 
     try {
       setSaving(true);
-      setMessage("");
 
       if (serviceId) {
         await updateService(serviceId, data);
@@ -156,7 +155,7 @@ function ServiceFormPage() {
 
       navigate(back, { state: { saved: id ? "Service saved." : "Service added. Add its deadlines on the service's own page." } });
     } catch (error) {
-      setMessage(error.message || "The service could not be saved.");
+      toast.error(error.message || "The service could not be saved.");
     } finally {
       setSaving(false);
     }
@@ -201,7 +200,6 @@ function ServiceFormPage() {
 
         <WizardSteps steps={STEPS} current={step} className="customer-workflow-steps" onSelect={(target) => goToStep(target, { step, validateStep, setStep })} />
 
-        {message && <div className="workflow-error" role="alert">{message}</div>}
 
         <div className="workflow-body">
           {step === 1 && (

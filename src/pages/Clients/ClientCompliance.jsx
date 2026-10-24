@@ -6,6 +6,7 @@ import { formatDay } from "../../components/bundle/bundleLabels";
 import { STATE_LABEL, STATE_TONE, STATES, STATUSES } from "../../components/deadlines/deadlineLabels";
 import DataGrid from "../../components/ui/DataGrid";
 import Pill, { toneFor } from "../../components/ui/Pill";
+import { toast } from "../../components/ui/feedback";
 
 /*
  * A client's deadlines for one financial year (CD-07): each service's
@@ -18,7 +19,7 @@ function ClientCompliance({ client, can, readOnly, onEditEngagement }) {
   const [periods, setPeriods] = useState([]);
   const [period, setPeriod] = useState("");
   const [data, setData] = useState(null);
-  const [error, setError] = useState("");
+  const [loadFailed, setLoadFailed] = useState(false);
   // The grid's filters, held here so a service card and the Service chip
   // are the same filter.
   const [filters, setFilters] = useState({});
@@ -31,7 +32,7 @@ function ClientCompliance({ client, can, readOnly, onEditEngagement }) {
         setPeriods(offered.periods);
         setPeriod(offered.current || offered.periods.at(-1)?.label || "");
       })
-      .catch((requestError) => setError(requestError.message));
+      .catch((requestError) => toast.error(requestError.message));
   }, []);
 
   const load = useCallback(async () => {
@@ -40,7 +41,8 @@ function ClientCompliance({ client, can, readOnly, onEditEngagement }) {
     try {
       setData(await getClientDeadlines(client.id, period));
     } catch (requestError) {
-      setError(requestError.message || "Could not load deadlines.");
+      setLoadFailed(true);
+      toast.error(requestError.message || "Could not load deadlines.");
     }
   }, [client.id, period]);
 
@@ -50,11 +52,10 @@ function ClientCompliance({ client, can, readOnly, onEditEngagement }) {
 
   async function setStatus(item, status) {
     try {
-      setError("");
       await updateDeadline(item.id, { status });
       await load();
     } catch (requestError) {
-      setError(requestError.message || "The status was not changed.");
+      toast.error(requestError.message || "The status was not changed.");
     }
   }
 
@@ -86,7 +87,6 @@ function ClientCompliance({ client, can, readOnly, onEditEngagement }) {
 
   return (
     <section className="client-compliance" role="tabpanel" aria-label="Compliance">
-      {error && <div className="alert alert-error" role="alert">{error}</div>}
 
       {groups.length > 0 && (
         <div className="compliance-progress-head">
@@ -138,7 +138,7 @@ function ClientCompliance({ client, can, readOnly, onEditEngagement }) {
             <button type="button" className="secondary-button" onClick={onEditEngagement}>Edit engagement</button>
           )
         }
-        loading={!data && !error}
+        loading={!data && !loadFailed}
         empty={`No deadlines for FY ${period}. Engage services for this year on the Engagement tab.`}
         columns={[
           { key: "title", header: "Deadline", render: (item) => <span className="grid-cell-title">{item.title}</span> },

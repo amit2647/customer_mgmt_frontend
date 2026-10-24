@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { getLead, getLeads, linkLead } from "../../api/leads";
 import { formatDay, formatMoney } from "../../components/bundle/bundleLabels";
 import Modal from "../../components/ui/Modal";
+import { toast } from "../../components/ui/feedback";
 
 /*
  * Where a client came from. A lead and the client it became are one entity
@@ -17,7 +18,6 @@ function ClientOrigin({ client, can, readOnly, onLinked }) {
   const [candidates, setCandidates] = useState(null);
   const [choice, setChoice] = useState("");
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState("");
 
   const sourceLeadId = client.source_lead_id;
   const canRead = can("leads.read");
@@ -36,13 +36,12 @@ function ClientOrigin({ client, can, readOnly, onLinked }) {
 
   async function startLinking() {
     try {
-      setError("");
       const all = await getLeads();
       // Prospects not yet tied to any client: open ones, or converted
       // before conversions were recorded.
       setCandidates((Array.isArray(all) ? all : []).filter((item) => !item.converted_customer_id));
     } catch (requestError) {
-      setError(requestError.message || "Could not load prospects.");
+      toast.error(requestError.message || "Could not load prospects.");
     }
   }
 
@@ -51,12 +50,11 @@ function ClientOrigin({ client, can, readOnly, onLinked }) {
 
     try {
       setBusy(true);
-      setError("");
       await linkLead(choice, client.id);
       setCandidates(null);
       await onLinked();
     } catch (requestError) {
-      setError(requestError.message || "The prospect could not be linked.");
+      toast.error(requestError.message || "The prospect could not be linked.");
     } finally {
       setBusy(false);
     }
@@ -95,7 +93,6 @@ function ClientOrigin({ client, can, readOnly, onLinked }) {
         <h2>Won from prospect</h2>
         <p>Not linked to the prospect it was won from yet.</p>
       </div>
-      {error && !candidates && <div className="alert alert-error" role="alert">{error}</div>}
 
       <div className="bundle-actions">
         <button type="button" className="secondary-button" onClick={startLinking}>Link a prospect</button>
@@ -116,7 +113,6 @@ function ClientOrigin({ client, can, readOnly, onLinked }) {
             </>
           }
         >
-          {error && <div className="alert alert-error" role="alert">{error}</div>}
           {candidates.length === 0 ? (
             <p className="settings-row-hint">There are no unlinked prospects to choose from.</p>
           ) : (

@@ -7,6 +7,7 @@ import { useAuth } from "../../context/AuthContext";
 import { useBundle } from "../../context/BundleContext";
 import DataGrid from "../../components/ui/DataGrid";
 import Pill, { toneFor } from "../../components/ui/Pill";
+import { toast } from "../../components/ui/feedback";
 
 /*
  * The client list (DASH-02/03/04/07): search by name, PAN or CIN, filter by
@@ -23,17 +24,15 @@ function ClientsPage() {
   const [archived, setArchived] = useState(false);
   const [clients, setClients] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
 
   // The whole list (or the archived one); the grid searches and filters it.
   useEffect(() => {
     let current = true;
 
     setLoading(true);
-    setError("");
     getClients({ query: "", archived })
       .then((list) => current && setClients(list))
-      .catch((requestError) => current && setError(requestError.message || "Could not load clients."))
+      .catch((requestError) => current && toast.error(requestError.message || "Could not load clients."))
       .finally(() => current && setLoading(false));
 
     return () => {
@@ -116,7 +115,7 @@ function ClientsPage() {
         </div>
 
         <div className="document-actions">
-          <button type="button" className="secondary-button" onClick={() => exportClients().catch((exportError) => setError(exportError.message || "The export did not finish."))}>
+          <button type="button" className="secondary-button" onClick={() => exportClients().catch((exportError) => toast.error(exportError.message || "The export did not finish."))}>
             Export CSV
           </button>
           {permissions.includes("customers.create") && permissions.includes("profiles.update") && (
@@ -131,8 +130,6 @@ function ClientsPage() {
           )}
         </div>
       </header>
-
-      {error && <div className="alert alert-error" role="alert">{error}</div>}
 
       {!loading && clients.length === 0 && !archived && permissions.includes("customers.create") ? (
         <section className="card">

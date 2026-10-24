@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 import { getClients } from "../../api/clients";
 import {
@@ -17,6 +17,8 @@ import Breadcrumb from "../../components/ui/Breadcrumb";
 import { FormPageSkeleton } from "../../components/ui/PageSkeleton";
 import PageState from "../../components/ui/PageState";
 import Pill from "../../components/ui/Pill";
+import { confirmAction, toast } from "../../components/ui/feedback";
+import useArrivalToast from "../../components/ui/useArrivalToast";
 import { useBundle } from "../../context/BundleContext";
 
 /*
@@ -119,7 +121,6 @@ function DocumentTemplatePage() {
   const { key } = useParams();
   const isNew = !key;
   const navigate = useNavigate();
-  const location = useLocation();
   const { bundle } = useBundle();
 
   const [template, setTemplate] = useState(isNew ? NEW_TEMPLATE : null);
@@ -131,8 +132,10 @@ function DocumentTemplatePage() {
   const [preview, setPreview] = useState({ status: "idle" });
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
-  const [notice, setNotice] = useState(location.state?.notice || "");
   const text = useRef(null);
+
+  // A new letter's page is reached with its "added" notice.
+  useArrivalToast();
 
   const show = useCallback((data) => {
     setTemplate(data);
@@ -214,12 +217,10 @@ function DocumentTemplatePage() {
   async function run(action, done) {
     try {
       setBusy(true);
-      setError("");
-      setNotice("");
       await action();
-      if (done) setNotice(done);
+      if (done) toast.success(done);
     } catch (requestError) {
-      setError(requestError.details?.body || requestError.message || "That did not work.");
+      toast.error(requestError.details?.body || requestError.message || "That did not work.");
     } finally {
       setBusy(false);
     }
@@ -228,13 +229,10 @@ function DocumentTemplatePage() {
   const save = () => {
     if (!canSave) return undefined;
     if (isNew) {
-      // The router may keep this page mounted for the new address, or mount it
-      // afresh (which reads the notice from the navigation's state).
-      const added = "Letter added. It is offered on each client's Documents tab.";
       return run(async () => {
         const created = await createDocumentTemplate({ ...sent(own), body });
-        navigate(`/documents/templates/${created.key}`, { replace: true, state: { notice: added } });
-      }, added);
+        navigate(`/documents/templates/${created.key}`, { replace: true, state: { saved: "Letter added. It is offered on each client's Documents tab." } });
+      });
     }
     if (own) return run(async () => show(await saveDocumentTemplate(key, { ...sent(own), body })), "Saved.");
     return run(async () => show(await saveDocumentTemplate(key, body)), "Saved as your firm's version.");
@@ -264,21 +262,21 @@ function DocumentTemplatePage() {
     return () => window.removeEventListener("beforeunload", warn);
   }, [changed]);
 
-  const leave = () => {
-    if (changed && !window.confirm("Leave without saving? Your changes to this letter will be lost.")) return;
+  const leave = async () => {
+    if (changed && !(await confirmAction({ title: "Leave without saving?", message: "Your changes to this letter will be lost.", confirmLabel: "Leave", danger: true }))) return;
     navigate("/documents");
   };
 
-  const remove = () => {
-    if (!window.confirm(`Remove "${template.name}"? Letters already made from it are kept.`)) return;
+  const remove = async () => {
+    if (!(await confirmAction({ title: `Remove "${template.name}"?`, message: "Letters already made from it are kept.", confirmLabel: "Remove letter", danger: true }))) return;
     run(async () => {
       await removeDocumentTemplate(key);
       navigate("/documents");
     });
   };
 
-  const restore = () => {
-    if (!window.confirm("Go back to the bundle's text? Your version stays in the history.")) return;
+  const restore = async () => {
+    if (!(await confirmAction({ title: "Go back to the bundle's text?", message: "Your version stays in the history.", confirmLabel: "Restore" }))) return;
     run(async () => show(await restoreDocumentTemplate(key)), "Restored the bundle's text.");
   };
 
@@ -345,8 +343,6 @@ function DocumentTemplatePage() {
         </div>
       </header>
 
-      {notice && <div className="alert alert-success">{notice}</div>}
-      {error && <div className="alert alert-error" role="alert">{error}</div>}
 
       {own && (
         <section className="card letter-details template-letter-form" aria-label="Letter">

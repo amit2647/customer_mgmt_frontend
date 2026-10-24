@@ -6,6 +6,7 @@ import { getCommunications } from "../../api/emails";
 import EmailThreadList, { groupIntoThreads } from "./EmailThreadList";
 import EmailThreadModal from "./EmailThreadModal";
 import EmailComposer from "./EmailComposer";
+import { toast } from "../ui/feedback";
 
 /*
  * Each channel is its own section rather than one merged timeline. Only email is
@@ -28,7 +29,6 @@ function CommunicationPanel({ record }) {
   const [channel, setChannel] = useState("email");
   const [communications, setCommunications] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
   const [composer, setComposer] = useState(null);
   const [openThread, setOpenThread] = useState(null);
 
@@ -40,7 +40,6 @@ function CommunicationPanel({ record }) {
 
     try {
       setLoading(true);
-      setError("");
 
       const data = await getCommunications({
         ...(record.type === "lead"
@@ -57,7 +56,7 @@ function CommunicationPanel({ record }) {
     } catch (requestError) {
       console.error("Failed to load communications:", requestError);
 
-      setError(requestError.message || "Failed to load communications.");
+      toast.error(requestError.message || "Failed to load communications.");
     } finally {
       setLoading(false);
     }
@@ -133,12 +132,6 @@ function CommunicationPanel({ record }) {
           </button>
         ))}
       </nav>
-
-      {error && (
-        <div className="alert alert-error" role="alert">
-          <span>{error}</span>
-        </div>
-      )}
 
       {channel === "email" && (
         <EmailThreadList

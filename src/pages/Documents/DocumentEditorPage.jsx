@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 
 import { createDocument, deleteDocument, finalizeDocument, getDocument, previewDocument, updateDocument } from "../../api/documents";
 import SchemaForm from "../../components/bundle/SchemaForm";
@@ -7,6 +7,8 @@ import LetterFrame from "../../components/documents/LetterFrame";
 import Breadcrumb from "../../components/ui/Breadcrumb";
 import { FormPageSkeleton } from "../../components/ui/PageSkeleton";
 import PageState from "../../components/ui/PageState";
+import { confirmAction, toast } from "../../components/ui/feedback";
+import useArrivalToast from "../../components/ui/useArrivalToast";
 import { useAuth } from "../../context/AuthContext";
 import { useBundle } from "../../context/BundleContext";
 
@@ -24,7 +26,6 @@ import { useBundle } from "../../context/BundleContext";
 function DocumentEditorPage() {
   const { id, clientId } = useParams();
   const [params] = useSearchParams();
-  const location = useLocation();
   const navigate = useNavigate();
   const { user } = useAuth();
   const { term } = useBundle();
@@ -42,16 +43,12 @@ function DocumentEditorPage() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [errors, setErrors] = useState({});
-  const [notice, setNotice] = useState(location.state?.saved || "");
   const [udin, setUdin] = useState("");
   const letter = useRef(null);
   const fields = useRef(null);
 
-  // "Save draft" moves from the new-letter route to the draft's, which
-  // React renders with this same instance, so take each arrival's notice.
-  useEffect(() => {
-    if (location.state?.saved) setNotice(location.state.saved);
-  }, [location.key, location.state]);
+  // "Save draft" moves from the new-letter route to the draft's with a notice.
+  useArrivalToast();
 
   const show = useCallback((data) => {
     setDoc(data);
@@ -83,13 +80,11 @@ function DocumentEditorPage() {
   async function run(action, done) {
     try {
       setBusy(true);
-      setError("");
       setErrors({});
-      setNotice("");
       await action();
-      if (done) setNotice(done);
+      if (done) toast.success(done);
     } catch (requestError) {
-      setError(requestError.message || "That did not work.");
+      toast.error(requestError.message || "That did not work.");
       setErrors(requestError.details && typeof requestError.details === "object" ? requestError.details : {});
     } finally {
       setBusy(false);
@@ -113,9 +108,9 @@ function DocumentEditorPage() {
       navigate(`/documents/${created.id}`, { replace: true, state: { saved: "Draft saved." } });
     });
 
-  const finalize = () => {
+  const finalize = async () => {
     if (fields.current && !fields.current.validate()) return;
-    if (!window.confirm("Finalize this letter? It can't be changed afterwards.")) return;
+    if (!(await confirmAction({ title: "Finalize this letter?", message: "It can't be changed afterwards.", confirmLabel: "Finalize" }))) return;
 
     run(async () => {
       await updateDocument(id, values);
@@ -123,8 +118,8 @@ function DocumentEditorPage() {
     }, "Finalized.");
   };
 
-  const remove = () => {
-    if (!window.confirm("Delete this draft?")) return;
+  const remove = async () => {
+    if (!(await confirmAction({ title: "Delete this draft?", message: "It cannot be recovered.", confirmLabel: "Delete draft", danger: true }))) return;
     run(async () => {
       await deleteDocument(id);
       navigate(`/clients/${doc.customer_id}`, { state: { tab: "documents" } });
@@ -174,8 +169,6 @@ function DocumentEditorPage() {
         </div>
       </header>
 
-      {notice && <div className="alert alert-success">{notice}</div>}
-      {error && <div className="alert alert-error" role="alert">{error}</div>}
       {!final && missing.length > 0 && (
         <div className="alert alert-warning">Still to fill: {missing.join(", ")}. A letter can be finalized once nothing is missing.</div>
       )}

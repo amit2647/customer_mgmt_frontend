@@ -1,6 +1,6 @@
 import { CurrencyInr, Kanban, UserCircle } from "@phosphor-icons/react";
 import { useCallback, useEffect, useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import { convertLead, deleteLead, getLeads, updateProspect } from "../../api/leads";
 import { enumLabel, formatDay, formatMoney } from "../../components/bundle/bundleLabels";
@@ -10,6 +10,8 @@ import StatCard from "../../components/ui/StatCard";
 import DataGrid from "../../components/ui/DataGrid";
 import Pill, { toneFor } from "../../components/ui/Pill";
 import { Skeleton } from "../../components/ui/Skeleton";
+import { confirmAction, toast } from "../../components/ui/feedback";
+import useArrivalToast from "../../components/ui/useArrivalToast";
 
 /*
  * The prospect board (PROS-01–05): the bundle's pipeline as columns. Cards
@@ -34,7 +36,6 @@ function rememberedView() {
 
 function ProspectsPage() {
   const navigate = useNavigate();
-  const location = useLocation();
   const { user } = useAuth();
   const { bundle, term } = useBundle();
 
@@ -50,9 +51,8 @@ function ProspectsPage() {
   const [search, setSearch] = useState("");
   const [showConverted, setShowConverted] = useState(false);
   const [stage, setStage] = useState("all");
-  const [error, setError] = useState("");
-  // Back from the add / edit page.
-  const [notice] = useState(location.state?.saved || "");
+  // Back from the add / edit page with a `saved` notice.
+  useArrivalToast();
   const [busy, setBusy] = useState(false);
 
   const load = useCallback(async () => {
@@ -60,7 +60,7 @@ function ProspectsPage() {
       const all = await getLeads();
       setEveryLead(Array.isArray(all) ? all : []);
     } catch (requestError) {
-      setError(requestError.message || "Could not load prospects.");
+      toast.error(requestError.message || "Could not load prospects.");
     } finally {
       setLoading(false);
     }
@@ -105,11 +105,10 @@ function ProspectsPage() {
   async function run(action) {
     try {
       setBusy(true);
-      setError("");
       await action();
       await load();
     } catch (requestError) {
-      setError(requestError.message || "That did not work.");
+      toast.error(requestError.message || "That did not work.");
     } finally {
       setBusy(false);
     }
@@ -123,14 +122,14 @@ function ProspectsPage() {
   };
 
   async function convert(lead) {
-    if (!window.confirm(`Convert ${lead.name} into a ${term("client").toLowerCase()}? You will finish the details in the wizard.`)) return;
+    if (!(await confirmAction({ title: `Convert ${lead.name} into a ${term("client").toLowerCase()}?`, message: "You will finish the details in the wizard.", confirmLabel: "Convert" }))) return;
 
     try {
       setBusy(true);
       const result = await convertLead(lead.id);
       navigate(`/clients/${result.customer?.id ?? result.lead?.converted_customer_id}/edit?onboarding=1`);
     } catch (requestError) {
-      setError(requestError.message || "The prospect could not be converted.");
+      toast.error(requestError.message || "The prospect could not be converted.");
       setBusy(false);
     }
   }
@@ -152,7 +151,7 @@ function ProspectsPage() {
       {can("leads.update") && <button type="button" className="link" onClick={() => startEditing(lead)}>Edit</button>}
       {can("customers.create") && <button type="button" className="link" disabled={busy} onClick={() => convert(lead)}>Convert</button>}
       {can("leads.delete") && (
-        <button type="button" className="link delete-link" disabled={busy} onClick={() => window.confirm(`Delete ${lead.name}?`) && run(() => deleteLead(lead.id))}>Delete</button>
+        <button type="button" className="link delete-link" disabled={busy} onClick={async () => (await confirmAction({ title: `Delete ${lead.name}?`, message: "It cannot be recovered.", confirmLabel: "Delete", danger: true })) && run(async () => { await deleteLead(lead.id); toast.success(`${lead.name} deleted.`); })}>Delete</button>
       )}
     </>
   );
@@ -219,8 +218,6 @@ function ProspectsPage() {
         />
       </section>
 
-      {notice && <div className="alert alert-success">{notice}</div>}
-
       {view !== "list" && (
         <div className="clients-toolbar">
           <input
@@ -233,8 +230,6 @@ function ProspectsPage() {
           />
         </div>
       )}
-
-      {error && <div className="alert alert-error" role="alert">{error}</div>}
 
       {view === "list" ? (
         <DataGrid

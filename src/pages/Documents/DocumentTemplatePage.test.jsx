@@ -4,6 +4,7 @@ import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
 import DocumentTemplatePage from "./DocumentTemplatePage";
+import { answerConfirm } from "../../test/feedback";
 
 const api = vi.hoisted(() => ({
   createDocumentTemplate: vi.fn(),
@@ -157,15 +158,13 @@ describe("DocumentTemplatePage", () => {
   });
 
   test("leaving with unsaved changes asks first", async () => {
-    const confirm = vi.spyOn(window, "confirm").mockReturnValue(false);
     renderPage();
 
     fireEvent.change(await screen.findByLabelText("Template text"), { target: { value: "<p>Changed</p>" } });
     fireEvent.click(screen.getByRole("button", { name: /Documents/ }));
 
-    expect(confirm).toHaveBeenCalledWith(expect.stringMatching(/Leave without saving/));
+    expect(await answerConfirm(false)).toBe("Leave without saving?");
     expect(screen.getByLabelText("Template text")).toBeInTheDocument();
-    confirm.mockRestore();
   });
 
   test("adds the firm's own letter with its name, service, fields and text", async () => {
@@ -210,7 +209,6 @@ describe("DocumentTemplatePage", () => {
     api.getDocumentTemplate.mockResolvedValue(FIRM_LETTER);
     api.saveDocumentTemplate.mockResolvedValue(FIRM_LETTER);
     api.removeDocumentTemplate.mockResolvedValue({ ok: true });
-    vi.spyOn(window, "confirm").mockReturnValue(true);
     renderPage("/documents/templates/firm_engagement_reminder");
 
     fireEvent.change(await screen.findByLabelText("Field 1 name"), { target: { value: "Our reference" } });
@@ -223,6 +221,7 @@ describe("DocumentTemplatePage", () => {
     }));
 
     fireEvent.click(screen.getByRole("button", { name: "Remove letter" }));
+    expect(await answerConfirm(true)).toBe('Remove "Engagement reminder"?');
     expect(await screen.findByText("Documents list")).toBeInTheDocument();
     expect(api.removeDocumentTemplate).toHaveBeenCalledWith("firm_engagement_reminder");
   });

@@ -1,8 +1,9 @@
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, within, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
 import ProfilePage from "./ProfilePage";
 import * as api from "../../api/profile";
+import { answerConfirm } from "../../test/feedback";
 
 const applyProfile = vi.fn();
 const signOutEverywhere = vi.fn();
@@ -22,7 +23,6 @@ const PROFILE = { name: "Asha Rao", email: "asha@example.com", role: "Partner", 
 
 beforeEach(() => {
   vi.clearAllMocks();
-  vi.spyOn(window, "confirm").mockReturnValue(true);
   api.getProfile.mockResolvedValue(PROFILE);
 });
 
@@ -80,12 +80,13 @@ describe("ProfilePage", () => {
     signOutEverywhere.mockResolvedValue();
     render(<ProfilePage />);
 
-    window.confirm.mockReturnValueOnce(false);
     fireEvent.click(await screen.findByRole("button", { name: "Sign out everywhere" }));
+    expect(await answerConfirm(false)).toBe("Sign out on every device?");
     expect(signOutEverywhere).not.toHaveBeenCalled();
 
     fireEvent.click(screen.getByRole("button", { name: "Sign out everywhere" }));
-    expect(signOutEverywhere).toHaveBeenCalledTimes(1);
+    await answerConfirm(true);
+    await waitFor(() => expect(signOutEverywhere).toHaveBeenCalledTimes(1));
   });
 
   test("says so in its row when the sessions could not be ended", async () => {
@@ -93,6 +94,7 @@ describe("ProfilePage", () => {
     render(<ProfilePage />);
 
     fireEvent.click(await screen.findByRole("button", { name: "Sign out everywhere" }));
+    await answerConfirm(true);
 
     expect(await screen.findByText("Sign-in is unavailable right now")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Sign out everywhere" })).toBeEnabled();

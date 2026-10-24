@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { getLeads, deleteLead, convertLead } from "../../api/leads";
 
 import LeadTable from "../../components/leads/LeadTable";
+import { confirmAction, toast } from "../../components/ui/feedback";
 
 function LeadsPage() {
   const navigate = useNavigate();
@@ -67,9 +68,7 @@ function LeadsPage() {
    */
 
   async function handleDelete(id) {
-    const confirmed = window.confirm(
-      "Are you sure you want to delete this lead?",
-    );
+    const confirmed = await confirmAction({ title: "Delete this lead?", message: "It cannot be recovered.", confirmLabel: "Delete", danger: true });
 
     if (!confirmed) {
       return;
@@ -77,12 +76,11 @@ function LeadsPage() {
 
     try {
       await deleteLead(id);
+      toast.success("Lead deleted.");
 
       await loadLeads();
     } catch (error) {
-      console.error("Failed to delete lead:", error);
-
-      alert(error.message || "Failed to delete lead.");
+      toast.error(error.message || "Failed to delete lead.");
     }
   }
 
@@ -93,7 +91,7 @@ function LeadsPage() {
    */
 
   async function handleConvert(id) {
-    const confirmed = window.confirm("Convert this lead into a customer?");
+    const confirmed = await confirmAction({ title: "Convert this lead into a customer?", confirmLabel: "Convert" });
 
     if (!confirmed) {
       return;
@@ -101,12 +99,11 @@ function LeadsPage() {
 
     try {
       await convertLead(id);
+      toast.success("Lead converted into a customer.");
 
       await loadLeads();
     } catch (error) {
-      console.error("Failed to convert lead:", error);
-
-      alert(error.message || "Failed to convert lead.");
+      toast.error(error.message || "Failed to convert lead.");
     }
   }
 

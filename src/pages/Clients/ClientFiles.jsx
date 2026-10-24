@@ -6,6 +6,7 @@ import DataGrid from "../../components/ui/DataGrid";
 import Pill from "../../components/ui/Pill";
 import { GridSkeleton } from "../../components/ui/Skeleton";
 import { MAX_UPLOAD_MB } from "../../config";
+import { confirmAction, toast } from "../../components/ui/feedback";
 
 /*
  * A client's files (CD-13): drop or choose a file, give it a category, and
@@ -25,11 +26,10 @@ const sizeOf = (bytes) => {
 
 function ClientFiles({ client, can, readOnly }) {
   const [data, setData] = useState(null);
+  const [loadFailed, setLoadFailed] = useState(false);
   const [category, setCategory] = useState("");
   const [dragging, setDragging] = useState(false);
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState("");
-  const [notice, setNotice] = useState("");
   const input = useRef(null);
 
   const canUpload = can("files.upload") && !readOnly;
@@ -41,7 +41,8 @@ function ClientFiles({ client, can, readOnly }) {
       // The signed consent is the first thing a new client needs.
       setCategory((current) => current || (loaded.consent.category && !loaded.consent.onFile ? loaded.consent.category : "general"));
     } catch (requestError) {
-      setError(requestError.message || "Could not load the files.");
+      setLoadFailed(true);
+      toast.error(requestError.message || "Could not load the files.");
     }
   }, [client.id]);
 
@@ -55,21 +56,19 @@ function ClientFiles({ client, can, readOnly }) {
 
     const tooLarge = chosen.find((file) => file.size > MAX_MB * 1024 * 1024);
     if (tooLarge) {
-      setError(`${tooLarge.name} is larger than ${MAX_MB} MB.`);
+      toast.error(`${tooLarge.name} is larger than ${MAX_MB} MB.`);
       return;
     }
 
     try {
       setBusy(true);
-      setError("");
-      setNotice("");
       for (const file of chosen) {
         await uploadFile(client.id, file, category);
       }
-      setNotice(chosen.length === 1 ? `${chosen[0].name} uploaded.` : `${chosen.length} files uploaded.`);
+      toast.success(chosen.length === 1 ? `${chosen[0].name} uploaded.` : `${chosen.length} files uploaded.`);
       await load();
     } catch (requestError) {
-      setError(requestError.message || "The upload did not finish.");
+      toast.error(requestError.message || "The upload did not finish.");
     } finally {
       setBusy(false);
       if (input.current) input.current.value = "";
@@ -77,31 +76,29 @@ function ClientFiles({ client, can, readOnly }) {
   }
 
   async function remove(file) {
-    if (!window.confirm(`Delete ${file.file_name}? It cannot be recovered.`)) return;
+    if (!(await confirmAction({ title: `Delete ${file.file_name}?`, message: "It cannot be recovered.", confirmLabel: "Delete", danger: true }))) return;
 
     try {
-      setError("");
       await deleteFile(file.id);
-      setNotice(`${file.file_name} deleted.`);
+      toast.success(`${file.file_name} deleted.`);
       await load();
     } catch (requestError) {
-      setError(requestError.message || "The file was not deleted.");
+      toast.error(requestError.message || "The file was not deleted.");
     }
   }
 
   async function download(file) {
     try {
-      setError("");
       await downloadFile(file);
     } catch (requestError) {
-      setError(requestError.message || "The file could not be downloaded.");
+      toast.error(requestError.message || "The file could not be downloaded.");
     }
   }
 
   if (!data) {
     return (
       <section role="tabpanel" aria-label="Files">
-        {error ? <div className="card"><div className="settings-empty">{error}</div></div> : <GridSkeleton columns={4} rows={4} />}
+        {loadFailed ? <div className="card"><div className="settings-empty">The files could not be loaded.</div></div> : <GridSkeleton columns={4} rows={4} />}
       </section>
     );
   }
@@ -116,8 +113,6 @@ function ClientFiles({ client, can, readOnly }) {
           {data.consent.onFile ? "The signed consent and power of attorney is on file." : "No signed consent and power of attorney yet — portal credentials can be saved once it is uploaded."}
         </div>
       )}
-      {notice && <div className="alert alert-success">{notice}</div>}
-      {error && <div className="alert alert-error" role="alert">{error}</div>}
 
       {canUpload && (
         <section

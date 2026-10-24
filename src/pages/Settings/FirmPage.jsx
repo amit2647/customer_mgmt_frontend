@@ -11,6 +11,7 @@ import { SettingRowsSkeleton } from "../../components/ui/Skeleton";
 import DataGrid from "../../components/ui/DataGrid";
 import Modal from "../../components/ui/Modal";
 import Pill from "../../components/ui/Pill";
+import { confirmAction, toast } from "../../components/ui/feedback";
 
 /*
  * Settings → Firm (SET-01–03): the firm's details and the bundle's firm
@@ -41,11 +42,10 @@ function FirmPage() {
   const canUpdate = permissions.includes("organization.update");
 
   const [firm, setFirm] = useState(null);
+  const [loadFailed, setLoadFailed] = useState(false);
   const [people, setPeople] = useState([]);
   const [person, setPerson] = useState(null);
   const [errors, setErrors] = useState({});
-  const [error, setError] = useState("");
-  const [notice, setNotice] = useState("");
   const [saving, setSaving] = useState(false);
   const [editingFirm, setEditingFirm] = useState(false);
 
@@ -57,7 +57,8 @@ function FirmPage() {
       setFirm(loaded);
       setPeople(partners);
     } catch (requestError) {
-      setError(requestError.message || "Could not load the firm.");
+      setLoadFailed(true);
+      toast.error(requestError.message || "Could not load the firm.");
     }
   }, []);
 
@@ -72,13 +73,12 @@ function FirmPage() {
 
     try {
       setSaving(true);
-      setError("");
       setErrors({});
       setFirm(await updateFirm(firm));
       setEditingFirm(false);
-      setNotice("Firm saved.");
+      toast.success("Firm saved.");
     } catch (requestError) {
-      setError(requestError.message || "The firm could not be saved.");
+      toast.error(requestError.message || "The firm could not be saved.");
       setErrors(requestError.details || {});
     } finally {
       setSaving(false);
@@ -90,16 +90,15 @@ function FirmPage() {
 
     try {
       setSaving(true);
-      setError("");
 
       if (person.id) await updateProfessional(person.id, person);
       else await createProfessional(person);
 
       setPerson(null);
-      setNotice("Signing partner saved.");
+      toast.success("Signing partner saved.");
       setPeople(await getProfessionals());
     } catch (requestError) {
-      setError(requestError.message || "The signing partner could not be saved.");
+      toast.error(requestError.message || "The signing partner could not be saved.");
     } finally {
       setSaving(false);
     }
@@ -123,18 +122,15 @@ function FirmPage() {
 
         {canUpdate && firm && !editingFirm && (
           <div className="page-header-actions">
-            <button type="button" className="secondary-button" onClick={() => { setNotice(""); setEditingFirm(true); }}>
+            <button type="button" className="secondary-button" onClick={() => { setEditingFirm(true); }}>
               Edit firm details
             </button>
           </div>
         )}
       </div>
 
-      {notice && <div className="alert alert-success">{notice}</div>}
-      {error && <div className="alert alert-error" role="alert">{error}</div>}
-
       {!firm ? (
-        error ? null : <SettingRowsSkeleton label="Firm details" rows={DETAILS.length} />
+        loadFailed ? null : <SettingRowsSkeleton label="Firm details" rows={DETAILS.length} />
       ) : !editingFirm ? (
         <SettingRows label="Firm details">
           {DETAILS.map(([key, title, description, icon]) => (
@@ -191,7 +187,7 @@ function FirmPage() {
       <section className="card firm-partners" aria-label="Signing partners">
         <div className="bundle-summary">
           <h2>Signing partners</h2>
-          {canUpdate && <button type="button" className="secondary-button" onClick={() => { setError(""); setPerson(PERSON); }}>+ Add partner</button>}
+          {canUpdate && <button type="button" className="secondary-button" onClick={() => { setPerson(PERSON); }}>+ Add partner</button>}
         </div>
 
         {people.length === 0 && <div className="settings-empty">No signing partners yet.</div>}
@@ -233,7 +229,7 @@ function FirmPage() {
                     <div className="table-actions">
                       <button type="button" className="link" onClick={() => setPerson({ id: item.id, name: item.name, designation: item.designation || "", attributes: item.attributes || {}, isDefaultSignatory: item.is_default_signatory })}>Edit</button>
                       <button type="button" className="link delete-link" onClick={async () => {
-                        if (!window.confirm(`Remove ${item.name}?`)) return;
+                        if (!(await confirmAction({ title: `Remove ${item.name}?`, confirmLabel: "Remove", danger: true }))) return;
                         await removeProfessional(item.id);
                         setPeople(await getProfessionals());
                       }}>Remove</button>
@@ -258,7 +254,6 @@ function FirmPage() {
               </>
             }
           >
-            {error && <div className="alert alert-error" role="alert">{error}</div>}
             <div className="modal-fields two">
               <label>Name<input value={person.name} onChange={(e) => setPerson({ ...person, name: e.target.value })} required autoFocus /></label>
               <label>Designation<input value={person.designation} onChange={(e) => setPerson({ ...person, designation: e.target.value })} /></label>

@@ -6,6 +6,7 @@ import Breadcrumb from "../../components/ui/Breadcrumb";
 import { useBundle } from "../../context/BundleContext";
 import DataGrid from "../../components/ui/DataGrid";
 import Pill from "../../components/ui/Pill";
+import { toast } from "../../components/ui/feedback";
 
 /*
  * Importing clients from CSV (DATA-03, DATA-04): download the template,
@@ -20,7 +21,6 @@ function ClientsImportPage() {
   const [file, setFile] = useState(null);
   const [busy, setBusy] = useState(false);
   const [report, setReport] = useState(null);
-  const [error, setError] = useState("");
 
   async function run(event) {
     event.preventDefault();
@@ -28,11 +28,10 @@ function ClientsImportPage() {
 
     try {
       setBusy(true);
-      setError("");
       setReport(null);
       setReport(await importClients(await file.text()));
     } catch (importError) {
-      setError(importError.message || "The import did not finish.");
+      toast.error(importError.message || "The import did not finish.");
     } finally {
       setBusy(false);
     }
@@ -49,12 +48,10 @@ function ClientsImportPage() {
         </div>
       </header>
 
-      {error && <div className="alert alert-error" role="alert">{error}</div>}
-
       <section className="card import-step" aria-label="Template">
         <h3>1. Get the template</h3>
         <p className="settings-row-hint">Its columns follow your firm's setup. Lines starting with // explain the columns and are ignored.</p>
-        <button type="button" className="secondary-button" onClick={() => downloadImportTemplate().catch((templateError) => setError(templateError.message))}>Download template</button>
+        <button type="button" className="secondary-button" onClick={() => downloadImportTemplate().catch((templateError) => toast.error(templateError.message))}>Download template</button>
       </section>
 
       <form className="card import-step" aria-label="Upload" onSubmit={run}>

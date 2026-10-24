@@ -5,6 +5,7 @@ import { createRule, getRules, removeExtension, removeRule, setExtension, setRul
 import { formatDay } from "../bundle/bundleLabels";
 import DataGrid from "../ui/DataGrid";
 import Modal from "../ui/Modal";
+import { confirmAction, toast } from "../ui/feedback";
 import Pill from "../ui/Pill";
 import RuleForm from "./RuleForm";
 import { describeRule, emptyForm, formFromRule, payloadFrom } from "./ruleTiming";
@@ -25,9 +26,6 @@ function ServiceDeadlines({ service, services, canEdit }) {
   const [editing, setEditing] = useState(null); // { key?, form }
   const [extending, setExtending] = useState(null);
   const [busy, setBusy] = useState(false);
-  const [formError, setFormError] = useState("");
-  const [error, setError] = useState("");
-  const [notice, setNotice] = useState("");
 
   const serviceName = (key) => services.find((item) => item.key === key)?.name || key.replace(/_/g, " ");
 
@@ -36,7 +34,7 @@ function ServiceDeadlines({ service, services, canEdit }) {
       const all = await getRules();
       setRules(all.filter((rule) => rule.service_key === service.key));
     } catch (requestError) {
-      setError(requestError.message || "Could not load the deadlines.");
+      toast.error(requestError.message || "Could not load the deadlines.");
       setRules([]);
     }
   }, [service.key]);
@@ -47,29 +45,28 @@ function ServiceDeadlines({ service, services, canEdit }) {
 
   async function run(action, done) {
     try {
-      setError("");
       const result = await action();
-      setNotice(typeof done === "function" ? done(result) : done);
+      toast.success(typeof done === "function" ? done(result) : done);
       await load();
     } catch (requestError) {
-      setError(requestError.message || "That did not work.");
+      toast.error(requestError.message || "That did not work.");
     }
   }
 
   async function save() {
     try {
       setBusy(true);
-      setFormError("");
       const payload = payloadFrom(editing.form);
 
       if (editing.key) await updateRule(editing.key, payload);
       else await createRule({ ...payload, serviceKey: service.key });
 
-      setNotice(editing.key ? "Deadline saved. Open deadlines moved to the new dates." : "Deadline added. Engaged clients have it now.");
+      toast.success(editing.key ? "Deadline saved. Open deadlines moved to the new dates." : "Deadline added. Engaged clients have it now.");
       setEditing(null);
       await load();
     } catch (requestError) {
-      setFormError(requestError.message || "The deadline could not be saved.");
+      // The dialog stays open with what was typed; the toast says why.
+      toast.error(requestError.message || "The deadline could not be saved.");
     } finally {
       setBusy(false);
     }
@@ -85,14 +82,12 @@ function ServiceDeadlines({ service, services, canEdit }) {
           <p>When this service's filings fall due. Every client engaged for it gets these each year; extensions move one period's date.</p>
         </div>
         {canEdit && (
-          <button type="button" className="primary" onClick={() => { setFormError(""); setEditing({ form: emptyForm() }); }}>
+          <button type="button" className="primary" onClick={() => setEditing({ form: emptyForm() })}>
             <Plus size={14} aria-hidden="true" />Add deadline
           </button>
         )}
       </header>
 
-      {notice && <div className="alert alert-success">{notice}</div>}
-      {error && <div className="alert alert-error" role="alert">{error}</div>}
 
       {editing && (
         <Modal
@@ -108,7 +103,7 @@ function ServiceDeadlines({ service, services, canEdit }) {
             </>
           }
         >
-          <RuleForm form={editing.form} onChange={(form) => setEditing({ ...editing, form })} services={otherServices} error={formError} />
+          <RuleForm form={editing.form} onChange={(form) => setEditing({ ...editing, form })} services={otherServices} />
         </Modal>
       )}
 
@@ -211,7 +206,7 @@ function ServiceDeadlines({ service, services, canEdit }) {
               return (
                 <div className="table-actions">
                   {form ? (
-                    <button type="button" className="link" onClick={() => { setFormError(""); setEditing({ key: rule.key, name: rule.name, form }); }} aria-label={`Edit ${rule.name}`}>Edit</button>
+                    <button type="button" className="link" onClick={() => setEditing({ key: rule.key, name: rule.name, form })} aria-label={`Edit ${rule.name}`}>Edit</button>
                   ) : (
                     <Pill tone="neutral" title="This deadline's timing is set by the bundle in a form the editor cannot show">Set by bundle</Pill>
                   )}
@@ -219,7 +214,7 @@ function ServiceDeadlines({ service, services, canEdit }) {
                     <button
                       type="button"
                       className="link delete-link"
-                      onClick={() => window.confirm(`Delete ${rule.name}? Its open deadlines go too; filed ones stay.`) && run(() => removeRule(rule.key), "Deadline deleted.")}
+                      onClick={async () => (await confirmAction({ title: `Delete ${rule.name}?`, message: "Its open deadlines go too; filed ones stay.", confirmLabel: "Delete", danger: true })) && run(() => removeRule(rule.key), "Deadline deleted.")}
                       aria-label={`Delete ${rule.name}`}
                     >
                       Delete

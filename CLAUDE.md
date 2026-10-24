@@ -21,6 +21,15 @@ Parent-repo context (gateway, auth, bundles) is in `../CLAUDE.md`.
   time zone; `formatDate` / `formatDateTime` for a moment). Never `toLocaleDateString` in a page.
   Letters (bundle-sdk's `date` helper) and reminder emails (obligation-service) follow the same
   format. Date pickers (`<input type="date">`) stay native and show the browser's own format.
+- **Messages are toasts, confirmations are our dialog** — never `alert()` or
+  `window.confirm()`. `components/ui/feedback.js`: `toast.success|error|info(text)` (top-right,
+  leaves on its own) for any result, and `await confirmAction({ title, message, confirmLabel,
+  danger })` before anything that cannot be undone. `FeedbackHost` draws both; `main.jsx` mounts
+  it beside the app and `src/test/setup.js` in every test (answer the dialog with
+  `answerConfirm()` from `src/test/feedback.js`). A page reached with `state.saved` /
+  `warning` calls `useArrivalToast()`. Left in the page on purpose: field errors, standing
+  warnings (`.alert-warning`), the letter preview's own error, and a page that could not load
+  (`PageState`). The browser's "leave site?" prompt on closing a tab cannot be styled.
 - The container serves the **production build** (`npm run build` in the Dockerfile, then
   nginx on 3000, `nginx.conf`: hashed `/assets/` cached for good, every other path falls back to
   `index.html`). It ran the Vite dev server until 2026-10-11: unbundled, that was 149 files and

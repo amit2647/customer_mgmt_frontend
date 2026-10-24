@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { FolderSimple, Hash, Info, PencilSimple, Power, Tag } from "@phosphor-icons/react";
 
 import { getService, getServices } from "../../api/services";
@@ -10,6 +10,7 @@ import Breadcrumb from "../../components/ui/Breadcrumb";
 import { DetailPageSkeleton } from "../../components/ui/PageSkeleton";
 import DataGrid from "../../components/ui/DataGrid";
 import PageState from "../../components/ui/PageState";
+import useArrivalToast from "../../components/ui/useArrivalToast";
 import Pill from "../../components/ui/Pill";
 import { SettingRow, SettingRows } from "../../components/ui/SettingRow";
 import ServiceDeadlines from "../../components/services/ServiceDeadlines";
@@ -23,7 +24,6 @@ import ServiceDeadlines from "../../components/services/ServiceDeadlines";
 function ServiceDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const location = useLocation();
   const { user } = useAuth();
   const { bundle } = useBundle();
 
@@ -36,8 +36,8 @@ function ServiceDetailPage() {
   const [letters, setLetters] = useState(null);
   const [tab, setTab] = useState("overview");
   const [error, setError] = useState("");
-  // Set by the edit page on its way back.
-  const notice = location.state?.saved || "";
+  // The edit page comes back with a `saved` notice.
+  useArrivalToast();
 
   const load = useCallback(async () => {
     try {
@@ -105,7 +105,6 @@ function ServiceDetailPage() {
         </div>
       </section>
 
-      {notice && <div className="alert alert-success">{notice}</div>}
 
       {tabs.length > 1 && (
         <div className="settings-subtabs client-subtabs" role="tablist">

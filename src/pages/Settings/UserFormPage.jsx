@@ -6,6 +6,7 @@ import { createUser, getRoles, getUser, updateUser } from "../../api/identity";
 import Breadcrumb from "../../components/ui/Breadcrumb";
 import { FormPageSkeleton } from "../../components/ui/PageSkeleton";
 import { PASSWORD_MIN_LENGTH } from "../../config";
+import { toast } from "../../components/ui/feedback";
 
 const EMPTY = {
   name: "",
@@ -38,7 +39,6 @@ function UserFormPage() {
   const [roles, setRoles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState("");
 
   const load = useCallback(async () => {
     try {
@@ -61,7 +61,7 @@ function UserFormPage() {
         });
       }
     } catch (requestError) {
-      setError(requestError.message || "Failed to load the user.");
+      toast.error(requestError.message || "Failed to load the user.");
     } finally {
       setLoading(false);
     }
@@ -80,7 +80,6 @@ function UserFormPage() {
 
     try {
       setSaving(true);
-      setError("");
 
       let saved;
 
@@ -110,7 +109,7 @@ function UserFormPage() {
       // in (P4): the list says whether the link was mailed, or shows it.
       navigate("/settings/users", saved?.verification ? { state: { verification: saved.verification, email: saved.email } } : undefined);
     } catch (requestError) {
-      setError(requestError.message || "Failed to save the user.");
+      toast.error(requestError.message || "Failed to save the user.");
     } finally {
       setSaving(false);
     }
@@ -135,8 +134,6 @@ function UserFormPage() {
           </p>
         </div>
       </div>
-
-      {error && <div className="alert alert-error" role="alert">{error}</div>}
 
       <form className="settings-form-card" onSubmit={handleSubmit}>
         <label>

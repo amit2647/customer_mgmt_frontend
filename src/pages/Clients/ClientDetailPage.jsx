@@ -42,6 +42,9 @@ import { DetailPageSkeleton } from "../../components/ui/PageSkeleton";
 import DataGrid from "../../components/ui/DataGrid";
 import Modal from "../../components/ui/Modal";
 import Pill, { toneFor } from "../../components/ui/Pill";
+import { confirmAction, toast } from "../../components/ui/feedback";
+import PageState from "../../components/ui/PageState";
+import useArrivalToast from "../../components/ui/useArrivalToast";
 
 /*
  * One client (CD-01–05, CD-11): header with lock and type flags, then tabs.
@@ -99,9 +102,10 @@ function ClientDetailPage() {
   // The Deadlines page opens a client straight on its Compliance tab.
   const [tab, setTab] = useState(location.state?.tab || "overview");
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
+  // The wizard comes back with `saved` (and a `warning` when its second step failed).
+  useArrivalToast();
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState("");
-  const [notice, setNotice] = useState(location.state?.saved ? "Saved." : "");
   const [services, setServices] = useState([]);
   const [account, setAccount] = useState(null);
 
@@ -109,7 +113,8 @@ function ClientDetailPage() {
     try {
       setClient(await getClient(id));
     } catch (requestError) {
-      setError(requestError.message || "Could not load the client.");
+      // The page itself says so: there is nothing else to show.
+      setLoadError(requestError.message || "Could not load the client.");
     } finally {
       setLoading(false);
     }
@@ -126,17 +131,17 @@ function ClientDetailPage() {
       .catch(() => setServices([]));
   }, []);
 
-  async function act(action, done, confirmText) {
-    if (confirmText && !window.confirm(confirmText)) return;
+  // `confirm`: { title, message, confirmLabel, danger } to ask first.
+  async function act(action, done, confirm) {
+    if (confirm && !(await confirmAction(confirm))) return;
 
     try {
       setBusy(true);
-      setError("");
       await action();
-      setNotice(done);
+      toast.success(done);
       await load();
     } catch (requestError) {
-      setError(requestError.message || "That did not work.");
+      toast.error(requestError.message || "That did not work.");
     } finally {
       setBusy(false);
     }
@@ -147,7 +152,11 @@ function ClientDetailPage() {
   }
 
   if (!client) {
-    return <main className="page record-detail-page"><div className="alert alert-error" role="alert">{error || "Client not found."}</div></main>;
+    return (
+      <PageState icon="!" tone="error" title="Unable to open this client" action={<button type="button" className="primary" onClick={() => navigate("/clients")}>Back to {term("client", true)}</button>}>
+        {loadError || "Client not found."}
+      </PageState>
+    );
   }
 
   const profile = bundle?.profiles?.client;
@@ -233,7 +242,7 @@ function ClientDetailPage() {
               </button>
             )}
             {!archived && can("customers.delete") && (
-              <button type="button" className="secondary-button" disabled={busy} onClick={() => act(() => archiveClient(id), "Archived. Its records are kept; restore it to work on it again.", `Archive ${client.name}? It leaves every list, and nothing about it is deleted.`)}>
+              <button type="button" className="secondary-button" disabled={busy} onClick={() => act(() => archiveClient(id), "Archived. Its records are kept; restore it to work on it again.", { title: `Archive ${client.name}?`, message: "It leaves every list, and nothing about it is deleted.", confirmLabel: "Archive" })}>
                 <Archive size={15} aria-hidden="true" />Archive
               </button>
             )}
@@ -254,7 +263,7 @@ function ClientDetailPage() {
                       navigate("/clients", { replace: true });
                     },
                     "Deleted permanently.",
-                    `Permanently delete ${client.name} and everything recorded about it? This cannot be undone.`,
+                    { title: `Permanently delete ${client.name}?`, message: "Everything recorded about it goes too. This cannot be undone.", confirmLabel: "Delete permanently", danger: true },
                   )
                 }
               >
@@ -265,10 +274,6 @@ function ClientDetailPage() {
         </div>
 
       </section>
-
-      {notice && <div className="alert alert-success">{notice}</div>}
-      {location.state?.warning && <div className="alert alert-error" role="alert">{location.state.warning}</div>}
-      {error && <div className="alert alert-error" role="alert">{error}</div>}
 
       <div className="settings-subtabs client-subtabs" role="tablist">
         {TABS.filter((item) => (!item.permission || can(item.permission)) && (!item.needs || (bundle?.capabilities || []).includes(item.needs))).map((item) => (
@@ -398,7 +403,7 @@ function ClientDetailPage() {
                     )
                   )}
                   {can("profiles.update") && !archived && (
-                    <button type="button" className="link delete-link" disabled={busy} onClick={() => act(() => removeBankAccount(id, item.id), "Account removed.", `Remove the ${item.bank_name} account?`)}>
+                    <button type="button" className="link delete-link" disabled={busy} onClick={() => act(() => removeBankAccount(id, item.id), "Account removed.", { title: `Remove the ${item.bank_name} account?`, confirmLabel: "Remove", danger: true })}>
                       Remove
                     </button>
                   )}
@@ -409,7 +414,7 @@ function ClientDetailPage() {
 
           {can("profiles.update") && !archived && (
             <div className="bundle-actions">
-              <button type="button" className="secondary-button" onClick={() => { setError(""); setAccount(NEW_ACCOUNT); }}>+ Add bank account</button>
+              <button type="button" className="secondary-button" onClick={() => { setAccount(NEW_ACCOUNT); }}>+ Add bank account</button>
             </div>
           )}
 
@@ -432,7 +437,6 @@ function ClientDetailPage() {
                 </>
               }
             >
-              {error && <div className="alert alert-error" role="alert">{error}</div>}
               <div className="modal-fields two">
                 <label>Bank<input value={account.bankName} onChange={(e) => setAccount({ ...account, bankName: e.target.value })} required autoFocus /></label>
                 <label>Branch<input value={account.branch} onChange={(e) => setAccount({ ...account, branch: e.target.value })} /></label>

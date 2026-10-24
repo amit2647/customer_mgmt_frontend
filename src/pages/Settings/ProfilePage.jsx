@@ -9,6 +9,7 @@ import TwoFactorSetting from "./TwoFactorSetting";
 import SignInActivity from "./SignInActivity";
 import { PASSWORD_MIN_LENGTH } from "../../config";
 import { formatDate as formatDateValue } from "../../utils/dates";
+import { confirmAction, toast } from "../../components/ui/feedback";
 
 const MIN_PASSWORD_LENGTH = PASSWORD_MIN_LENGTH;
 
@@ -41,9 +42,8 @@ function ProfilePage() {
   const [draft, setDraft] = useState({ name: "", email: "", currentPassword: "" });
   const [passwords, setPasswords] = useState(EMPTY_PASSWORDS);
   const [saving, setSaving] = useState(false);
-
-  // A message belongs to the row it is about: { row, type, text }.
-  const [message, setMessage] = useState(null);
+  // A result ({ type, text }) shows as a toast.
+  const report = (result) => toast[result.type === "error" ? "error" : "success"](result.text);
 
   useEffect(() => {
     let current = true;
@@ -59,7 +59,6 @@ function ProfilePage() {
   }, []);
 
   function open(row) {
-    setMessage(null);
     setEditing(row);
     setDraft({ name: profile.name, email: profile.email, currentPassword: "" });
     setPasswords(EMPTY_PASSWORDS);
@@ -67,7 +66,6 @@ function ProfilePage() {
 
   function close() {
     setEditing(null);
-    setMessage(null);
   }
 
   // The email is what the person signs in with, so changing it asks for the
@@ -78,7 +76,7 @@ function ProfilePage() {
     event.preventDefault();
 
     if (row === "name" && !draft.name.trim()) {
-      setMessage({ row, type: "error", text: "Please enter your name." });
+      report({ row, type: "error", text: "Please enter your name." });
       return;
     }
 
@@ -101,7 +99,7 @@ function ProfilePage() {
 
       // A new address takes effect only once its link is opened (P4).
       const verification = updated.verification;
-      setMessage(
+      report(
         row === "email" && verification && !verification.sent
           ? { row, type: "error", text: `${verification.reason || "The confirmation email could not be sent"}. Your email address has not changed.` }
           : {
@@ -114,7 +112,7 @@ function ProfilePage() {
             },
       );
     } catch (error) {
-      setMessage({ row, type: "error", text: error.message || "Could not save your details." });
+      report({ row, type: "error", text: error.message || "Could not save your details." });
     } finally {
       setSaving(false);
     }
@@ -124,12 +122,12 @@ function ProfilePage() {
     event.preventDefault();
 
     if (passwords.next.length < MIN_PASSWORD_LENGTH) {
-      setMessage({ row: "password", type: "error", text: `The new password must be at least ${MIN_PASSWORD_LENGTH} characters.` });
+      report({ row: "password", type: "error", text: `The new password must be at least ${MIN_PASSWORD_LENGTH} characters.` });
       return;
     }
 
     if (passwords.next !== passwords.confirm) {
-      setMessage({ row: "password", type: "error", text: "The new passwords do not match." });
+      report({ row: "password", type: "error", text: "The new passwords do not match." });
       return;
     }
 
@@ -140,9 +138,9 @@ function ProfilePage() {
 
       setEditing(null);
       setPasswords(EMPTY_PASSWORDS);
-      setMessage({ row: "password", type: "success", text: "Password changed. Use the new one next time you sign in." });
+      report({ row: "password", type: "success", text: "Password changed. Use the new one next time you sign in." });
     } catch (error) {
-      setMessage({ row: "password", type: "error", text: error.message || "Could not change your password." });
+      report({ row: "password", type: "error", text: error.message || "Could not change your password." });
     } finally {
       setSaving(false);
     }
@@ -162,31 +160,19 @@ function ProfilePage() {
     );
   }
 
-  function rowMessage(row) {
-    if (message?.row !== row) {
-      return null;
-    }
-
-    return (
-      <SettingNotice tone={message.type === "error" ? "danger" : "success"}>
-        {message.text}
-      </SettingNotice>
-    );
-  }
 
   // Ends every session, this one included, so it ends on the sign-in page.
   async function endAllSessions() {
-    if (!window.confirm("Sign out on every device, this one included?")) {
+    if (!(await confirmAction({ title: "Sign out on every device?", message: "This one included: you will be back on the sign-in page.", confirmLabel: "Sign out everywhere", danger: true }))) {
       return;
     }
 
     setSaving(true);
-    setMessage(null);
 
     try {
       await signOutEverywhere();
     } catch (error) {
-      setMessage({ row: "sessions", type: "error", text: error.message || "Could not sign you out everywhere. Please try again." });
+      report({ row: "sessions", type: "error", text: error.message || "Could not sign you out everywhere. Please try again." });
       setSaving(false);
     }
   }
@@ -256,11 +242,9 @@ function ProfilePage() {
                     autoFocus
                   />
                 </label>
-                {rowMessage("name")}
                 {formActions("Save name")}
               </form>
             )}
-            {editing !== "name" && rowMessage("name")}
           </SettingRow>
 
           <SettingRow
@@ -311,11 +295,9 @@ function ProfilePage() {
                   </>
                 )}
 
-                {rowMessage("email")}
                 {formActions("Save email")}
               </form>
             )}
-            {editing !== "email" && rowMessage("email")}
           </SettingRow>
 
           {editable && (
@@ -370,11 +352,10 @@ function ProfilePage() {
                     />
                   </label>
 
-                  <div className="setting-form-full">{rowMessage("password")}</div>
+                  <div className="setting-form-full"></div>
                   <div className="setting-form-full">{formActions("Change password")}</div>
                 </form>
               )}
-              {editing !== "password" && rowMessage("password")}
             </SettingRow>
           )}
 
@@ -414,7 +395,6 @@ function ProfilePage() {
               </button>
             }
           >
-            {rowMessage("sessions")}
           </SettingRow>
         </SettingRows>
       )}

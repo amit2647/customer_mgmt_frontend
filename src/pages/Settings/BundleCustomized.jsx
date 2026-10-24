@@ -4,6 +4,7 @@ import { chooseCustomizedItem, getCustomizedItems } from "../../api/bundles";
 import DataGrid from "../../components/ui/DataGrid";
 import { GridSkeleton } from "../../components/ui/Skeleton";
 import Pill, { toneFor } from "../../components/ui/Pill";
+import { toast } from "../../components/ui/feedback";
 
 /*
  * Customized items: things the bundle installed that the firm has since
@@ -41,17 +42,16 @@ function differences(mine = {}, theirs = {}) {
 
 function BundleCustomized({ version }) {
   const [items, setItems] = useState(null);
+  const [loadFailed, setLoadFailed] = useState(false);
   const [busy, setBusy] = useState("");
-  const [error, setError] = useState("");
-  const [notice, setNotice] = useState("");
 
   const load = useCallback(async () => {
     try {
-      setError("");
       setItems((await getCustomizedItems()).items || []);
     } catch (requestError) {
       setItems([]);
-      setError(requestError.message || "Could not read the customized items.");
+      setLoadFailed(true);
+      toast.error(requestError.message || "Could not read the customized items.");
     }
   }, []);
 
@@ -64,13 +64,11 @@ function BundleCustomized({ version }) {
 
     try {
       setBusy(id);
-      setError("");
-      setNotice("");
       await chooseCustomizedItem(item, choice);
-      setNotice(choice === "accept" ? `${item.name} now has the bundle's version.` : `Your version of ${item.name} is kept.`);
+      toast.success(choice === "accept" ? `${item.name} now has the bundle's version.` : `Your version of ${item.name} is kept.`);
       await load();
     } catch (requestError) {
-      setError(requestError.message || "That did not work.");
+      toast.error(requestError.message || "That did not work.");
     } finally {
       setBusy("");
     }
@@ -87,11 +85,8 @@ function BundleCustomized({ version }) {
         </div>
       </div>
 
-      {notice && <div className="alert alert-success">{notice}</div>}
-      {error && <div className="alert alert-error" role="alert">{error}</div>}
-
       {items === null ? (
-        error ? null : <GridSkeleton embedded label="Customized items" columns={4} rows={3} />
+        loadFailed ? null : <GridSkeleton embedded label="Customized items" columns={4} rows={3} />
       ) : items.length === 0 ? (
         <div className="settings-empty">Nothing customized: everything matches the installed version.</div>
       ) : (

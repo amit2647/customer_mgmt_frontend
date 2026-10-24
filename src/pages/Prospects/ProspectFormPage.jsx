@@ -11,6 +11,7 @@ import { FormPageSkeleton } from "../../components/ui/PageSkeleton";
 import ServicePicker from "../../components/ui/ServicePicker";
 import PageState from "../../components/ui/PageState";
 import NumberInput from "../../components/ui/NumberInput";
+import { toast } from "../../components/ui/feedback";
 
 /*
  * Add or edit one prospect (PROS-01–03) as a wizard, in the same chrome and
@@ -56,7 +57,6 @@ function ProspectFormPage() {
   const [loading, setLoading] = useState(Boolean(id));
   const [converted, setConverted] = useState(null);
   const [saving, setSaving] = useState(false);
-  const [message, setMessage] = useState("");
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
@@ -85,7 +85,7 @@ function ProspectFormPage() {
           status: lead.status || "",
         });
       })
-      .catch((error) => setMessage(error.message || "Could not load the prospect."))
+      .catch((error) => toast.error(error.message || "Could not load the prospect."))
       .finally(() => setLoading(false));
   }, [id]);
 
@@ -140,7 +140,6 @@ function ProspectFormPage() {
 
     try {
       setSaving(true);
-      setMessage("");
       setErrors({});
 
       let savedId = leadId;
@@ -160,7 +159,7 @@ function ProspectFormPage() {
       const details = error.details || {};
       const first = Object.keys(details)[0];
 
-      setMessage(error.message || "The prospect could not be saved.");
+      toast.error(error.message || "The prospect could not be saved.");
       setErrors(details);
       if (first) setStep(stepOf(first));
     } finally {
@@ -220,8 +219,6 @@ function ProspectFormPage() {
         </div>
 
         <WizardSteps steps={STEPS} current={step} className="customer-workflow-steps" onSelect={(target) => goToStep(target, { step, validateStep, setStep })} />
-
-        {message && <div className="workflow-error" role="alert">{message}</div>}
 
         <div className="workflow-body">
           {step === 1 && (

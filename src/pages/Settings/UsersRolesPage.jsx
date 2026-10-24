@@ -16,6 +16,7 @@ import Pill, { toneFor } from "../../components/ui/Pill";
 import VerificationNotice from "./VerificationNotice";
 import Modal from "../../components/ui/Modal";
 import ActivityList from "../../components/auth/ActivityList";
+import { confirmAction, toast } from "../../components/ui/feedback";
 
 const TABS = [
   { id: "users", label: "Users" },
@@ -43,8 +44,6 @@ function UsersRolesPage() {
   const [users, setUsers] = useState([]);
   const [roles, setRoles] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
   // A member's sign-in history, open in a dialog (P6).
   const [activity, setActivity] = useState(null);
   // What happened to a verification link: from the user form, or a resend.
@@ -53,7 +52,6 @@ function UsersRolesPage() {
   const load = useCallback(async () => {
     try {
       setLoading(true);
-      setError("");
 
       const [userData, roleData] = await Promise.all([
         organizationId ? getOrganizationUsers(organizationId) : [],
@@ -63,7 +61,7 @@ function UsersRolesPage() {
       setUsers(Array.isArray(userData) ? userData : (userData?.users ?? []));
       setRoles(Array.isArray(roleData) ? roleData : (roleData?.roles ?? []));
     } catch (requestError) {
-      setError(requestError.message || "Failed to load users and roles.");
+      toast.error(requestError.message || "Failed to load users and roles.");
     } finally {
       setLoading(false);
     }
@@ -75,38 +73,31 @@ function UsersRolesPage() {
 
   function selectTab(next) {
     setSearchParams(next === "users" ? {} : { tab: next });
-    setError("");
-    setSuccess("");
   }
 
   async function handleResendVerification(target) {
-    setError("");
-    setSuccess("");
 
     try {
       const { verification: result } = await resendUserVerification(target.id);
       setVerification({ verification: result, email: target.email });
     } catch (requestError) {
-      setError(requestError.message || "Could not send the link.");
+      toast.error(requestError.message || "Could not send the link.");
     }
   }
 
   // For someone who lost their phone and their recovery codes (P5). It signs
   // them out everywhere; they set it up again if the organization requires it.
   async function handleResetTwoFactor(target) {
-    if (!window.confirm(`Reset two-factor sign-in for ${target.name}? They will be signed out everywhere.`)) {
+    if (!(await confirmAction({ title: `Reset two-factor sign-in for ${target.name}?`, message: "They will be signed out everywhere.", confirmLabel: "Reset", danger: true }))) {
       return;
     }
 
-    setError("");
-    setSuccess("");
-
     try {
       await resetUserTwoFactor(target.id);
-      setSuccess(`Two-factor sign-in reset for ${target.name}.`);
+      toast.success(`Two-factor sign-in reset for ${target.name}.`);
       await load();
     } catch (requestError) {
-      setError(requestError.message || "Could not reset two-factor sign-in.");
+      toast.error(requestError.message || "Could not reset two-factor sign-in.");
     }
   }
 
@@ -118,48 +109,46 @@ function UsersRolesPage() {
       setActivity({ user: target, events: events || [], loading: false });
     } catch (requestError) {
       setActivity(null);
-      setError(requestError.message || "Could not load sign-in activity.");
+      toast.error(requestError.message || "Could not load sign-in activity.");
     }
   }
 
   async function handleDeleteUser(target) {
     if (target.id === user?.userId) {
-      setError("You cannot remove your own account while signed in as it.");
+      toast.error("You cannot remove your own account while signed in as it.");
       return;
     }
 
-    if (!window.confirm(`Remove ${target.name} from this organization?`)) {
+    if (!(await confirmAction({ title: `Remove ${target.name} from this organization?`, confirmLabel: "Remove", danger: true }))) {
       return;
     }
 
     try {
-      setError("");
 
       await deleteUser(target.id);
 
-      setSuccess(`${target.name} removed.`);
+      toast.success(`${target.name} removed.`);
 
       await load();
     } catch (requestError) {
-      setError(requestError.message || "Failed to remove the user.");
+      toast.error(requestError.message || "Failed to remove the user.");
     }
   }
 
   async function handleDeleteRole(role) {
-    if (!window.confirm(`Delete the role "${role.name}"?`)) {
+    if (!(await confirmAction({ title: `Delete the role "${role.name}"?`, confirmLabel: "Delete", danger: true }))) {
       return;
     }
 
     try {
-      setError("");
 
       await deleteRole(role.id);
 
-      setSuccess(`Role "${role.name}" deleted.`);
+      toast.success(`Role "${role.name}" deleted.`);
 
       await load();
     } catch (requestError) {
-      setError(requestError.message || "Failed to delete the role.");
+      toast.error(requestError.message || "Failed to delete the role.");
     }
   }
 
@@ -215,12 +204,9 @@ function UsersRolesPage() {
           </button>
         ))}
       </nav>
-
-      {success && <div className="alert alert-success">{success}</div>}
       {verification && (
         <VerificationNotice verification={verification.verification} email={verification.email} onClose={() => setVerification(null)} />
       )}
-      {error && <div className="alert alert-error" role="alert">{error}</div>}
 
       {tab === "users" ? (
         <DataGrid

@@ -9,6 +9,7 @@ import Modal from "../../components/ui/Modal";
 import Pill, { toneFor } from "../../components/ui/Pill";
 import NumberInput from "../../components/ui/NumberInput";
 import { CardSkeleton } from "../../components/ui/Skeleton";
+import { toast } from "../../components/ui/feedback";
 
 /*
  * A client's engagements (CD-06, CD-09) and fees (CD-08), one card per
@@ -21,13 +22,12 @@ const METHODS = ["Bank transfer", "UPI", "Cheque", "Cash", "Card"];
 function useEngagements(customerId) {
   const [engagements, setEngagements] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
 
   const load = useCallback(async () => {
     try {
       setEngagements(await getEngagements(customerId));
     } catch (requestError) {
-      setError(requestError.message || "Could not load engagements.");
+      toast.error(requestError.message || "Could not load engagements.");
     } finally {
       setLoading(false);
     }
@@ -37,11 +37,11 @@ function useEngagements(customerId) {
     load();
   }, [load]);
 
-  return { engagements, loading, error, setError, load };
+  return { engagements, loading, load };
 }
 
 function ClientEngagements({ view, client, bundle, services, can, readOnly }) {
-  const { engagements, loading, error, setError, load } = useEngagements(client.id);
+  const { engagements, loading, load } = useEngagements(client.id);
 
   const [type, setType] = useState(null);
   const [periods, setPeriods] = useState([]);
@@ -50,7 +50,6 @@ function ClientEngagements({ view, client, bundle, services, can, readOnly }) {
   const [payments, setPayments] = useState({});
   const [busy, setBusy] = useState(false);
   const [errors, setErrors] = useState({});
-  const [notice, setNotice] = useState("");
 
   const canReadFees = can("fees.read");
   const canChangeFees = can("fees.update");
@@ -79,13 +78,12 @@ function ClientEngagements({ view, client, bundle, services, can, readOnly }) {
   async function run(action, done) {
     try {
       setBusy(true);
-      setError("");
       setErrors({});
       await action();
-      setNotice(done);
+      toast.success(done);
       await load();
     } catch (requestError) {
-      setError(requestError.message || "That did not work.");
+      toast.error(requestError.message || "That did not work.");
       setErrors(requestError.details || {});
     } finally {
       setBusy(false);
@@ -156,7 +154,6 @@ function ClientEngagements({ view, client, bundle, services, can, readOnly }) {
         </>
       }
     >
-      {error && <div className="alert alert-error" role="alert">{error}</div>}
       <EngagementForm
         type={type}
         periods={editing.id ? periods.filter((period) => period.label === editing.value.period).concat(periods.some((period) => period.label === editing.value.period) ? [] : [{ label: editing.value.period }]) : freePeriods}
@@ -174,8 +171,6 @@ function ClientEngagements({ view, client, bundle, services, can, readOnly }) {
 
   return (
     <section className="client-engagements" role="tabpanel" aria-label={view === "fees" ? "Fees" : "Engagement"}>
-      {notice && <div className="alert alert-success">{notice}</div>}
-      {error && <div className="alert alert-error" role="alert">{error}</div>}
 
       {view === "engagement" && (
         <>
@@ -296,7 +291,6 @@ function ClientEngagements({ view, client, bundle, services, can, readOnly }) {
             </>
           }
         >
-          {error && <div className="alert alert-error" role="alert">{error}</div>}
           <div className="modal-fields two">
             <label>Amount<NumberInput prefix="₹" value={paying.value.amount} onChange={(amount) => setPaying({ ...paying, value: { ...paying.value, amount } })} required autoFocus /></label>
             <label>Received on<input type="date" value={paying.value.receivedOn} onChange={(e) => setPaying({ ...paying, value: { ...paying.value, receivedOn: e.target.value } })} required /></label>

@@ -9,7 +9,6 @@ import { MONTHS, MONTH_AFTER, QUARTERS, describeRule, payloadFrom } from "./rule
  *
  *   form, onChange           the fields (ruleTiming: emptyForm / formFromRule)
  *   services                 [{ key, name }] for the alternate date's choice
- *   error                    the server's reason, when it refused the rule
  *
  * Fields only: the page puts them in a Modal with its own Save and Cancel.
  */
@@ -64,13 +63,12 @@ function Timing({ frequency, timing, onChange, label }) {
   );
 }
 
-function RuleForm({ form, onChange, services = [], error }) {
+function RuleForm({ form, onChange, services = [] }) {
   const set = (field, value) => onChange({ ...form, [field]: value });
   const preview = describeRule({ kind: "periodic", frequency: form.frequency, definition: payloadFrom(form) }, (key) => services.find((service) => service.key === key)?.name || key);
 
   return (
     <div className="rule-form">
-      {error && <div className="alert alert-error" role="alert">{error}</div>}
 
       <label className="rule-name">
         Name

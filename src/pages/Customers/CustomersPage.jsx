@@ -5,6 +5,7 @@ import { getCustomers, deleteCustomer } from "../../api/customers";
 
 
 import CustomerTable from "../../components/customers/CustomerTable";
+import { confirmAction, toast } from "../../components/ui/feedback";
 
 function CustomersPage() {
   const navigate = useNavigate();
@@ -70,9 +71,7 @@ function CustomersPage() {
    */
 
   async function handleDelete(id) {
-    const confirmed = window.confirm(
-      "Are you sure you want to delete this customer?",
-    );
+    const confirmed = await confirmAction({ title: "Delete this customer?", message: "It cannot be recovered.", confirmLabel: "Delete", danger: true });
 
     if (!confirmed) {
       return;
@@ -80,12 +79,11 @@ function CustomersPage() {
 
     try {
       await deleteCustomer(id);
+      toast.success("Customer deleted.");
 
       await loadCustomers();
     } catch (error) {
-      console.error("Failed to delete customer:", error);
-
-      alert(error.message || "Failed to delete customer.");
+      toast.error(error.message || "Failed to delete customer.");
     }
   }
 

@@ -11,6 +11,7 @@ import { useBundle } from "../../context/BundleContext";
 import StatCard from "../../components/ui/StatCard";
 import DataGrid from "../../components/ui/DataGrid";
 import Pill, { toneFor } from "../../components/ui/Pill";
+import { toast } from "../../components/ui/feedback";
 
 /*
  * Every client's deadlines (COMP-04/05/06): counts per state as cards that
@@ -32,13 +33,12 @@ function DeadlinesPage() {
   const { bundle, term } = useBundle();
   const { user } = useAuth();
   const canRunReminders = (user?.permissions || []).includes("obligations.rules");
-  const [notice, setNotice] = useState("");
 
   const [periods, setPeriods] = useState([]);
+  const [loadFailed, setLoadFailed] = useState(false);
   const [period, setPeriod] = useState("");
   const [state, setState] = useState("");
   const [data, setData] = useState(null);
-  const [error, setError] = useState("");
 
   useEffect(() => {
     getEngagementTypes()
@@ -48,7 +48,7 @@ function DeadlinesPage() {
         setPeriods(offered.periods);
         setPeriod(offered.current || "");
       })
-      .catch((requestError) => setError(requestError.message));
+      .catch((requestError) => toast.error(requestError.message));
   }, []);
 
   const load = useCallback(async () => {
@@ -57,7 +57,8 @@ function DeadlinesPage() {
     try {
       setData(await getDeadlines({ period }));
     } catch (requestError) {
-      setError(requestError.message || "Could not load deadlines.");
+      setLoadFailed(true);
+      toast.error(requestError.message || "Could not load deadlines.");
     }
   }, [period]);
 
@@ -89,11 +90,10 @@ function DeadlinesPage() {
               className="secondary-button"
               onClick={async () => {
                 try {
-                  setError("");
                   const result = await runReminders();
-                  setNotice(`${result.raised} reminder${result.raised === 1 ? "" : "s"} raised. Emails go out only for reminder automations that are switched on.`);
+                  toast.success(`${result.raised} reminder${result.raised === 1 ? "" : "s"} raised. Emails go out only for reminder automations that are switched on.`);
                 } catch (requestError) {
-                  setError(requestError.message || "Reminders could not be sent.");
+                  toast.error(requestError.message || "Reminders could not be sent.");
                 }
               }}
             >
@@ -102,8 +102,6 @@ function DeadlinesPage() {
           </div>
         )}
       </header>
-
-      {notice && <div className="alert alert-success">{notice}</div>}
 
       {/* The dashboard's cards: a count per state, each a filter. */}
       <section className="dashboard-stats deadline-stats" role="group" aria-label="Deadlines by state">
@@ -117,7 +115,7 @@ function DeadlinesPage() {
               label={item.label}
               icon={<Icon size={20} weight="regular" />}
               value={data?.counts?.[item.key] ?? "—"}
-              loading={!data && !error}
+              loading={!data && !loadFailed}
               hint={STATE_HINT[item.key]}
               linkLabel={active ? "Show all" : "Show"}
               active={active}
@@ -127,9 +125,7 @@ function DeadlinesPage() {
         })}
       </section>
 
-      {error && <div className="alert alert-error" role="alert">{error}</div>}
-
-      {!data && error ? null : (
+      {!data && loadFailed ? null : (
         <DataGrid
           id="deadlines"
           label="Deadlines"

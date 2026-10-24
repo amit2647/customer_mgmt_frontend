@@ -5,6 +5,7 @@ import { useAuth } from "../../context/AuthContext";
 import { deleteEmailTemplate, getEmailTemplates } from "../../api/emailTemplates";
 import DataGrid from "../../components/ui/DataGrid";
 import Pill from "../../components/ui/Pill";
+import { confirmAction, toast } from "../../components/ui/feedback";
 
 function EmailTemplatesPage() {
   const navigate = useNavigate();
@@ -17,19 +18,16 @@ function EmailTemplatesPage() {
 
   const [templates, setTemplates] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
 
   const load = useCallback(async () => {
     try {
       setLoading(true);
-      setError("");
 
       const data = await getEmailTemplates();
 
       setTemplates(data?.templates ?? []);
     } catch (requestError) {
-      setError(requestError.message || "Failed to load templates.");
+      toast.error(requestError.message || "Failed to load templates.");
     } finally {
       setLoading(false);
     }
@@ -40,22 +38,21 @@ function EmailTemplatesPage() {
   }, [load]);
 
   async function handleDelete(template) {
-    if (!window.confirm(`Delete template "${template.name}"?`)) {
+    if (!(await confirmAction({ title: `Delete template "${template.name}"?`, confirmLabel: "Delete", danger: true }))) {
       return;
     }
 
     try {
-      setError("");
 
       await deleteEmailTemplate(template.id);
 
-      setSuccess("Template deleted.");
+      toast.success("Template deleted.");
 
       await load();
     } catch (requestError) {
       // 409 when an automation still references it — the schema uses
       // ON DELETE RESTRICT so this fails loudly instead of silently breaking it.
-      setError(requestError.message || "Failed to delete the template.");
+      toast.error(requestError.message || "Failed to delete the template.");
     }
   }
 
@@ -81,9 +78,6 @@ function EmailTemplatesPage() {
           </div>
         )}
       </div>
-
-      {success && <div className="alert alert-success">{success}</div>}
-      {error && <div className="alert alert-error" role="alert">{error}</div>}
 
       <DataGrid
         id="email-templates"

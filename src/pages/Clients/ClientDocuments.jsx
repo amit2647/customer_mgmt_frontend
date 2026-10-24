@@ -7,6 +7,7 @@ import { formatDate } from "../../components/common/Field";
 import DataGrid from "../../components/ui/DataGrid";
 import { Skeleton } from "../../components/ui/Skeleton";
 import Pill from "../../components/ui/Pill";
+import { confirmAction, toast } from "../../components/ui/feedback";
 
 /*
  * A client's documents for one financial year (CD-12, DOC-09): a tile per
@@ -18,10 +19,10 @@ function ClientDocuments({ client, can, readOnly }) {
   const navigate = useNavigate();
 
   const [periods, setPeriods] = useState([]);
+  const [loadFailed, setLoadFailed] = useState(false);
   const [period, setPeriod] = useState("");
   const [tiles, setTiles] = useState(null);
   const [documents, setDocuments] = useState([]);
-  const [error, setError] = useState("");
 
   useEffect(() => {
     getEngagementTypes()
@@ -31,19 +32,19 @@ function ClientDocuments({ client, can, readOnly }) {
         setPeriods(offered.periods);
         setPeriod(offered.current || offered.periods.at(-1)?.label || "");
       })
-      .catch((requestError) => setError(requestError.message));
+      .catch((requestError) => toast.error(requestError.message));
   }, []);
 
   const load = useCallback(async () => {
     if (!period) return;
 
     try {
-      setError("");
       const [offered, made] = await Promise.all([getDocumentTemplates({ customerId: client.id, period }), getDocuments(client.id, period)]);
       setTiles(offered);
       setDocuments(made);
     } catch (requestError) {
-      setError(requestError.message || "Could not load documents.");
+      setLoadFailed(true);
+      toast.error(requestError.message || "Could not load documents.");
     }
   }, [client.id, period]);
 
@@ -54,17 +55,18 @@ function ClientDocuments({ client, can, readOnly }) {
   const canGenerate = can("documents.generate") && !readOnly;
 
   async function remove(document) {
-    if (!window.confirm(`Delete the draft "${document.title}"?`)) return;
+    if (!(await confirmAction({ title: `Delete the draft "${document.title}"?`, message: "It cannot be recovered.", confirmLabel: "Delete draft", danger: true }))) return;
 
     try {
       await deleteDocument(document.id);
+      toast.success("Draft deleted.");
       await load();
     } catch (requestError) {
-      setError(requestError.message || "The draft was not deleted.");
+      toast.error(requestError.message || "The draft was not deleted.");
     }
   }
 
-  const loading = tiles === null && !error;
+  const loading = tiles === null && !loadFailed;
 
   return (
     <section className="client-documents" role="tabpanel" aria-label="Documents">
@@ -76,8 +78,6 @@ function ClientDocuments({ client, can, readOnly }) {
           </select>
         </label>
       </div>
-
-      {error && <div className="alert alert-error" role="alert">{error}</div>}
 
       <div className="document-tiles" role="group" aria-label="Letters" aria-busy={loading || undefined}>
         {loading && [0, 1, 2].map((index) => (

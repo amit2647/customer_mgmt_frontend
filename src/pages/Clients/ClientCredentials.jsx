@@ -6,6 +6,7 @@ import DataGrid from "../../components/ui/DataGrid";
 import Modal from "../../components/ui/Modal";
 import Pill from "../../components/ui/Pill";
 import { GridSkeleton } from "../../components/ui/Skeleton";
+import { confirmAction, toast } from "../../components/ui/feedback";
 
 /*
  * A client's portal credentials (CD-10). The fields that are not secret are
@@ -19,13 +20,12 @@ const MASK = "••••••••";
 
 function ClientCredentials({ client, can, readOnly, onOpenFiles }) {
   const [data, setData] = useState(null);
+  const [loadFailed, setLoadFailed] = useState(false);
   const [reveals, setReveals] = useState([]);
   const [editing, setEditing] = useState(null); // { portalKey, values }
   const [revealing, setRevealing] = useState(null); // { portalKey, reason }
   const [shown, setShown] = useState(null); // { portalKey, secrets }
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState("");
-  const [notice, setNotice] = useState("");
   const hideTimer = useRef(null);
 
   const canReveal = can("vault.reveal");
@@ -36,7 +36,8 @@ function ClientCredentials({ client, can, readOnly, onOpenFiles }) {
       setData(await getCredentials(client.id));
       if (canReveal) setReveals(await getReveals(client.id));
     } catch (requestError) {
-      setError(requestError.message || "Could not load the credentials.");
+      setLoadFailed(true);
+      toast.error(requestError.message || "Could not load the credentials.");
     }
   }, [client.id, canReveal]);
 
@@ -48,12 +49,10 @@ function ClientCredentials({ client, can, readOnly, onOpenFiles }) {
   async function run(action, done) {
     try {
       setBusy(true);
-      setError("");
-      setNotice("");
       await action();
-      if (done) setNotice(done);
+      if (done) toast.success(done);
     } catch (requestError) {
-      setError(requestError.message || "That did not work.");
+      toast.error(requestError.message || "That did not work.");
     } finally {
       setBusy(false);
     }
@@ -79,15 +78,15 @@ function ClientCredentials({ client, can, readOnly, onOpenFiles }) {
     });
   };
 
-  const remove = (portal) => {
-    if (!window.confirm(`Remove the saved ${portal.name} credentials?`)) return;
+  const remove = async (portal) => {
+    if (!(await confirmAction({ title: `Remove the saved ${portal.name} credentials?`, confirmLabel: "Remove", danger: true }))) return;
     run(async () => setData(await removeCredential(client.id, portal.key)), "Credentials removed.");
   };
 
   if (!data) {
     return (
       <section role="tabpanel" aria-label="Credentials">
-        {error ? <div className="card"><div className="settings-empty">{error}</div></div> : <GridSkeleton columns={4} rows={4} />}
+        {loadFailed ? <div className="card"><div className="settings-empty">The credentials could not be loaded.</div></div> : <GridSkeleton columns={4} rows={4} />}
       </section>
     );
   }
@@ -105,8 +104,6 @@ function ClientCredentials({ client, can, readOnly, onOpenFiles }) {
           <button type="button" className="link" onClick={onOpenFiles}>Go to Files</button>
         </div>
       )}
-      {notice && <div className="alert alert-success">{notice}</div>}
-      {error && <div className="alert alert-error" role="alert">{error}</div>}
 
       <DataGrid
         label="Portals"
@@ -215,7 +212,6 @@ function ClientCredentials({ client, can, readOnly, onOpenFiles }) {
             </>
           }
         >
-          {error && <div className="alert alert-error" role="alert">{error}</div>}
           <div className="modal-fields">
             {editingPortal.fields.map((field, index) => (
               <label key={field.key}>
@@ -249,7 +245,6 @@ function ClientCredentials({ client, can, readOnly, onOpenFiles }) {
             </>
           }
         >
-          {error && <div className="alert alert-error" role="alert">{error}</div>}
           <div className="modal-fields">
             <label>
               Why do you need it? (recorded)

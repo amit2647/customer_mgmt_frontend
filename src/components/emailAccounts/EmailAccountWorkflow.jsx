@@ -8,6 +8,7 @@ import {
 import WizardSteps, { goToStep } from "../ui/WizardSteps";
 import NumberInput from "../ui/NumberInput";
 import { CardSkeleton } from "../ui/Skeleton";
+import { toast } from "../ui/feedback";
 
 const STEPS = [
   {
@@ -57,7 +58,6 @@ function EmailAccountWorkflow({ accountId = null, onComplete, onCancel }) {
   const [form, setForm] = useState(INITIAL_FORM);
   const [loading, setLoading] = useState(Boolean(accountId));
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState("");
 
   useEffect(() => {
     let cancelled = false;
@@ -72,7 +72,6 @@ function EmailAccountWorkflow({ accountId = null, onComplete, onCancel }) {
 
       try {
         setLoading(true);
-        setError("");
 
         const data = await getEmailAccount(accountId);
         const account = data?.account || data;
@@ -100,7 +99,7 @@ function EmailAccountWorkflow({ accountId = null, onComplete, onCancel }) {
         if (!cancelled) {
           console.error("Failed to load email account:", requestError);
 
-          setError(requestError.message || "Failed to load the email account.");
+          toast.error(requestError.message || "Failed to load the email account.");
         }
       } finally {
         if (!cancelled) {
@@ -121,75 +120,72 @@ function EmailAccountWorkflow({ accountId = null, onComplete, onCancel }) {
       ...current,
       [name]: value,
     }));
-
-    setError("");
   }
 
   function validateStep(currentStep) {
-    setError("");
 
     if (currentStep === 1) {
       if (!form.name.trim()) {
-        setError("Please enter an account name.");
+        toast.error("Please enter an account name.");
         return false;
       }
 
       if (!form.email_address.trim()) {
-        setError("Please enter the email address.");
+        toast.error("Please enter the email address.");
         return false;
       }
 
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email_address.trim())) {
-        setError("Please enter a valid email address.");
+        toast.error("Please enter a valid email address.");
         return false;
       }
     }
 
     if (currentStep === 2) {
       if (!form.smtp_host.trim()) {
-        setError("Please enter the SMTP host.");
+        toast.error("Please enter the SMTP host.");
         return false;
       }
 
       if (!form.smtp_port || Number(form.smtp_port) <= 0) {
-        setError("Please enter a valid SMTP port.");
+        toast.error("Please enter a valid SMTP port.");
         return false;
       }
 
       if (!form.smtp_username.trim()) {
-        setError("Please enter the SMTP username.");
+        toast.error("Please enter the SMTP username.");
         return false;
       }
 
       if (!isEditing && !form.smtp_password.trim()) {
-        setError("Please enter the SMTP password.");
+        toast.error("Please enter the SMTP password.");
         return false;
       }
     }
 
     if (currentStep === 3) {
       if (!form.imap_host.trim()) {
-        setError("Please enter the IMAP host.");
+        toast.error("Please enter the IMAP host.");
         return false;
       }
 
       if (!form.imap_port || Number(form.imap_port) <= 0) {
-        setError("Please enter a valid IMAP port.");
+        toast.error("Please enter a valid IMAP port.");
         return false;
       }
 
       if (!form.imap_username.trim()) {
-        setError("Please enter the IMAP username.");
+        toast.error("Please enter the IMAP username.");
         return false;
       }
 
       if (!isEditing && !form.imap_password.trim()) {
-        setError("Please enter the IMAP password.");
+        toast.error("Please enter the IMAP password.");
         return false;
       }
 
       if (!form.imap_mailbox.trim()) {
-        setError("Please enter the mailbox.");
+        toast.error("Please enter the mailbox.");
         return false;
       }
     }
@@ -206,7 +202,6 @@ function EmailAccountWorkflow({ accountId = null, onComplete, onCancel }) {
   }
 
   function previousStep() {
-    setError("");
 
     setStep((current) => Math.max(current - 1, 1));
   }
@@ -250,7 +245,6 @@ function EmailAccountWorkflow({ accountId = null, onComplete, onCancel }) {
 
     try {
       setSubmitting(true);
-      setError("");
 
       if (isEditing) {
         await updateEmailAccount(accountId, payload);
@@ -262,7 +256,7 @@ function EmailAccountWorkflow({ accountId = null, onComplete, onCancel }) {
     } catch (requestError) {
       console.error("Failed to save email account:", requestError);
 
-      setError(
+      toast.error(
         requestError.message ||
           `Failed to ${isEditing ? "update" : "create"} the email account.`,
       );
@@ -297,9 +291,8 @@ function EmailAccountWorkflow({ accountId = null, onComplete, onCancel }) {
         </div>
       </div>
 
-      <WizardSteps steps={STEPS} current={step} className="email-account-workflow-steps" onSelect={(target) => goToStep(target, { step, validateStep, setStep, onBack: () => setError("") })} />
+      <WizardSteps steps={STEPS} current={step} className="email-account-workflow-steps" onSelect={(target) => goToStep(target, { step, validateStep, setStep })} />
 
-      {error && <div className="workflow-error">{error}</div>}
 
       <div className="workflow-body">
         {step === 1 && (

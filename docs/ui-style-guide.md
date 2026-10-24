@@ -48,7 +48,10 @@ disagree, the screen wins and this guide gets fixed.
 | A whole page loading, failed or with nothing to edit | `<PageState icon tone title action>sentence</PageState>` | `components/ui/PageState.jsx` |
 | **Any table** — lists, settings tables, tabs, pickers | `<DataGrid label rows columns search controls actions selection expandedRow embedded empty />`. Columns: `{ key, header, render, value, align: "right", sortable, filter, hideable }`. Toolbar (search, Columns, Filters + chips) and paging appear only when useful; `embedded` inside a card that already frames it; `id` remembers hidden columns and page size | `components/ui/DataGrid.jsx` |
 | A value as a coloured badge | `<Pill tone dot>` — `tone` semantic (`success`, `danger`, `warning`, `info`, `neutral`) or `toneFor(value)` for a stable category hue; `dot` for states | `components/ui/Pill.jsx` |
-| One setting: title and help left, value or control right | `<SettingRows label>` › `<SettingRow icon title description action>` (children open inside the row); `<SettingNotice tone title action>` for an in-row notice | `components/ui/SettingRow.jsx` |
+| One setting: title and help left, value or control right | `<SettingRows label>` › `<SettingRow icon title description action>` (children open inside the row); `<SettingNotice tone title action>` for an in-row explanation (not a result) | `components/ui/SettingRow.jsx` |
+| **Any message about what just happened** (saved, deleted, failed and why) | `toast.success(text)`, `toast.error(text)`, `toast.info(text)` — top-right, leaves on its own (errors last longest). Never `alert()`, and never a banner in the page | `components/ui/feedback.js` |
+| **Asking before something** (delete, finalize, leave unsaved) | `if (!(await confirmAction({ title, message, confirmLabel, danger })))  return;` — our dialog; `danger` for what cannot be undone. Never `window.confirm` | `components/ui/feedback.js` |
+| A message that arrives with a navigation (`state: { saved }`, `warning`) | `useArrivalToast()` in the page it lands on | `components/ui/useArrivalToast.js` |
 | A task that interrupts a page (add a deadline, record a payment, save a credential) | `<Modal title description onClose onSubmit footer size busy>` — fields inside (`.modal-fields`, `.two` for two columns); never a form that expands inline | `components/ui/Modal.jsx` |
 | A label and value on a record | `<Field label value href />` | `components/common/Field.jsx` |
 | A letter or other rendered HTML, as it will print | `<LetterFrame html ref />` (sandboxed iframe; `ref.current.print()`) — never `dangerouslySetInnerHTML` | `components/documents/LetterFrame.jsx` |
@@ -76,8 +79,9 @@ don't use them on new screens.
 | Inner card | `.card` plus a padding modifier (`.engagement-card`, `.client-origin`); facts as `dl.engagement-facts` |
 | Tabs | `.client-tabs` with `role="tab"` buttons |
 | Wizard chrome | `.customer-workflow-page.client-wizard` › `form.customer-workflow` › `.customer-workflow-header`, `.workflow-body` › `.workflow-panel` (`.workflow-panel-heading`, `.workflow-form-grid`, `.workflow-field-full`), `.review-grid` / `.review-card`, `.workflow-footer` |
-| Errors | `.field-error` under a field, `.workflow-error` at the top of a wizard, `.alert.alert-error` (`role="alert"`) on a page |
-| Success, empty, loading | `.alert.alert-success`; `.settings-empty` with one sentence (also `Loading…`, inside the card the content will fill) |
+| Errors | `.field-error` under a field; a failed action is `toast.error` (above). A page that could not load at all is a `PageState` |
+| Standing state of a page | `.alert.alert-warning` for something that stays true until fixed (consent not on file, "still to fill"); never for a result |
+| Empty, loading | `.settings-empty` with one sentence (also `Loading…`, inside the card the content will fill) |
 
 ## 3. Foundations
 
@@ -127,9 +131,7 @@ don't use them on new screens.
 1. `.page-header`, with `+ Add thing` as `.primary`.
 2. Optionally, `StatCard`s in a `.dashboard-stats` section. The first card is the lemon one
    and the most important; cards that filter get `onClick` and `active`.
-3. The notice.
-4. The error.
-5. `DataGrid` with the whole list (it searches, filters, sorts and pages on the client):
+3. `DataGrid` with the whole list (it searches, filters, sorts and pages on the client):
    a bold name with one `.grid-cell-sub` line; `Pill`s for categories and states (make those
    columns `filter`able); money with `align: "right"`; row actions last as `.table-actions`.
 
@@ -158,7 +160,7 @@ never a form inside a list.
   and jumps back to the first with a problem; a server field error jumps to its step.
 - **Footer.** Cancel / `← Previous` on the left; `Continue →` / Save on the right.
 - **After saving,** go back with `navigate(list, { state: { saved: "Thing added." } })`; the
-  list shows `.alert.alert-success`.
+  list shows it as a toast (`useArrivalToast()`).
 - **Two requests.** A save that takes two requests keeps the id from the first, so a retry
   updates instead of duplicating.
 - **Loading or failed** is a `PageState`.
@@ -174,8 +176,9 @@ listed in `pages/Settings/settingsSections.js` with the same permission as its r
 3. Settings that are values (a name, a time zone, a status) are `SettingRow`s in one
    `SettingRows` card: icon, title and one line of help on the left; the value with a
    pencil, a `.setting-select` or a toggle on the right. Editing opens in the row
-   (`.setting-form`), and a result or warning about that setting is a `SettingNotice` in
-   the same row — never a page-level alert or a popup. Lists stay a `DataGrid`.
+   (`.setting-form`). A result of saving it is a toast, like every other result; a
+   standing explanation about that setting is a `SettingNotice` in the row. Lists stay a
+   `DataGrid`.
 
 Full-page editors opened from a section (new user, edit template) are routes outside the
 tabs, with a `Breadcrumb` back to their section.
@@ -185,7 +188,9 @@ tabs, with a `Breadcrumb` back to their section.
 - Name regions and filter groups with `aria-label`.
 - Toggles use `aria-pressed`; tabs use `role="tab"` and `aria-selected`.
 - An ambiguous button gets an `aria-label` naming its target.
-- Confirm destructive actions with `window.confirm`, naming the thing.
+- Confirm destructive actions with `confirmAction` (`danger: true`), naming the thing in the
+  title. Tests answer it with `answerConfirm()` from `src/test/feedback.js`; the test setup
+  mounts the host, so toasts are found through `screen` like the rest of the page.
 
 ## 5. Checklist for a new screen
 
@@ -194,7 +199,8 @@ tabs, with a `Breadcrumb` back to their section.
    `styles/features/clients.css`) instead of writing new rules.
 3. Use `term()`, and leave an organization without a bundle unchanged.
 4. Gate the route and hide controls by permission.
-5. Give add and edit their own wizard page, and come back with a `state.saved` notice.
+5. Give add and edit their own wizard page, and come back with a `state.saved` notice
+   (shown as a toast by `useArrivalToast()`).
 6. Format money and dates with `formatMoney` and `formatDay`.
 7. Write a Vitest test that finds things by role and label, not by class.
 8. Add a Playwright step that saves a screenshot. Compare it with the reference, and in a

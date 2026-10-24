@@ -9,6 +9,7 @@ import {
 import ToggleField from "../../components/common/ToggleField";
 import Breadcrumb from "../../components/ui/Breadcrumb";
 import { FormPageSkeleton } from "../../components/ui/PageSkeleton";
+import { toast } from "../../components/ui/feedback";
 
 const EMPTY = { name: "", subject: "", body: "", description: "", is_active: true };
 
@@ -21,7 +22,6 @@ function EmailTemplateFormPage() {
   const [form, setForm] = useState(EMPTY);
   const [loading, setLoading] = useState(isEditing);
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState("");
 
   const load = useCallback(async () => {
     if (!isEditing) {
@@ -42,7 +42,7 @@ function EmailTemplateFormPage() {
         is_active: template.is_active,
       });
     } catch (requestError) {
-      setError(requestError.message || "Failed to load the template.");
+      toast.error(requestError.message || "Failed to load the template.");
     } finally {
       setLoading(false);
     }
@@ -61,7 +61,6 @@ function EmailTemplateFormPage() {
 
     try {
       setSaving(true);
-      setError("");
 
       if (isEditing) {
         await updateEmailTemplate(id, form);
@@ -71,7 +70,7 @@ function EmailTemplateFormPage() {
 
       navigate("/settings/email-templates");
     } catch (requestError) {
-      setError(requestError.message || "Failed to save the template.");
+      toast.error(requestError.message || "Failed to save the template.");
     } finally {
       setSaving(false);
     }
@@ -97,8 +96,6 @@ function EmailTemplateFormPage() {
           </p>
         </div>
       </div>
-
-      {error && <div className="alert alert-error" role="alert">{error}</div>}
 
       <form className="settings-form-card" onSubmit={handleSubmit}>
         <label>

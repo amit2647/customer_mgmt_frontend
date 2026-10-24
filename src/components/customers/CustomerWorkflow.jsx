@@ -3,6 +3,7 @@ import { getServices } from "../../api/services";
 import WizardSteps, { goToStep } from "../ui/WizardSteps";
 import ServicePicker from "../ui/ServicePicker";
 import { Skeleton, SkeletonRegion } from "../ui/Skeleton";
+import { toast } from "../ui/feedback";
 
 const STEPS = [
   {
@@ -38,7 +39,6 @@ function CustomerWorkflow({ customer = null, onSubmit, onClose }) {
   const [services, setServices] = useState([]);
   const [loadingServices, setLoadingServices] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState("");
 
   const [form, setForm] = useState(INITIAL_FORM);
 
@@ -84,7 +84,7 @@ function CustomerWorkflow({ customer = null, onSubmit, onClose }) {
       } catch (err) {
         console.error("Failed to load services:", err);
 
-        setError("Unable to load services.");
+        toast.error("Unable to load services.");
       } finally {
         setLoadingServices(false);
       }
@@ -123,8 +123,6 @@ function CustomerWorkflow({ customer = null, onSubmit, onClose }) {
       ...current,
       [name]: value,
     }));
-
-    setError("");
   }
 
   /*
@@ -141,16 +139,15 @@ function CustomerWorkflow({ customer = null, onSubmit, onClose }) {
    */
 
   function validateStep(currentStep) {
-    setError("");
 
     if (currentStep === 1) {
       if (!form.name.trim()) {
-        setError("Please enter the customer's name.");
+        toast.error("Please enter the customer's name.");
         return false;
       }
 
       if (!form.email.trim()) {
-        setError("Please enter an email address.");
+        toast.error("Please enter an email address.");
         return false;
       }
     }
@@ -173,7 +170,6 @@ function CustomerWorkflow({ customer = null, onSubmit, onClose }) {
   }
 
   function previousStep() {
-    setError("");
 
     setStep((current) => Math.max(current - 1, 1));
   }
@@ -192,7 +188,6 @@ function CustomerWorkflow({ customer = null, onSubmit, onClose }) {
 
     try {
       setSubmitting(true);
-      setError("");
 
       await onSubmit({
         ...form,
@@ -205,7 +200,7 @@ function CustomerWorkflow({ customer = null, onSubmit, onClose }) {
     } catch (err) {
       console.error("Failed to save customer:", err);
 
-      setError(
+      toast.error(
         err?.message ||
           `Failed to ${isEditing ? "update" : "create"} the customer.`,
       );
@@ -246,9 +241,8 @@ function CustomerWorkflow({ customer = null, onSubmit, onClose }) {
           STEPS
           ===================================================== */}
 
-      <WizardSteps steps={STEPS} current={step} className="customer-workflow-steps" onSelect={(target) => goToStep(target, { step, validateStep, setStep, onBack: () => setError("") })} />
+      <WizardSteps steps={STEPS} current={step} className="customer-workflow-steps" onSelect={(target) => goToStep(target, { step, validateStep, setStep })} />
 
-      {error && <div className="workflow-error">{error}</div>}
 
       {/* =====================================================
           BODY

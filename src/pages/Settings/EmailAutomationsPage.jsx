@@ -10,6 +10,7 @@ import {
 } from "../../api/emailAutomations";
 import DataGrid from "../../components/ui/DataGrid";
 import Pill, { toneFor } from "../../components/ui/Pill";
+import { confirmAction, toast } from "../../components/ui/feedback";
 
 const EVENT_LABELS = {
   "lead.created": "Lead created",
@@ -33,20 +34,17 @@ function EmailAutomationsPage() {
   const [automations, setAutomations] = useState([]);
   const [accountCount, setAccountCount] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
 
   const load = useCallback(async () => {
     try {
       setLoading(true);
-      setError("");
 
       const data = await getEmailAutomations();
 
       setAutomations(data?.automations ?? []);
       setAccountCount((data?.accounts ?? []).length);
     } catch (requestError) {
-      setError(requestError.message || "Failed to load automations.");
+      toast.error(requestError.message || "Failed to load automations.");
     } finally {
       setLoading(false);
     }
@@ -58,37 +56,35 @@ function EmailAutomationsPage() {
 
   async function handleToggle(automation) {
     try {
-      setError("");
 
       if (automation.is_active) {
         await deactivateEmailAutomation(automation.id);
-        setSuccess(`"${automation.name}" disabled. It will no longer send.`);
+        toast.success(`"${automation.name}" disabled. It will no longer send.`);
       } else {
         await activateEmailAutomation(automation.id);
-        setSuccess(`"${automation.name}" enabled. It will now send real email.`);
+        toast.success(`"${automation.name}" enabled. It will now send real email.`);
       }
 
       await load();
     } catch (requestError) {
-      setError(requestError.message || "Failed to update the automation.");
+      toast.error(requestError.message || "Failed to update the automation.");
     }
   }
 
   async function handleDelete(automation) {
-    if (!window.confirm(`Delete automation "${automation.name}"?`)) {
+    if (!(await confirmAction({ title: `Delete automation "${automation.name}"?`, confirmLabel: "Delete", danger: true }))) {
       return;
     }
 
     try {
-      setError("");
 
       await deleteEmailAutomation(automation.id);
 
-      setSuccess("Automation deleted.");
+      toast.success("Automation deleted.");
 
       await load();
     } catch (requestError) {
-      setError(requestError.message || "Failed to delete the automation.");
+      toast.error(requestError.message || "Failed to delete the automation.");
     }
   }
 
@@ -113,9 +109,6 @@ function EmailAutomationsPage() {
           </div>
         )}
       </div>
-
-      {success && <div className="alert alert-success">{success}</div>}
-      {error && <div className="alert alert-error" role="alert">{error}</div>}
 
       <DataGrid
         id="email-automations"

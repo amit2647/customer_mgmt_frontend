@@ -2,8 +2,9 @@ import { useCallback, useEffect, useState } from "react";
 import { ShieldCheck } from "@phosphor-icons/react";
 
 import { disableTwoFactor, enableTwoFactor, getTwoFactor, newRecoveryCodes, startTwoFactorSetup } from "../../api/profile";
-import { SettingNotice, SettingRow } from "../../components/ui/SettingRow";
+import { SettingRow } from "../../components/ui/SettingRow";
 import RecoveryCodes from "../../components/auth/RecoveryCodes";
+import { toast } from "../../components/ui/feedback";
 
 /*
  * Profile → Two-factor sign-in (auth-hardening P5), one row with its editors
@@ -20,14 +21,15 @@ function TwoFactorSetting() {
   const [setup, setSetup] = useState(null);
   const [code, setCode] = useState("");
   const [codes, setCodes] = useState(null);
-  const [message, setMessage] = useState(null);
+  // A result ({ type, text }) shows as a toast.
+  const report = (result) => toast[result.type === "error" ? "error" : "success"](result.text);
   const [busy, setBusy] = useState(false);
 
   const load = useCallback(async () => {
     try {
       setStatus(await getTwoFactor());
     } catch (error) {
-      setMessage({ type: "error", text: error.message || "Could not load two-factor sign-in." });
+      report({ type: "error", text: error.message || "Could not load two-factor sign-in." });
     }
   }, []);
 
@@ -42,7 +44,6 @@ function TwoFactorSetting() {
   }
 
   async function open(next) {
-    setMessage(null);
     setCodes(null);
     setCode("");
     setMode(next);
@@ -52,7 +53,7 @@ function TwoFactorSetting() {
       try {
         setSetup(await startTwoFactorSetup());
       } catch (error) {
-        setMessage({ type: "error", text: error.message || "Could not start setting up." });
+        report({ type: "error", text: error.message || "Could not start setting up." });
         setMode(null);
       } finally {
         setBusy(false);
@@ -63,25 +64,24 @@ function TwoFactorSetting() {
   async function submit(event) {
     event.preventDefault();
     setBusy(true);
-    setMessage(null);
 
     try {
       if (mode === "setup") {
         const { recoveryCodes } = await enableTwoFactor(code.trim());
         setCodes(recoveryCodes);
-        setMessage({ type: "success", text: "Two-factor sign-in is on. Save these recovery codes now — they are shown only once." });
+        report({ type: "success", text: "Two-factor sign-in is on. Save these recovery codes now — they are shown only once." });
       } else if (mode === "codes") {
         const { recoveryCodes } = await newRecoveryCodes(code.trim());
         setCodes(recoveryCodes);
-        setMessage({ type: "success", text: "New recovery codes made; the old ones no longer work. Save these now." });
+        report({ type: "success", text: "New recovery codes made; the old ones no longer work. Save these now." });
       } else if (mode === "off") {
         await disableTwoFactor(code.trim());
-        setMessage({ type: "success", text: "Two-factor sign-in is off." });
+        report({ type: "success", text: "Two-factor sign-in is off." });
       }
       close();
       await load();
     } catch (error) {
-      setMessage({ type: "error", text: error.message || "That did not work." });
+      report({ type: "error", text: error.message || "That did not work." });
       setCode("");
     } finally {
       setBusy(false);
@@ -91,7 +91,6 @@ function TwoFactorSetting() {
   if (!status) {
     return (
       <SettingRow icon={<ShieldCheck size={16} />} title="Two-factor sign-in" description="A code from your phone at every sign-in">
-        {message && <SettingNotice tone="danger">{message.text}</SettingNotice>}
       </SettingRow>
     );
   }
@@ -165,8 +164,6 @@ function TwoFactorSetting() {
           </div>
         </form>
       )}
-
-      {message && <SettingNotice tone={message.type === "error" ? "danger" : "success"}>{message.text}</SettingNotice>}
       {codes && <RecoveryCodes codes={codes} />}
     </SettingRow>
   );

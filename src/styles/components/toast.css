@@ -1,0 +1,119 @@
+/* =========================================================
+   TOASTS AND THE CONFIRM DIALOG (components/ui/FeedbackHost.jsx)
+   ========================================================= */
+
+/* Top-right, above the header and any open dialog. */
+.toast-stack {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    z-index: 1100;
+    display: grid;
+    gap: 10px;
+    width: min(380px, calc(100vw - 32px));
+    pointer-events: none;
+}
+
+.toast {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: start;
+    gap: 10px;
+    padding: 12px 12px 12px 14px;
+    border: 1px solid var(--color-border);
+    border-left-width: 4px;
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    color: var(--color-text);
+    box-shadow: var(--shadow-floating);
+    pointer-events: auto;
+    animation: toast-in 0.18s ease-out;
+}
+
+.toast-success {
+    border-left-color: var(--color-success);
+}
+
+.toast-error {
+    border-left-color: var(--color-danger);
+}
+
+.toast-info {
+    border-left-color: var(--color-info);
+}
+
+.toast-icon {
+    margin-top: 1px;
+}
+
+.toast-success .toast-icon {
+    color: var(--color-success);
+}
+
+.toast-error .toast-icon {
+    color: var(--color-danger);
+}
+
+.toast-info .toast-icon {
+    color: var(--color-info);
+}
+
+.toast-text {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+}
+
+.toast-close {
+    display: grid;
+    place-items: center;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--color-text-muted);
+    cursor: pointer;
+}
+
+.toast-close:hover {
+    background: var(--color-surface-hover);
+    color: var(--color-text);
+}
+
+@keyframes toast-in {
+    from {
+        opacity: 0;
+        transform: translateY(-6px);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .toast {
+        animation: none;
+    }
+}
+
+/* The confirm dialog has no fields: its question is the description. */
+.confirm-dialog .ui-modal-body:empty {
+    display: none;
+}
+
+/* A destructive confirmation. */
+.primary.danger {
+    border-color: var(--color-danger);
+    background: var(--color-danger);
+    /* The surface colour reads on the danger fill in light and dark themes. */
+    color: var(--color-surface);
+}
+
+.primary.danger:hover {
+    filter: brightness(1.08);
+}

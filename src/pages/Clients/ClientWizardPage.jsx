@@ -14,6 +14,7 @@ import WizardSteps, { goToStep } from "../../components/ui/WizardSteps";
 import ServicePicker from "../../components/ui/ServicePicker";
 import Breadcrumb from "../../components/ui/Breadcrumb";
 import { FormPageSkeleton } from "../../components/ui/PageSkeleton";
+import { toast } from "../../components/ui/feedback";
 
 /*
  * The client wizard (WIZ-01–15): entity, management, services, bank
@@ -76,7 +77,6 @@ function ClientWizardPage() {
   const [services, setServices] = useState([]);
   const [errors, setErrors] = useState({});
   const [taken, setTaken] = useState({});
-  const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(editing);
   const [saving, setSaving] = useState(false);
   // The prospect a converted client was won from: what it learned (the
@@ -152,7 +152,7 @@ function ClientWizardPage() {
             .catch(() => setOrigin(null));
         }
       })
-      .catch((error) => setMessage(error.message || "Could not load the client."))
+      .catch((error) => toast.error(error.message || "Could not load the client."))
       .finally(() => setLoading(false));
     // params and permissions only matter on the first load of this client.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -267,12 +267,11 @@ function ClientWizardPage() {
 
     try {
       setSaving(true);
-      setMessage("");
 
       if (editing) {
         await updateClient(id, { name: form.name, email: form.email, phone: form.phone, profile });
         await updateClientServices(id, form.serviceIds);
-        navigate(`/clients/${id}`, { state: { saved: true } });
+        navigate(`/clients/${id}`, { state: { saved: "Saved." } });
       } else {
         const created = await createClient({
           name: form.name,
@@ -294,10 +293,10 @@ function ClientWizardPage() {
           }
         }
 
-        navigate(`/clients/${created.id}`, { state: { saved: true, warning } });
+        navigate(`/clients/${created.id}`, { state: { saved: "Saved.", warning } });
       }
     } catch (error) {
-      setMessage(error.message || "The client could not be saved.");
+      toast.error(error.message || "The client could not be saved.");
 
       if (error.details) {
         setErrors(error.details);
@@ -343,8 +342,6 @@ function ClientWizardPage() {
         </div>
 
         <WizardSteps steps={STEPS} current={step} className="customer-workflow-steps" onSelect={(target) => goToStep(target, { step, validateStep, setStep })} />
-
-        {message && <div className="workflow-error" role="alert">{message}</div>}
 
         <div className="workflow-body">
           {step === 1 && (

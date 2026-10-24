@@ -9,6 +9,7 @@ import DataGrid from "../../components/ui/DataGrid";
 import { CardSkeleton } from "../../components/ui/Skeleton";
 import Pill from "../../components/ui/Pill";
 import { formatDate as formatDateValue } from "../../utils/dates";
+import { confirmAction, toast } from "../../components/ui/feedback";
 
 const STEP_LABELS = {
   permissions: "Permissions",
@@ -58,14 +59,14 @@ function BundlePage() {
   // First-run setup lands here when installing its bundle stopped part-way.
   const routedError = useLocation().state?.setupBundleError;
   const [setupBundleError] = useState(() => routedError || takeSetupBundleError());
+  // Once an install or upgrade here has finished, setup's warning is history.
+  const [finished, setFinished] = useState(false);
   const { refresh } = useBundle();
 
   const [offered, setOffered] = useState([]);
   const [installed, setInstalled] = useState(null);
   const [loading, setLoading] = useState(true);
   const [busyKey, setBusyKey] = useState("");
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
 
   const load = useCallback(async () => {
     try {
@@ -76,7 +77,7 @@ function BundlePage() {
       setOffered(data?.bundles ?? []);
       setInstalled(data?.installed ?? null);
     } catch (requestError) {
-      setError(requestError.message || "Failed to load bundles.");
+      toast.error(requestError.message || "Failed to load bundles.");
     } finally {
       setLoading(false);
     }
@@ -89,26 +90,27 @@ function BundlePage() {
   async function handleInstall(bundle, resuming = false) {
     if (
       !resuming &&
-      !window.confirm(
-        `Install ${bundle.name} ${bundle.version}?\n\nIt adds its services, role templates and reminder emails to this workspace. An organization has one bundle, and it cannot be removed in this version.`,
-      )
+      !(await confirmAction({
+        title: `Install ${bundle.name} ${bundle.version}?`,
+        message: "It adds its services, role templates and reminder emails to this workspace. An organization has one bundle, and it cannot be removed in this version.",
+        confirmLabel: "Install",
+      }))
     ) {
       return;
     }
 
     try {
       setBusyKey(bundle.key);
-      setError("");
-      setSuccess("");
 
       await installBundle(bundle.key);
 
       // The navigation and screens follow the installed bundle at once.
       await refresh();
 
-      setSuccess(`${bundle.name} is installed. Its reminder emails are switched off until you turn them on in Email Automations.`);
+      setFinished(true);
+      toast.success(`${bundle.name} is installed. Its reminder emails are switched off until you turn them on in Email Automations.`);
     } catch (requestError) {
-      setError(requestError.message || "The install did not finish.");
+      toast.error(requestError.message || "The install did not finish.");
     } finally {
       setBusyKey("");
       await load();
@@ -118,24 +120,25 @@ function BundlePage() {
   async function handleUpgrade(version) {
     if (
       !installed.upgrade &&
-      !window.confirm(
-        `Upgrade ${installed.name} from ${installed.version} to ${version}?\n\nNew items are added and items you have not edited move to the new version. Anything you edited is kept, with the newer version offered beside it.`,
-      )
+      !(await confirmAction({
+        title: `Upgrade ${installed.name} from ${installed.version} to ${version}?`,
+        message: "New items are added and items you have not edited move to the new version. Anything you edited is kept, with the newer version offered beside it.",
+        confirmLabel: "Upgrade",
+      }))
     ) {
       return;
     }
 
     try {
       setBusyKey(installed.key);
-      setError("");
-      setSuccess("");
 
       await upgradeBundle(installed.key);
       await refresh();
 
-      setSuccess(`${installed.name} is upgraded to ${version}.`);
+      setFinished(true);
+      toast.success(`${installed.name} is upgraded to ${version}.`);
     } catch (requestError) {
-      setError(requestError.message || "The upgrade did not finish.");
+      toast.error(requestError.message || "The upgrade did not finish.");
     } finally {
       setBusyKey("");
       await load();
@@ -163,13 +166,11 @@ function BundlePage() {
         </div>
       </div>
 
-      {setupBundleError && !success && (
+      {setupBundleError && !finished && (
         <div className="alert alert-warning" role="status">
           Setup is complete, but installing the profession bundle stopped: {setupBundleError}. Resume it below.
         </div>
       )}
-      {success && <div className="alert alert-success">{success}</div>}
-      {error && <div className="alert alert-error" role="alert">{error}</div>}
 
       {loading ? (
         <CardSkeleton label="Profession bundle" lines={3} />

@@ -10,21 +10,19 @@ import {
 import EmailAccountTable from "../../components/emailAccounts/EmailAccountTable";
 import EmailAccountWorkflow from "../../components/emailAccounts/EmailAccountWorkflow";
 import Breadcrumb from "../../components/ui/Breadcrumb";
+import { toast } from "../../components/ui/feedback";
 
 function EmailAccountsPage() {
 
   const [accounts, setAccounts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
 
   const [workflow, setWorkflow] = useState(null);
 
   const loadAccounts = useCallback(async () => {
     try {
       setLoading(true);
-      setError("");
 
       const data = await getEmailAccounts();
 
@@ -38,7 +36,7 @@ function EmailAccountsPage() {
     } catch (requestError) {
       console.error("Failed to load email accounts:", requestError);
 
-      setError(requestError.message || "Failed to load email accounts.");
+      toast.error(requestError.message || "Failed to load email accounts.");
     } finally {
       setLoading(false);
     }
@@ -49,8 +47,6 @@ function EmailAccountsPage() {
   }, [loadAccounts]);
 
   function clearMessages() {
-    setError("");
-    setSuccess("");
   }
 
   function handleAdd() {
@@ -78,7 +74,7 @@ function EmailAccountsPage() {
   async function handleWorkflowComplete() {
     setWorkflow(null);
 
-    setSuccess("Email account configuration saved successfully.");
+    toast.success("Email account configuration saved successfully.");
 
     await loadAccounts();
   }
@@ -90,13 +86,13 @@ function EmailAccountsPage() {
 
       await activateEmailAccount(id);
 
-      setSuccess("Email account activated successfully.");
+      toast.success("Email account activated successfully.");
 
       await loadAccounts();
     } catch (requestError) {
       console.error("Failed to activate email account:", requestError);
 
-      setError(requestError.message || "Failed to activate email account.");
+      toast.error(requestError.message || "Failed to activate email account.");
     } finally {
       setActionLoading(false);
     }
@@ -109,13 +105,13 @@ function EmailAccountsPage() {
 
       await deactivateEmailAccount(id);
 
-      setSuccess("Email account deactivated successfully.");
+      toast.success("Email account deactivated successfully.");
 
       await loadAccounts();
     } catch (requestError) {
       console.error("Failed to deactivate email account:", requestError);
 
-      setError(requestError.message || "Failed to deactivate email account.");
+      toast.error(requestError.message || "Failed to deactivate email account.");
     } finally {
       setActionLoading(false);
     }
@@ -128,13 +124,13 @@ function EmailAccountsPage() {
 
       await deleteEmailAccount(id);
 
-      setSuccess("Email account deleted successfully.");
+      toast.success("Email account deleted successfully.");
 
       await loadAccounts();
     } catch (requestError) {
       console.error("Failed to delete email account:", requestError);
 
-      setError(requestError.message || "Failed to delete email account.");
+      toast.error(requestError.message || "Failed to delete email account.");
     } finally {
       setActionLoading(false);
     }
@@ -177,35 +173,7 @@ function EmailAccountsPage() {
         </div>
       </div>
 
-      {success && (
-        <div className="alert alert-success" role="status">
-          <span>{success}</span>
 
-          <button
-            type="button"
-            className="alert-close"
-            onClick={() => setSuccess("")}
-            aria-label="Dismiss notification"
-          >
-            ×
-          </button>
-        </div>
-      )}
-
-      {error && (
-        <div className="alert alert-error" role="alert">
-          <span>{error}</span>
-
-          <button
-            type="button"
-            className="alert-close"
-            onClick={() => setError("")}
-            aria-label="Dismiss notification"
-          >
-            ×
-          </button>
-        </div>
-      )}
 
       <section className="page-section">
         <EmailAccountTable

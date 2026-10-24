@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 import { getServices, deleteService } from "../../api/services";
 import { useAuth } from "../../context/AuthContext";
+import { confirmAction, toast } from "../../components/ui/feedback";
+import useArrivalToast from "../../components/ui/useArrivalToast";
 
 import ServiceTable from "../../components/services/ServiceTable";
 
@@ -12,7 +14,6 @@ import ServiceTable from "../../components/services/ServiceTable";
  */
 function ServicesPage() {
   const navigate = useNavigate();
-  const location = useLocation();
   const { user } = useAuth();
   const permissions = Array.isArray(user?.permissions) ? user.permissions : [];
   const can = (permission) => permissions.includes(permission);
@@ -21,7 +22,8 @@ function ServicesPage() {
 
   const [loading, setLoading] = useState(true);
 
-  const notice = location.state?.saved;
+  // The add/edit page comes back with a `saved` notice.
+  useArrivalToast();
 
   async function loadServices() {
     try {
@@ -46,23 +48,22 @@ function ServicesPage() {
    * Delete service
    */
   async function handleDelete(id) {
-    const confirmed = window.confirm(
-      "Are you sure you want to delete this service?",
-    );
+    const service = services.find((item) => item.id === id);
+    const confirmed = await confirmAction({
+      title: `Delete ${service?.name || "this service"}?`,
+      message: "It cannot be recovered. A service in use by a lead or client cannot be deleted; make it inactive instead.",
+      confirmLabel: "Delete service",
+      danger: true,
+    });
 
     if (!confirmed) return;
 
     try {
       await deleteService(id);
-
+      toast.success("Service deleted.");
       await loadServices();
     } catch (error) {
-      console.error("Failed to delete service:", error);
-
-      alert(
-        error.message ||
-          "Unable to delete this service. It may already be mapped to a lead or customer.",
-      );
+      toast.error(error.message || "Unable to delete this service. It may already be mapped to a lead or customer.");
     }
   }
 
@@ -84,7 +85,6 @@ function ServicesPage() {
         )}
       </header>
 
-      {notice && <div className="alert alert-success">{notice}</div>}
 
       <ServiceTable
         services={services}

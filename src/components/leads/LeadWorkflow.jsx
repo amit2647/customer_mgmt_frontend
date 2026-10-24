@@ -3,6 +3,7 @@ import { getServices } from "../../api/services";
 import WizardSteps, { goToStep } from "../ui/WizardSteps";
 import ServicePicker from "../ui/ServicePicker";
 import { Skeleton, SkeletonRegion } from "../ui/Skeleton";
+import { toast } from "../ui/feedback";
 
 const STEPS = [
   {
@@ -45,7 +46,6 @@ function LeadWorkflow({ lead = null, onSubmit, onClose }) {
   const [services, setServices] = useState([]);
   const [loadingServices, setLoadingServices] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState("");
 
   const [form, setForm] = useState(INITIAL_FORM);
 
@@ -79,7 +79,7 @@ function LeadWorkflow({ lead = null, onSubmit, onClose }) {
         setServices(Array.isArray(data) ? data : []);
       } catch (err) {
         console.error("Failed to load services:", err);
-        setError("Unable to load services.");
+        toast.error("Unable to load services.");
       } finally {
         setLoadingServices(false);
       }
@@ -106,22 +106,19 @@ function LeadWorkflow({ lead = null, onSubmit, onClose }) {
       ...current,
       [name]: value,
     }));
-
-    setError("");
   }
 
 
   function validateStep(currentStep) {
-    setError("");
 
     if (currentStep === 1) {
       if (!form.name.trim()) {
-        setError("Please enter the lead's name.");
+        toast.error("Please enter the lead's name.");
         return false;
       }
 
       if (!form.email.trim()) {
-        setError("Please enter an email address.");
+        toast.error("Please enter an email address.");
         return false;
       }
     }
@@ -130,7 +127,7 @@ function LeadWorkflow({ lead = null, onSubmit, onClose }) {
       const score = Number(form.score);
 
       if (Number.isNaN(score) || score < 0 || score > 100) {
-        setError("Lead score must be between 0 and 100.");
+        toast.error("Lead score must be between 0 and 100.");
         return false;
       }
     }
@@ -147,7 +144,6 @@ function LeadWorkflow({ lead = null, onSubmit, onClose }) {
   }
 
   function previousStep() {
-    setError("");
     setStep((current) => Math.max(current - 1, 1));
   }
 
@@ -158,7 +154,6 @@ function LeadWorkflow({ lead = null, onSubmit, onClose }) {
 
     try {
       setSubmitting(true);
-      setError("");
 
       await onSubmit({
         ...form,
@@ -172,7 +167,7 @@ function LeadWorkflow({ lead = null, onSubmit, onClose }) {
     } catch (err) {
       console.error("Failed to save lead:", err);
 
-      setError(
+      toast.error(
         err?.message ||
           `Failed to ${isEditing ? "update" : "create"} the lead.`,
       );
@@ -209,9 +204,8 @@ function LeadWorkflow({ lead = null, onSubmit, onClose }) {
         </div>
       </div>
 
-      <WizardSteps steps={STEPS} current={step} onSelect={(target) => goToStep(target, { step, validateStep, setStep, onBack: () => setError("") })} />
+      <WizardSteps steps={STEPS} current={step} onSelect={(target) => goToStep(target, { step, validateStep, setStep })} />
 
-      {error && <div className="workflow-error">{error}</div>}
 
       <div className="workflow-body">
         {step === 1 && (

@@ -14,6 +14,7 @@ import { GridSkeleton } from "../../components/ui/Skeleton";
 import Pill, { toneFor } from "../../components/ui/Pill";
 import Modal from "../../components/ui/Modal";
 import { formatDateTime } from "../../utils/dates";
+import { confirmAction, toast } from "../../components/ui/feedback";
 
 /*
  * Screens people actually ask for, mapped to the permission that unlocks them.
@@ -163,13 +164,10 @@ function AccessGrantsPage() {
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
 
   const load = useCallback(async () => {
     try {
       setLoading(true);
-      setError("");
 
       const [grantData, userData, permissionData] = await Promise.all([
         getAccessGrants(),
@@ -185,7 +183,7 @@ function AccessGrantsPage() {
         Array.isArray(permissionData) ? permissionData : (permissionData?.permissions ?? []),
       );
     } catch (requestError) {
-      setError(requestError.message || "Failed to load access grants.");
+      toast.error(requestError.message || "Failed to load access grants.");
     } finally {
       setLoading(false);
     }
@@ -258,13 +256,12 @@ function AccessGrantsPage() {
     event.preventDefault();
 
     if (selectedCodes.length === 0) {
-      setError("Select at least one screen or permission.");
+      toast.error("Select at least one screen or permission.");
       return;
     }
 
     try {
       setSaving(true);
-      setError("");
 
       const external = recipient === "external";
 
@@ -292,16 +289,15 @@ function AccessGrantsPage() {
           email,
           url: `${window.location.origin}/access/${result.inviteToken}`,
         });
-        setSuccess("");
       } else {
-        setSuccess(
+        toast.success(
           `Granted ${result?.count ?? selectedCodes.length} permission(s). Takes effect immediately.`,
         );
       }
 
       await load();
     } catch (requestError) {
-      setError(requestError.message || "Failed to grant access.");
+      toast.error(requestError.message || "Failed to grant access.");
     } finally {
       setSaving(false);
     }
@@ -310,20 +306,19 @@ function AccessGrantsPage() {
   async function handleRevoke(grant) {
     const who = grant.user_name || grant.subject_email;
 
-    if (!window.confirm(`Revoke ${grant.permission_code} from ${who}?`)) {
+    if (!(await confirmAction({ title: `Revoke ${grant.permission_code} from ${who}?`, message: "It stops working immediately.", confirmLabel: "Revoke", danger: true }))) {
       return;
     }
 
     try {
-      setError("");
 
       await revokeAccessGrant(grant.id);
 
-      setSuccess("Access revoked. It stopped working immediately.");
+      toast.success("Access revoked. It stopped working immediately.");
 
       await load();
     } catch (requestError) {
-      setError(requestError.message || "Failed to revoke access.");
+      toast.error(requestError.message || "Failed to revoke access.");
     }
   }
 
@@ -394,9 +389,6 @@ function AccessGrantsPage() {
         </section>
       )}
 
-      {success && <div className="alert alert-success">{success}</div>}
-      {error && <div className="alert alert-error" role="alert">{error}</div>}
-
       {showForm && (
         <Modal
           size="xl"
@@ -430,7 +422,6 @@ function AccessGrantsPage() {
             </>
           }
         >
-          {error && <div className="alert alert-error" role="alert">{error}</div>}
           <div className="settings-form-card grant-form">
           <label>
             Who is this for

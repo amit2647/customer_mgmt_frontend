@@ -3,8 +3,9 @@ import { Buildings, Hash, LinkSimple, PencilSimple, Power, ShieldCheck } from "@
 
 import { useAuth } from "../../context/AuthContext";
 import { getOrganization, getSecurityPolicy, setSecurityPolicy, updateOrganization } from "../../api/identity";
-import { SettingNotice, SettingRow, SettingRows } from "../../components/ui/SettingRow";
+import { SettingRow, SettingRows } from "../../components/ui/SettingRow";
 import { SettingRowsSkeleton } from "../../components/ui/Skeleton";
+import { toast } from "../../components/ui/feedback";
 
 const FIELDS = {
   name: { title: "Organization name", description: "Shown across the workspace and on what it sends", icon: <Buildings size={16} /> },
@@ -25,12 +26,12 @@ function OrganizationPage() {
 
   const [organization, setOrganization] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [loadError, setLoadError] = useState("");
 
   const [editing, setEditing] = useState(null);
   const [value, setValue] = useState("");
   const [saving, setSaving] = useState(false);
-  const [message, setMessage] = useState(null);
+  // A result ({ type, text }) shows as a toast.
+  const report = (result) => toast[result.type === "error" ? "error" : "success"](result.text);
   const [requireMfa, setRequireMfa] = useState(null);
 
   const load = useCallback(async () => {
@@ -41,12 +42,11 @@ function OrganizationPage() {
 
     try {
       setLoading(true);
-      setLoadError("");
 
       const data = await getOrganization(organizationId);
       setOrganization(data?.organization || data);
     } catch (requestError) {
-      setLoadError(requestError.message || "Failed to load the organization.");
+      toast.error(requestError.message || "Failed to load the organization.");
     } finally {
       setLoading(false);
     }
@@ -66,10 +66,9 @@ function OrganizationPage() {
   async function saveRequireMfa(next) {
     try {
       setSaving(true);
-      setMessage(null);
       const policy = await setSecurityPolicy(next);
       setRequireMfa(Boolean(policy.requireMfa));
-      setMessage({
+      report({
         row: "mfa",
         type: "success",
         text: policy.requireMfa
@@ -77,7 +76,7 @@ function OrganizationPage() {
           : "Two-factor sign-in is now optional.",
       });
     } catch (requestError) {
-      setMessage({ row: "mfa", type: "error", text: requestError.message || "Could not change the policy." });
+      report({ row: "mfa", type: "error", text: requestError.message || "Could not change the policy." });
     } finally {
       setSaving(false);
     }
@@ -87,7 +86,6 @@ function OrganizationPage() {
   async function save(field, next) {
     try {
       setSaving(true);
-      setMessage(null);
 
       await updateOrganization(organizationId, {
         name: organization.name || "",
@@ -97,18 +95,15 @@ function OrganizationPage() {
       });
 
       setEditing(null);
-      setMessage({ row: field, type: "success", text: "Organization updated." });
+      report({ row: field, type: "success", text: "Organization updated." });
       await load();
     } catch (requestError) {
-      setMessage({ row: field, type: "error", text: requestError.message || "Failed to update the organization." });
+      report({ row: field, type: "error", text: requestError.message || "Failed to update the organization." });
     } finally {
       setSaving(false);
     }
   }
 
-  function rowMessage(row) {
-    return message?.row === row ? <SettingNotice tone={message.type === "error" ? "danger" : "success"}>{message.text}</SettingNotice> : null;
-  }
 
   function textRow(field) {
     const { title, description, icon } = FIELDS[field];
@@ -123,7 +118,7 @@ function OrganizationPage() {
             <>
               <span className="setting-value">{organization[field] || "—"}</span>
               {canUpdate && (
-                <button type="button" className="setting-edit" aria-label={`Edit ${title.toLowerCase()}`} onClick={() => { setMessage(null); setValue(organization[field] || ""); setEditing(field); }}>
+                <button type="button" className="setting-edit" aria-label={`Edit ${title.toLowerCase()}`} onClick={() => { setValue(organization[field] || ""); setEditing(field); }}>
                   <PencilSimple size={16} />
                 </button>
               )}
@@ -137,14 +132,13 @@ function OrganizationPage() {
               {title}
               <input value={value} onChange={(event) => setValue(event.target.value)} disabled={saving} required autoFocus />
             </label>
-            {rowMessage(field)}
+            
             <div className="setting-form-actions">
               <button type="button" className="secondary-button" onClick={() => setEditing(null)} disabled={saving}>Cancel</button>
               <button type="submit" className="primary" disabled={saving}>{saving ? "Saving..." : "Save"}</button>
             </div>
           </form>
         )}
-        {editing !== field && rowMessage(field)}
       </SettingRow>
     );
   }
@@ -158,7 +152,6 @@ function OrganizationPage() {
         </div>
       </div>
 
-      {loadError && <div className="alert alert-error" role="alert">{loadError}</div>}
 
       {loading && <SettingRowsSkeleton label="Organization" rows={5} />}
 
@@ -184,7 +177,6 @@ function OrganizationPage() {
               </select>
             }
           >
-            {rowMessage("status")}
           </SettingRow>
 
           {canSetSecurity && requireMfa !== null && (
@@ -205,7 +197,6 @@ function OrganizationPage() {
                 </select>
               }
             >
-              {rowMessage("mfa")}
             </SettingRow>
           )}
 
