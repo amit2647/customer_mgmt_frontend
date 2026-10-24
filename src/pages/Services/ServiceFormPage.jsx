@@ -1,31 +1,47 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 
-import { createService, getService, updateService } from "../../api/services";
+import { createService, getService, getServices, updateService } from "../../api/services";
+import { useBundle } from "../../context/BundleContext";
 import WizardSteps, { goToStep } from "../../components/ui/WizardSteps";
 import Breadcrumb from "../../components/ui/Breadcrumb";
 import { FormPageSkeleton } from "../../components/ui/PageSkeleton";
 import PageState from "../../components/ui/PageState";
 
 /*
- * Add or edit one service, as a wizard on its own page: what it is, how it
- * is offered, then a review. Its reference (key) is set by the server when
- * it is added and never changes, so deadlines and letters stay attached
- * through a rename. Opened from a service's own page, it goes back there.
+ * Add or edit one service, as a wizard on its own page: the service, then a
+ * review. Its reference (key) is set by the server when it is added and
+ * never changes, so deadlines and letters stay attached through a rename.
+ * Opened from a service's own page, it goes back there.
+ *
+ * The category is picked from a list: the installed bundle's service groups
+ * (CA: Audit, Accounting, GST, Compliance, Payroll) and every category the
+ * firm's services already use, or a new one typed in.
  */
 
 const STEPS = [
-  { id: 1, title: "Service", description: "Its name and group" },
-  { id: 2, title: "Details", description: "What it covers and whether it is offered" },
-  { id: 3, title: "Review", description: "Check and save" },
+  { id: 1, title: "Service", description: "Name, category and what it covers" },
+  { id: 2, title: "Review", description: "Check and save" },
 ];
 
 const EMPTY = { name: "", category: "", status: "Active", description: "" };
+const NEW_CATEGORY = "__new__";
+
+// The bundle's groups in its own order, then the firm's other categories A–Z.
+function categoryOptions(groups, services, current) {
+  const own = [...new Set(services.map((service) => (service.category || "").trim()).filter(Boolean))]
+    .filter((category) => !groups.includes(category))
+    .sort((a, b) => a.localeCompare(b));
+  const options = [...groups, ...own];
+
+  return current && !options.includes(current) ? [...options, current] : options;
+}
 
 function ServiceFormPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
+  const { bundle } = useBundle();
 
   // Where Cancel and Save return: the service's page when opened from it.
   const back = location.state?.from || "/services";
@@ -36,11 +52,19 @@ function ServiceFormPage() {
   const [step, setStep] = useState(1);
   const [form, setForm] = useState(EMPTY);
   const [key, setKey] = useState(null);
+  const [services, setServices] = useState([]);
+  const [typingCategory, setTypingCategory] = useState(false);
   const [loading, setLoading] = useState(Boolean(id));
   const [loadError, setLoadError] = useState("");
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
   const [errors, setErrors] = useState({});
+
+  useEffect(() => {
+    getServices("")
+      .then((list) => setServices(Array.isArray(list) ? list : []))
+      .catch(() => setServices([]));
+  }, []);
 
   useEffect(() => {
     if (!id) return;
@@ -66,9 +90,26 @@ function ServiceFormPage() {
 
   const fieldError = (field) => errors[field] && <span className="field-error">{errors[field]}</span>;
 
+  const categories = categoryOptions(bundle?.serviceGroups || [], services, form.category.trim());
+
+  function chooseCategory(value) {
+    if (value === NEW_CATEGORY) {
+      setTypingCategory(true);
+      update("category", "");
+    } else {
+      update("category", value);
+    }
+  }
+
   function validateStep(current) {
-    if (current === 1 && !form.name.trim()) {
-      setErrors((existing) => ({ ...existing, name: "Service name is required" }));
+    if (current !== 1) return true;
+
+    const found = {};
+    if (!form.name.trim()) found.name = "Service name is required";
+    if (typingCategory && !form.category.trim()) found.category = "Name the new category, or pick one from the list";
+
+    if (Object.keys(found).length) {
+      setErrors((existing) => ({ ...existing, ...found }));
       return false;
     }
 
@@ -108,7 +149,7 @@ function ServiceFormPage() {
   }
 
   if (loading) {
-    return <FormPageSkeleton as="div" className="customer-workflow-page client-wizard" steps={STEPS.length} />;
+    return <FormPageSkeleton as="div" className="customer-workflow-page client-wizard service-form-page" steps={STEPS.length} />;
   }
 
   if (loadError) {
@@ -122,7 +163,7 @@ function ServiceFormPage() {
   const title = id ? "Edit service" : "Add service";
 
   return (
-    <div className="customer-workflow-page client-wizard">
+    <div className="customer-workflow-page client-wizard service-form-page">
       <Breadcrumb onBack={() => navigate(back)} backLabel={backLabel} section="SERVICES" title={title} />
       <form
         className="customer-workflow"
@@ -154,7 +195,7 @@ function ServiceFormPage() {
               <div className="workflow-panel-heading">
                 <span>STEP 01</span>
                 <h3>Service</h3>
-                <p>What the service is called, and the group it is listed under.</p>
+                <p>What the service is called, the category it is listed under, and what it covers.</p>
               </div>
 
               <div className="workflow-form-grid">
@@ -163,23 +204,25 @@ function ServiceFormPage() {
                   <input value={form.name} onChange={(e) => update("name", e.target.value)} placeholder="e.g. GST Returns" autoFocus />
                   {fieldError("name")}
                 </label>
-                <label>
-                  Group
-                  <input value={form.category} onChange={(e) => update("category", e.target.value)} placeholder="e.g. GST" />
-                </label>
-              </div>
-            </section>
-          )}
-
-          {step === 2 && (
-            <section className="workflow-panel">
-              <div className="workflow-panel-heading">
-                <span>STEP 02</span>
-                <h3>Details</h3>
-                <p>What it covers, and whether it is still offered.</p>
-              </div>
-
-              <div className="workflow-form-grid">
+                {typingCategory ? (
+                  <label>
+                    New category
+                    <input value={form.category} onChange={(e) => update("category", e.target.value)} placeholder="e.g. Advisory" maxLength={100} autoFocus />
+                    <button type="button" className="link service-category-back" onClick={() => { setTypingCategory(false); update("category", ""); }}>
+                      Pick from the list instead
+                    </button>
+                    {fieldError("category")}
+                  </label>
+                ) : (
+                  <label>
+                    Category
+                    <select value={form.category.trim()} onChange={(e) => chooseCategory(e.target.value)}>
+                      <option value="">No category</option>
+                      {categories.map((category) => <option key={category} value={category}>{category}</option>)}
+                      <option value={NEW_CATEGORY}>+ Add new category…</option>
+                    </select>
+                  </label>
+                )}
                 <label>
                   Status
                   <select value={form.status} onChange={(e) => update("status", e.target.value)}>
@@ -195,10 +238,10 @@ function ServiceFormPage() {
             </section>
           )}
 
-          {step === 3 && (
+          {step === 2 && (
             <section className="workflow-panel">
               <div className="workflow-panel-heading">
-                <span>STEP 03</span>
+                <span>STEP 02</span>
                 <h3>Review</h3>
                 <p>Check the details, then save.</p>
               </div>
@@ -207,7 +250,7 @@ function ServiceFormPage() {
                 <div className="review-card">
                   <span>SERVICE</span>
                   <strong>{form.name || "Unnamed"}</strong>
-                  <p>Group: {form.category || "—"}</p>
+                  <p>Category: {form.category.trim() || "—"}</p>
                   {key && <p>Reference: {key}</p>}
                 </div>
 

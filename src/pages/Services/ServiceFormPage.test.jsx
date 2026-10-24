@@ -4,9 +4,10 @@ import { beforeEach, describe, expect, test, vi } from "vitest";
 
 import ServiceFormPage from "./ServiceFormPage";
 
-const api = vi.hoisted(() => ({ createService: vi.fn(), getService: vi.fn(), updateService: vi.fn() }));
+const api = vi.hoisted(() => ({ createService: vi.fn(), getService: vi.fn(), getServices: vi.fn(), updateService: vi.fn() }));
 
 vi.mock("../../api/services", () => api);
+vi.mock("../../context/BundleContext", () => ({ useBundle: () => ({ bundle: { serviceGroups: ["Audit", "GST", "Payroll"] } }) }));
 
 function Landed() {
   const location = useLocation();
@@ -27,6 +28,7 @@ const renderAt = (entry) =>
 
 beforeEach(() => {
   Object.values(api).forEach((mock) => mock.mockReset());
+  api.getServices.mockResolvedValue([{ id: 1, category: "GST" }, { id: 2, category: "Advisory" }, { id: 3, category: null }]);
 });
 
 /*
@@ -35,7 +37,7 @@ beforeEach(() => {
  * goes back to where the page was opened from with a notice.
  */
 describe("ServiceFormPage", () => {
-  test("adds a service through the steps and goes back to the list", async () => {
+  test("adds a service in one step plus a review, and goes back to the list", async () => {
     api.createService.mockResolvedValue({ id: 12 });
     renderAt("/services/new");
 
@@ -44,8 +46,7 @@ describe("ServiceFormPage", () => {
 
     // The error sits inside the field's label.
     fireEvent.change(screen.getByLabelText(/^Service name/), { target: { value: "  Payroll " } });
-    fireEvent.change(screen.getByLabelText("Group"), { target: { value: "HR" } });
-    fireEvent.click(screen.getByRole("button", { name: /Continue/ }));
+    fireEvent.change(screen.getByLabelText("Category"), { target: { value: "Payroll" } });
     fireEvent.change(screen.getByLabelText("Description"), { target: { value: "Monthly payroll" } });
     fireEvent.click(screen.getByRole("button", { name: /Continue/ }));
 
@@ -53,7 +54,28 @@ describe("ServiceFormPage", () => {
     fireEvent.click(screen.getByRole("button", { name: "Add service" }));
 
     expect(await screen.findByText(/Landed on \/services: Service added/)).toBeInTheDocument();
-    expect(api.createService).toHaveBeenCalledWith({ name: "Payroll", category: "HR", status: "Active", description: "Monthly payroll" });
+    expect(api.createService).toHaveBeenCalledWith({ name: "Payroll", category: "Payroll", status: "Active", description: "Monthly payroll" });
+  });
+
+  test("offers the bundle's groups first, then the firm's own categories, and a new one", async () => {
+    api.createService.mockResolvedValue({ id: 13 });
+    renderAt("/services/new");
+
+    await screen.findByRole("option", { name: "Advisory" });
+    const options = screen.getAllByRole("option").map((option) => option.textContent);
+    expect(options.slice(0, 5)).toEqual(["No category", "Audit", "GST", "Payroll", "Advisory"]);
+
+    fireEvent.change(screen.getByLabelText(/^Service name/), { target: { value: "Valuation" } });
+    fireEvent.change(screen.getByLabelText("Category"), { target: { value: "__new__" } });
+    fireEvent.click(screen.getByRole("button", { name: /Continue/ }));
+    expect(screen.getByText("Name the new category, or pick one from the list")).toBeInTheDocument();
+
+    fireEvent.change(screen.getByLabelText(/^New category/), { target: { value: "Valuations" } });
+    fireEvent.click(screen.getByRole("button", { name: /Continue/ }));
+    fireEvent.click(screen.getByRole("button", { name: "Add service" }));
+
+    expect(await screen.findByText(/Service added/)).toBeInTheDocument();
+    expect(api.createService).toHaveBeenCalledWith(expect.objectContaining({ category: "Valuations" }));
   });
 
   test("edits a service opened from its own page, and goes back there", async () => {

@@ -1899,3 +1899,56 @@
         transform: none;
     }
 }
+
+/* =========================================================
+   SERVICE FORM — a little larger text than the other wizards
+   ========================================================= */
+
+.service-form-page .customer-workflow-header p {
+    font-size: 14px;
+}
+
+.service-form-page .workflow-step-content strong {
+    font-size: 12px;
+}
+
+.service-form-page .workflow-step-content span {
+    font-size: 10px;
+}
+
+.service-form-page .workflow-panel-heading h3 {
+    font-size: 22px;
+}
+
+.service-form-page .workflow-panel-heading p {
+    font-size: 13px;
+}
+
+.service-form-page .workflow-form-grid label {
+    font-size: 12px;
+}
+
+.service-form-page .workflow-form-grid input,
+.service-form-page .workflow-form-grid select,
+.service-form-page .workflow-form-grid textarea {
+    font-size: 14px;
+}
+
+.service-form-page .review-card > span {
+    font-size: 11px;
+}
+
+.service-form-page .review-card > strong {
+    font-size: 16px;
+}
+
+.service-form-page .review-card p {
+    font-size: 13px;
+}
+
+.service-form-page .service-category-back {
+    display: inline-block;
+    margin-top: 8px;
+    font-size: 12px;
+    font-weight: 600;
+}

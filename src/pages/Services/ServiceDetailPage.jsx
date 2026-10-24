@@ -121,7 +121,7 @@ function ServiceDetailPage() {
         <div role="tabpanel" aria-label="Overview">
           <SettingRows label="Service details">
             <SettingRow icon={<Info size={16} />} title="Description" description="Shown when choosing services for a client or prospect" action={<span className="setting-value">{service.description || "—"}</span>} />
-            <SettingRow icon={<FolderSimple size={16} />} title="Group" description="Services are grouped by it in the pickers" action={<span className="setting-value">{service.category || "—"}</span>} />
+            <SettingRow icon={<FolderSimple size={16} />} title="Category" description="Services are grouped by it in the pickers" action={<span className="setting-value">{service.category || "—"}</span>} />
             <SettingRow icon={<Power size={16} />} title="Status" description="An inactive service is kept but no longer offered" action={<Pill dot tone={active ? "success" : "neutral"}>{service.status || "Active"}</Pill>} />
             <SettingRow
               icon={<Hash size={16} />}
