@@ -995,6 +995,7 @@
 
 .client-detail .alert,
 .clients-page .alert,
+.services-page .alert,
 .documents-page .alert,
 .prospects-page .alert,
 .deadlines-page .alert,
@@ -1009,6 +1010,7 @@
 }
 
 .client-detail .alert-success,
+.services-page .alert-success,
 .prospects-page .alert-success,
 .document-editor-page .alert-success,
 .document-template-page .alert-success {

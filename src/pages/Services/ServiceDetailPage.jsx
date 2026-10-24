@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { FolderSimple, Hash, Info, PencilSimple, Power, Tag } from "@phosphor-icons/react";
 
-import { getService, getServices, updateService } from "../../api/services";
+import { getService, getServices } from "../../api/services";
 import { getDocumentTemplates } from "../../api/documents";
 import { useAuth } from "../../context/AuthContext";
 import { useBundle } from "../../context/BundleContext";
@@ -12,7 +12,6 @@ import DataGrid from "../../components/ui/DataGrid";
 import PageState from "../../components/ui/PageState";
 import Pill from "../../components/ui/Pill";
 import { SettingRow, SettingRows } from "../../components/ui/SettingRow";
-import ServiceForm from "../../components/services/ServiceForm";
 import ServiceDeadlines from "../../components/services/ServiceDeadlines";
 
 /*
@@ -24,6 +23,7 @@ import ServiceDeadlines from "../../components/services/ServiceDeadlines";
 function ServiceDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useAuth();
   const { bundle } = useBundle();
 
@@ -35,9 +35,9 @@ function ServiceDetailPage() {
   const [services, setServices] = useState([]);
   const [letters, setLetters] = useState(null);
   const [tab, setTab] = useState("overview");
-  const [editing, setEditing] = useState(false);
   const [error, setError] = useState("");
-  const [notice, setNotice] = useState("");
+  // Set by the edit page on its way back.
+  const notice = location.state?.saved || "";
 
   const load = useCallback(async () => {
     try {
@@ -97,7 +97,7 @@ function ServiceDetailPage() {
 
           <div className="client-hero-actions">
             {can("services.update") && (
-              <button type="button" className="secondary-button" onClick={() => setEditing(true)}>
+              <button type="button" className="secondary-button" onClick={() => navigate(`/services/${service.id}/edit`, { state: { from: `/services/${service.id}` } })}>
                 <PencilSimple size={15} aria-hidden="true" />Edit
               </button>
             )}
@@ -178,22 +178,6 @@ function ServiceDetailPage() {
         </section>
       )}
 
-      {editing && (
-        <ServiceForm
-          service={service}
-          onClose={() => setEditing(false)}
-          onSubmit={async (data) => {
-            try {
-              await updateService(service.id, data);
-              setEditing(false);
-              setNotice("Service saved.");
-              await load();
-            } catch (requestError) {
-              alert(requestError.message || "Failed to save service.");
-            }
-          }}
-        />
-      )}
     </main>
   );
 }

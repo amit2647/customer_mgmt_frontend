@@ -5,7 +5,8 @@ import Pill, { toneFor } from "../ui/Pill";
 
 const isActive = (service) => (service.status || "Active").toLowerCase() === "active";
 
-function ServiceTable({ services, onEdit, onDelete, loading = false }) {
+// Row actions: View always; Edit and Delete only when given (by permission).
+function ServiceTable({ services, onView, onEdit, onDelete, loading = false }) {
   return (
     <DataGrid
       loading={loading}
@@ -31,8 +32,9 @@ function ServiceTable({ services, onEdit, onDelete, loading = false }) {
           hideable: false,
           render: (service) => (
             <div className="table-actions">
-              <button type="button" className="link" onClick={() => onEdit(service)}>Edit</button>
-              <button type="button" className="link delete-link" onClick={() => onDelete(service.id)}>Delete</button>
+              <button type="button" className="link" onClick={() => onView(service)} aria-label={`View ${service.name}`}>View</button>
+              {onEdit && <button type="button" className="link" onClick={() => onEdit(service)} aria-label={`Edit ${service.name}`}>Edit</button>}
+              {onDelete && <button type="button" className="link delete-link" onClick={() => onDelete(service.id)} aria-label={`Delete ${service.name}`}>Delete</button>}
             </div>
           ),
         },

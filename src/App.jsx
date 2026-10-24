@@ -33,6 +33,7 @@ const CustomerDetailPage = lazy(() => import("./pages/Customers/CustomerDetailPa
 const CustomerWorkflowPage = lazy(() => import("./pages/Customers/CustomerWorkflowPage"));
 const ServicesPage = lazy(() => import("./pages/Services/ServicesPage"));
 const ServiceDetailPage = lazy(() => import("./pages/Services/ServiceDetailPage"));
+const ServiceFormPage = lazy(() => import("./pages/Services/ServiceFormPage"));
 const SettingsPage = lazy(() => import("./pages/Settings/SettingsPage"));
 const SettingsLayout = lazy(() => import("./pages/Settings/SettingsLayout"));
 const EmailAccountsPage = lazy(() => import("./pages/Settings/EmailAccountsPage"));
@@ -351,6 +352,14 @@ function App() {
           <Route element={<RequirePermission permission="services.read" />}>
             <Route path="/services" element={<ServicesPage />} />
             <Route path="/services/:id" element={<ServiceDetailPage />} />
+          </Route>
+
+          {/* Adding and editing a service: a wizard on its own page. */}
+          <Route element={<RequirePermission permission="services.create" />}>
+            <Route path="/services/new" element={<ServiceFormPage />} />
+          </Route>
+          <Route element={<RequirePermission permission="services.update" />}>
+            <Route path="/services/:id/edit" element={<ServiceFormPage />} />
           </Route>
 
           {/* Settings is one page with tabs (SettingsLayout); /settings opens

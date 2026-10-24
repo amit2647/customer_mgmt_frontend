@@ -1,24 +1,27 @@
 import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 
-import {
-  getServices,
-  createService,
-  updateService,
-  deleteService,
-} from "../../api/services";
+import { getServices, deleteService } from "../../api/services";
+import { useAuth } from "../../context/AuthContext";
 
 import ServiceTable from "../../components/services/ServiceTable";
-import ServiceForm from "../../components/services/ServiceForm";
 
+/*
+ * The service catalog. Adding and editing open their own page
+ * (ServiceFormPage), which comes back here with a `saved` notice.
+ */
 function ServicesPage() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { user } = useAuth();
+  const permissions = Array.isArray(user?.permissions) ? user.permissions : [];
+  const can = (permission) => permissions.includes(permission);
+
   const [services, setServices] = useState([]);
 
-
-  const [showForm, setShowForm] = useState(false);
-
-  const [editingService, setEditingService] = useState(null);
-
   const [loading, setLoading] = useState(true);
+
+  const notice = location.state?.saved;
 
   async function loadServices() {
     try {
@@ -38,36 +41,6 @@ function ServicesPage() {
   useEffect(() => {
     loadServices();
   }, []);
-
-  /*
-   * Create / Update service
-   */
-  async function handleSubmit(data) {
-    try {
-      if (editingService) {
-        await updateService(editingService.id, data);
-      } else {
-        await createService(data);
-      }
-
-      setShowForm(false);
-      setEditingService(null);
-
-      await loadServices();
-    } catch (error) {
-      console.error("Failed to save service:", error);
-
-      alert(error.message || "Failed to save service.");
-    }
-  }
-
-  /*
-   * Edit service
-   */
-  function handleEdit(service) {
-    setEditingService(service);
-    setShowForm(true);
-  }
 
   /*
    * Delete service
@@ -93,16 +66,8 @@ function ServicesPage() {
     }
   }
 
-  /*
-   * Close form
-   */
-  function handleCloseForm() {
-    setShowForm(false);
-    setEditingService(null);
-  }
-
   return (
-    <>
+    <div className="services-page">
       <header>
         <div>
           <h1>Services</h1>
@@ -112,32 +77,23 @@ function ServicesPage() {
           </p>
         </div>
 
-        <button
-          className="primary"
-          onClick={() => {
-            setEditingService(null);
-            setShowForm(true);
-          }}
-        >
-          + Add Service
-        </button>
+        {can("services.create") && (
+          <button className="primary" onClick={() => navigate("/services/new")}>
+            + Add Service
+          </button>
+        )}
       </header>
+
+      {notice && <div className="alert alert-success">{notice}</div>}
 
       <ServiceTable
         services={services}
         loading={loading}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
+        onView={(service) => navigate(`/services/${service.id}`)}
+        onEdit={can("services.update") ? (service) => navigate(`/services/${service.id}/edit`) : null}
+        onDelete={can("services.delete") ? handleDelete : null}
       />
-
-      {showForm && (
-        <ServiceForm
-          service={editingService}
-          onSubmit={handleSubmit}
-          onClose={handleCloseForm}
-        />
-      )}
-    </>
+    </div>
   );
 }
 
