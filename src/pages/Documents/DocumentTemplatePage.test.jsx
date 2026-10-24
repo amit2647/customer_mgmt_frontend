@@ -1,5 +1,5 @@
 import { StrictMode } from "react";
-import { act, fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
@@ -16,6 +16,7 @@ const api = vi.hoisted(() => ({
 
 vi.mock("../../api/documents", () => api);
 vi.mock("../../api/clients", () => ({ getClients: vi.fn().mockResolvedValue([{ id: 5, name: "Acme" }]) }));
+vi.mock("../../context/BundleContext", () => ({ useBundle: () => ({ bundle: { identifiers: [{ type: "pan", label: "PAN" }] } }) }));
 vi.mock("../../api/services", () => ({ getServices: vi.fn().mockResolvedValue([{ id: 1, key: "statutory_audit", name: "Statutory Audit" }, { id: 2, key: null, name: "Old default" }]) }));
 
 const TEMPLATE = {
@@ -57,6 +58,7 @@ const FIRM_LETTER = {
 beforeEach(() => {
   Object.values(api).forEach((mock) => mock.mockReset());
   api.getDocumentTemplate.mockResolvedValue(TEMPLATE);
+  api.previewDocument.mockResolvedValue({ html: "<p>Acme</p>", missing: [] });
 });
 
 /*
@@ -116,16 +118,54 @@ describe("DocumentTemplatePage", () => {
     expect(await screen.findByRole("alert")).toHaveTextContent("<script> is not allowed");
   });
 
-  test("previews the unsaved text with a chosen client", async () => {
-    api.previewDocument.mockResolvedValue({ html: "<p>Acme</p>", missing: [] });
+  test("previews the text as it is typed, with a chosen client, and lists the gaps", async () => {
+    api.previewDocument.mockResolvedValue({ html: "<p>Acme</p>", missing: ["Reference number"] });
     renderPage();
 
     await screen.findByLabelText("Template text");
-    fireEvent.change(await screen.findByLabelText("Preview with client"), { target: { value: "5" } });
-    fireEvent.click(screen.getByRole("button", { name: "Preview" }));
+    expect(await screen.findByTitle(/preview/, {}, { timeout: 2000 })).toBeInTheDocument();
+    expect(screen.getByText(/Gaps \(1\):/).parentElement).toHaveTextContent("Reference number");
 
-    expect(await screen.findByTitle(/preview/)).toBeInTheDocument();
-    expect(api.previewDocument).toHaveBeenCalledWith({ templateKey: "consent_appointment", customerId: "5", body: "<p>{{client.name}}</p>" });
+    fireEvent.change(screen.getByLabelText("Preview with client"), { target: { value: "5" } });
+    fireEvent.change(screen.getByLabelText("Template text"), { target: { value: "<p>Dear {{client.name}}</p>" } });
+
+    await waitFor(() => expect(api.previewDocument).toHaveBeenLastCalledWith({ templateKey: "consent_appointment", customerId: "5", body: "<p>Dear {{client.name}}</p>" }), { timeout: 2000 });
+  });
+
+  test("a preview the server refuses says why, beside the text", async () => {
+    api.previewDocument.mockRejectedValue(Object.assign(new Error("The template has problems"), { details: { body: '"{{fields.fee}}" is not a field of this letter' } }));
+    renderPage();
+
+    expect(await screen.findByRole("alert", {}, { timeout: 2000 })).toHaveTextContent("is not a field of this letter");
+    expect(screen.getByText("Not updated")).toBeInTheDocument();
+  });
+
+  test("inserts a value at the cursor, and Ctrl+S saves", async () => {
+    api.saveDocumentTemplate.mockResolvedValue({ ...TEMPLATE, version: 2, customized: true, body: "<p>{{client.identifiers.pan}}{{client.name}}</p>" });
+    renderPage();
+
+    const text = await screen.findByLabelText("Template text");
+    text.setSelectionRange(3, 3);
+    fireEvent.change(screen.getByLabelText("Insert a value"), { target: { value: "{{client.identifiers.pan}}" } });
+
+    expect(text).toHaveValue("<p>{{client.identifiers.pan}}{{client.name}}</p>");
+    expect(screen.getByText("Unsaved changes")).toBeInTheDocument();
+
+    fireEvent.keyDown(window, { key: "s", ctrlKey: true });
+    expect(await screen.findByText("Saved as your firm's version.")).toBeInTheDocument();
+    expect(api.saveDocumentTemplate).toHaveBeenCalledWith("consent_appointment", "<p>{{client.identifiers.pan}}{{client.name}}</p>");
+  });
+
+  test("leaving with unsaved changes asks first", async () => {
+    const confirm = vi.spyOn(window, "confirm").mockReturnValue(false);
+    renderPage();
+
+    fireEvent.change(await screen.findByLabelText("Template text"), { target: { value: "<p>Changed</p>" } });
+    fireEvent.click(screen.getByRole("button", { name: /Documents/ }));
+
+    expect(confirm).toHaveBeenCalledWith(expect.stringMatching(/Leave without saving/));
+    expect(screen.getByLabelText("Template text")).toBeInTheDocument();
+    confirm.mockRestore();
   });
 
   test("adds the firm's own letter with its name, service, fields and text", async () => {
@@ -159,14 +199,11 @@ describe("DocumentTemplatePage", () => {
   });
 
   test("previews a new letter's unsaved fields without a template key", async () => {
-    api.previewDocument.mockResolvedValue({ html: "<p>x</p>", missing: [] });
     renderPage("/documents/templates/new");
 
-    fireEvent.click(screen.getByRole("button", { name: "Preview" }));
-
-    await screen.findByTitle(/preview/);
-    expect(api.previewDocument).toHaveBeenCalledWith(expect.objectContaining({ fields: [] }));
-    expect(api.previewDocument.mock.calls[0][0]).not.toHaveProperty("templateKey");
+    await waitFor(() => expect(api.previewDocument).toHaveBeenCalled(), { timeout: 2000 });
+    expect(api.previewDocument).toHaveBeenLastCalledWith(expect.objectContaining({ fields: [] }));
+    expect(api.previewDocument.mock.calls.at(-1)[0]).not.toHaveProperty("templateKey");
   });
 
   test("a firm's own letter keeps its field keys when edited, and can be removed", async () => {
