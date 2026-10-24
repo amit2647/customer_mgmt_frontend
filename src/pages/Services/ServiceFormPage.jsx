@@ -6,6 +6,7 @@ import { useBundle } from "../../context/BundleContext";
 import WizardSteps, { goToStep } from "../../components/ui/WizardSteps";
 import Breadcrumb from "../../components/ui/Breadcrumb";
 import { FormPageSkeleton } from "../../components/ui/PageSkeleton";
+import Modal from "../../components/ui/Modal";
 import PageState from "../../components/ui/PageState";
 
 /*
@@ -16,7 +17,8 @@ import PageState from "../../components/ui/PageState";
  *
  * The category is picked from a list: the installed bundle's service groups
  * (CA: Audit, Accounting, GST, Compliance, Payroll) and every category the
- * firm's services already use, or a new one typed in.
+ * firm's services already use. "Add new category" opens a dialog; the new
+ * one joins the list, selected.
  */
 
 const STEPS = [
@@ -28,8 +30,8 @@ const EMPTY = { name: "", category: "", status: "Active", description: "" };
 const NEW_CATEGORY = "__new__";
 
 // The bundle's groups in its own order, then the firm's other categories A–Z.
-function categoryOptions(groups, services, current) {
-  const own = [...new Set(services.map((service) => (service.category || "").trim()).filter(Boolean))]
+function categoryOptions(groups, services, added, current) {
+  const own = [...new Set([...services.map((service) => (service.category || "").trim()), ...added].filter(Boolean))]
     .filter((category) => !groups.includes(category))
     .sort((a, b) => a.localeCompare(b));
   const options = [...groups, ...own];
@@ -53,7 +55,9 @@ function ServiceFormPage() {
   const [form, setForm] = useState(EMPTY);
   const [key, setKey] = useState(null);
   const [services, setServices] = useState([]);
-  const [typingCategory, setTypingCategory] = useState(false);
+  // Categories added in the dialog, until a saved service uses them.
+  const [addedCategories, setAddedCategories] = useState([]);
+  const [categoryDialog, setCategoryDialog] = useState(null);
   const [loading, setLoading] = useState(Boolean(id));
   const [loadError, setLoadError] = useState("");
   const [saving, setSaving] = useState(false);
@@ -90,26 +94,36 @@ function ServiceFormPage() {
 
   const fieldError = (field) => errors[field] && <span className="field-error">{errors[field]}</span>;
 
-  const categories = categoryOptions(bundle?.serviceGroups || [], services, form.category.trim());
+  const categories = categoryOptions(bundle?.serviceGroups || [], services, addedCategories, form.category.trim());
 
   function chooseCategory(value) {
-    if (value === NEW_CATEGORY) {
-      setTypingCategory(true);
-      update("category", "");
-    } else {
-      update("category", value);
+    if (value === NEW_CATEGORY) setCategoryDialog({ name: "", error: "" });
+    else update("category", value);
+  }
+
+  function addCategory(event) {
+    // The dialog's form sits inside the wizard's in React's tree: keep its
+    // submit from also running Continue.
+    event.stopPropagation();
+    const name = categoryDialog.name.trim();
+
+    if (!name) {
+      setCategoryDialog({ ...categoryDialog, error: "Name the category" });
+      return;
     }
+
+    // An existing category typed again is selected, not added twice.
+    const existing = categories.find((category) => category.toLowerCase() === name.toLowerCase());
+    if (!existing) setAddedCategories((current) => [...current, name]);
+    update("category", existing || name);
+    setCategoryDialog(null);
   }
 
   function validateStep(current) {
     if (current !== 1) return true;
 
-    const found = {};
-    if (!form.name.trim()) found.name = "Service name is required";
-    if (typingCategory && !form.category.trim()) found.category = "Name the new category, or pick one from the list";
-
-    if (Object.keys(found).length) {
-      setErrors((existing) => ({ ...existing, ...found }));
+    if (!form.name.trim()) {
+      setErrors((existing) => ({ ...existing, name: "Service name is required" }));
       return false;
     }
 
@@ -204,25 +218,14 @@ function ServiceFormPage() {
                   <input value={form.name} onChange={(e) => update("name", e.target.value)} placeholder="e.g. GST Returns" autoFocus />
                   {fieldError("name")}
                 </label>
-                {typingCategory ? (
-                  <label>
-                    New category
-                    <input value={form.category} onChange={(e) => update("category", e.target.value)} placeholder="e.g. Advisory" maxLength={100} autoFocus />
-                    <button type="button" className="link service-category-back" onClick={() => { setTypingCategory(false); update("category", ""); }}>
-                      Pick from the list instead
-                    </button>
-                    {fieldError("category")}
-                  </label>
-                ) : (
-                  <label>
-                    Category
-                    <select value={form.category.trim()} onChange={(e) => chooseCategory(e.target.value)}>
-                      <option value="">No category</option>
-                      {categories.map((category) => <option key={category} value={category}>{category}</option>)}
-                      <option value={NEW_CATEGORY}>+ Add new category…</option>
-                    </select>
-                  </label>
-                )}
+                <label>
+                  Category
+                  <select value={form.category.trim()} onChange={(e) => chooseCategory(e.target.value)}>
+                    <option value="">No category</option>
+                    {categories.map((category) => <option key={category} value={category}>{category}</option>)}
+                    <option value={NEW_CATEGORY}>+ Add new category…</option>
+                  </select>
+                </label>
                 <label>
                   Status
                   <select value={form.status} onChange={(e) => update("status", e.target.value)}>
@@ -284,6 +287,36 @@ function ServiceFormPage() {
             </button>
           )}
         </div>
+
+        {categoryDialog && (
+          <Modal
+            title="Add category"
+            description="It joins the list and is chosen for this service."
+            size="sm"
+            onClose={() => setCategoryDialog(null)}
+            onSubmit={addCategory}
+            footer={
+              <>
+                <button type="button" className="secondary-button" onClick={() => setCategoryDialog(null)}>Cancel</button>
+                <button type="submit" className="primary">Add category</button>
+              </>
+            }
+          >
+            <div className="modal-fields">
+              <label>
+                Category name
+                <input
+                  value={categoryDialog.name}
+                  onChange={(e) => setCategoryDialog({ name: e.target.value, error: "" })}
+                  placeholder="e.g. Advisory"
+                  maxLength={100}
+                  autoFocus
+                />
+                {categoryDialog.error && <span className="field-error">{categoryDialog.error}</span>}
+              </label>
+            </div>
+          </Modal>
+        )}
       </form>
     </div>
   );

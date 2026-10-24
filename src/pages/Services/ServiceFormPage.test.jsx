@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
@@ -66,11 +66,29 @@ describe("ServiceFormPage", () => {
     expect(options.slice(0, 5)).toEqual(["No category", "Audit", "GST", "Payroll", "Advisory"]);
 
     fireEvent.change(screen.getByLabelText(/^Service name/), { target: { value: "Valuation" } });
-    fireEvent.change(screen.getByLabelText("Category"), { target: { value: "__new__" } });
-    fireEvent.click(screen.getByRole("button", { name: /Continue/ }));
-    expect(screen.getByText("Name the new category, or pick one from the list")).toBeInTheDocument();
 
-    fireEvent.change(screen.getByLabelText(/^New category/), { target: { value: "Valuations" } });
+    // A new category is added in a dialog, then chosen from the list.
+    fireEvent.change(screen.getByLabelText("Category"), { target: { value: "__new__" } });
+    const dialog = screen.getByRole("dialog", { name: "Add category" });
+    fireEvent.click(within(dialog).getByRole("button", { name: "Add category" }));
+    expect(within(dialog).getByText("Name the category")).toBeInTheDocument();
+
+    fireEvent.change(within(dialog).getByLabelText(/^Category name/), { target: { value: "Valuations" } });
+    fireEvent.click(within(dialog).getByRole("button", { name: "Add category" }));
+
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(screen.getByLabelText("Category")).toHaveValue("Valuations");
+    expect(screen.getByRole("option", { name: "Valuations" })).toBeInTheDocument();
+    expect(screen.getByText("STEP 01"), "adding a category does not move the wizard on").toBeInTheDocument();
+
+    // Typing an existing one again picks it rather than adding it twice.
+    fireEvent.change(screen.getByLabelText("Category"), { target: { value: "__new__" } });
+    fireEvent.change(screen.getByLabelText(/^Category name/), { target: { value: "gst" } });
+    fireEvent.click(within(screen.getByRole("dialog")).getByRole("button", { name: "Add category" }));
+    expect(screen.getByLabelText("Category")).toHaveValue("GST");
+    expect(screen.getAllByRole("option", { name: "GST" })).toHaveLength(1);
+
+    fireEvent.change(screen.getByLabelText("Category"), { target: { value: "Valuations" } });
     fireEvent.click(screen.getByRole("button", { name: /Continue/ }));
     fireEvent.click(screen.getByRole("button", { name: "Add service" }));
 
